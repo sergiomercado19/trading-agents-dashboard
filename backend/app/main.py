@@ -4,8 +4,10 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
-from backend.app.routes import health, stream, runs, config, env, analyze, ticker, estimate, providers, reports
+from backend.app.routes import health, stream, runs, config, env, analyze, ticker, estimate, providers, reports, scheduler
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,11 +15,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    from backend.app.services.scheduler import scheduler as sched
+    try:
+        sched.start()
+        logger.info("Scheduler started")
+    except Exception as e:
+        logger.warning("Scheduler failed to start: %s", e)
+    yield
+    try:
+        sched.shutdown()
+    except Exception:
+        pass
+
+
 app = FastAPI(
     title="TradingAgents Dashboard",
     version="0.1.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -38,6 +57,7 @@ app.include_router(ticker.router)
 app.include_router(estimate.router)
 app.include_router(providers.router)
 app.include_router(reports.router)
+app.include_router(scheduler.router)
 
 
 @app.get("/api")

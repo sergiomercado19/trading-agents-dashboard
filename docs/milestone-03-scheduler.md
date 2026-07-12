@@ -11,24 +11,24 @@ Implement APScheduler-based cron job management with timezone support, daemon mo
 ## Tasks
 
 ### Backend
-- [ ] `AnalysisScheduler` service — APScheduler with SQLite job store
-- [ ] `GET /api/scheduler/jobs` — List scheduled jobs
-- [ ] `POST /api/scheduler/jobs` — Create scheduled job
-- [ ] `DELETE /api/scheduler/jobs/{id}` — Remove scheduled job
-- [ ] `GET /api/scheduler/jobs/{id}/status` — Get job status/progress
-- [ ] `ProgressTracker` — JSON status file writer/reader for background job progress
-- [ ] `scheduler_service.py` — APScheduler daemon
-- [ ] `run_scheduler.py` — Start/stop daemon with PID file
-- [ ] Timezone-aware scheduling (pytz/zoneinfo)
-- [ ] Human-readable next-run computation
-- [ ] Daemon mode: foreground (`run_scheduler.py`) and background (`run_scheduler.py stop`)
+- [x] `AnalysisScheduler` service — APScheduler with SQLite job store
+- [x] `GET /api/scheduler/jobs` — List scheduled jobs
+- [x] `POST /api/scheduler/jobs` — Create scheduled job
+- [x] `DELETE /api/scheduler/jobs/{id}` — Remove scheduled job
+- [x] `GET /api/scheduler/jobs/{id}/status` — Get job status/progress
+- [x] `ProgressTracker` — JSON status file writer/reader for background job progress
+- [x] `scheduler_service.py` — APScheduler daemon
+- [x] `run_scheduler.py` — Start/stop daemon with PID file
+- [x] Timezone-aware scheduling (pytz/zoneinfo)
+- [x] Human-readable next-run computation
+- [x] Daemon mode: foreground (`run_scheduler.py`) and background (`run_scheduler.py stop`)
 
 ### Frontend
-- [ ] `SchedulerPage` — Cron job management UI
-- [ ] `<SchedulerForm />` — Job creator with timezone picker, frequency config, day-of-week multiselect, human-readable preview
-- [ ] `<SchedulerJobList />` — Active jobs table with next-run, delete button
-- [ ] `useSchedulerJobs()` — Job CRUD hook
-- [ ] Progress tracking display for running scheduled jobs
+- [x] `SchedulerPage` — Cron job management UI
+- [x] `<SchedulerForm />` — Job creator with timezone picker, frequency config, day-of-week multiselect, human-readable preview
+- [x] `<SchedulerJobList />` — Active jobs table with next-run, delete button
+- [x] `useSchedulerJobs()` — Job CRUD hook
+- [x] Progress tracking display for running scheduled jobs
 
 ## Backend Services Created
 
@@ -48,11 +48,11 @@ Implement APScheduler-based cron job management with timezone support, daemon mo
 
 ## Definition of Done
 
-- [ ] User can create a cron job with ticker, frequency, timezone
-- [ ] Human-readable next-run preview shown before saving
-- [ ] Active jobs listed with next-run time in user's timezone
-- [ ] Jobs can be deleted
-- [ ] Scheduler daemon runs independently (`run_scheduler.py`)
-- [ ] Daemon can be stopped gracefully (`run_scheduler.py stop`)
-- [ ] Progress tracking visible during background job execution
-- [ ] Jobs persist across daemon restarts (SQLite job store)
+- [x] User can create a cron job with ticker, frequency, timezone
+- [x] Human-readable next-run preview shown before saving
+- [x] Active jobs listed with next-run time in user's timezone
+- [x] Jobs can be deleted
+- [x] Scheduler daemon runs independently (`run_scheduler.py`)
+- [x] Daemon can be stopped gracefully (`run_scheduler.py stop`)
+- [x] Progress tracking visible during background job execution
+- [x] Jobs persist across daemon restarts (SQLite job store)
