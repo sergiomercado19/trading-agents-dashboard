@@ -323,7 +323,7 @@ export default function AnalyzePage() {
         {!activeRunId && (
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ textAlign: "center", color: "var(--text-muted)" }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>\ud83c\udfc8</div>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>{'🎉'}</div>
               <div style={{ fontSize: 14 }}>Enter a ticker and start an analysis</div>
             </div>
           </div>
