@@ -11,38 +11,38 @@ Build the core analysis workflow: form submission, cost estimation, start/stop r
 ## Tasks
 
 ### Backend
-- [ ] `POST /api/analyze` — Start analysis run
-- [ ] `POST /api/stop` — Stop running analysis
-- [ ] `GET /api/status` — Get run status
-- [ ] `GET /api/runs` — List all runs
-- [ ] `GET /api/runs/{id}` — Get specific run
-- [ ] `GET /api/runs/stats` — Aggregate run statistics
-- [ ] `GET /api/stats` — System stats
-- [ ] `POST /api/estimate` — Pre-run cost estimation
-- [ ] `GET /api/pricing` — Token pricing table
-- [ ] `GET /api/ticker/search?q={query}` — Yahoo Finance ticker autocomplete with KRX auto-conversion
-- [ ] `GET /api/analysts`, `GET /api/teams`, `GET /api/section_titles` — Form metadata
-- [ ] `GET /api/providers`, `GET /api/models` — Provider/model listings
-- [ ] `CostEstimator` service — token pricing + pre-run estimation
-- [ ] `DebateExtractor` — parse raw logs into structured debate transcript
-- [ ] `SummaryGenerator` — LLM-based structured report generation
+- [x] `POST /api/analyze` — Start analysis run
+- [x] `POST /api/stop` — Stop running analysis
+- [x] `GET /api/status` — Get run status
+- [x] `GET /api/runs` — List all runs
+- [x] `GET /api/runs/{id}` — Get specific run
+- [x] `GET /api/runs/stats` — Aggregate run statistics
+- [x] `GET /api/stats` — System stats
+- [x] `POST /api/estimate` — Pre-run cost estimation
+- [x] `GET /api/pricing` — Token pricing table
+- [x] `GET /api/ticker/search?q={query}` — Yahoo Finance ticker autocomplete with KRX auto-conversion
+- [x] `GET /api/analysts`, `GET /api/teams`, `GET /api/section_titles` — Form metadata
+- [x] `GET /api/providers`, `GET /api/models` — Provider/model listings
+- [x] `CostEstimator` service — token pricing + pre-run estimation
+- [x] `DebateExtractor` — parse raw logs into structured debate transcript
+- [x] `SummaryGenerator` — LLM-based structured report generation
 
 ### Frontend
-- [ ] `AnalyzePage` — Form + live pipeline visualization + SSE feed + debate viewer
-- [ ] `<PipelineVisualization />` — Vertical stages with progress bars
-- [ ] `<AgentCard />` — Status: pending/in_progress/completed/error
-- [ ] `<MessageFeed />` — Live streaming log with syntax highlighting
-- [ ] `<CostDisplay />` — Real-time token/cost ticker
-- [ ] `<ProviderSelector />` — Grid of provider cards
-- [ ] `<ModelSelect />` — Dynamic options (static + live fetch)
-- [ ] `<TickerSearch />` — Autocomplete with Yahoo Finance API, KRX conversion
-- [ ] `<DebateTranscript />` — Structured Bull/Bear/Risk/Neutral viewer
-- [ ] `useRunStream(runId)` — SSE connection with auto-reconnect
-- [ ] `useRuns()` — Run management (list, start, stop)
-- [ ] `useCostEstimate(formData)` — Debounced cost estimation
-- [ ] `useTickerSearch(query)` — Debounced autocomplete search
-- [ ] `useDebateTranscript(runId)` — Fetch debate transcript
-- [ ] `useSummary(runId)` — Fetch auto-summary
+- [x] `AnalyzePage` — Form + live pipeline visualization + SSE feed + debate viewer
+- [x] `<PipelineVisualization />` — Vertical stages with progress bars
+- [x] `<AgentCard />` — Status: pending/in_progress/completed/error
+- [x] `<MessageFeed />` — Live streaming log with syntax highlighting
+- [x] `<CostDisplay />` — Real-time token/cost ticker
+- [x] `<ProviderSelector />` — Grid of provider cards
+- [x] `<ModelSelect />` — Dynamic options (static + live fetch)
+- [x] `<TickerSearch />` — Autocomplete with Yahoo Finance API, KRX conversion
+- [x] `<DebateTranscript />` — Structured Bull/Bear/Risk/Neutral viewer
+- [x] `useRunStream(runId)` — SSE connection with auto-reconnect
+- [x] `useRuns()` — Run management (list, start, stop)
+- [x] `useCostEstimate(formData)` — Debounced cost estimation
+- [x] `useTickerSearch(query)` — Debounced autocomplete search
+- [x] `useDebateTranscript(runId)` — Fetch debate transcript
+- [x] `useSummary(runId)` — Fetch auto-summary
 
 ## Backend Services Created
 
@@ -72,12 +72,12 @@ Build the core analysis workflow: form submission, cost estimation, start/stop r
 
 ## Definition of Done
 
-- [ ] User can enter ticker, select analysts/provider/models, and start analysis
-- [ ] SSE stream delivers real-time agent updates, messages, and stats
-- [ ] Pipeline visualization shows progress through stages
-- [ ] Ticker search autocompletes with Yahoo Finance (including KRX)
-- [ ] Cost estimate shown before run starts
-- [ ] Debate transcript renders after run completes
-- [ ] Summary generated after run completes
-- [ ] User can stop a running analysis
-- [ ] Run history persists across page refreshes
+- [x] User can enter ticker, select analysts/provider/models, and start analysis
+- [x] SSE stream delivers real-time agent updates, messages, and stats
+- [x] Pipeline visualization shows progress through stages
+- [x] Ticker search autocompletes with Yahoo Finance (including KRX)
+- [x] Cost estimate shown before run starts
+- [x] Debate transcript renders after run completes
+- [x] Summary generated after run completes
+- [x] User can stop a running analysis
+- [x] Run history persists across page refreshes

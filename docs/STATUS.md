@@ -11,7 +11,7 @@ Last Updated: 2026-07-12
 | Area | Progress |
 |------|----------|
 | **Core Engine** (`tradingagents/`) | 100% (existing CLI framework, 53 tests, 20+ data integrations) |
-| **Web Dashboard** (`backend/` + `frontend/`) | 10% (Milestone 1 complete) |
+| **Web Dashboard** (`backend/` + `frontend/`) | 20% (Milestones 1-2 complete) |
 | **Scheduler Daemon** (`scheduler_service.py`, `run_scheduler.py`) | 0% (not started) |
 | **Docker Web Stack** (`docker-compose.yml`, `Dockerfile`, `docker-entrypoint.sh`) | 0% (not started) |
 
@@ -20,7 +20,7 @@ Last Updated: 2026-07-12
 | # | Milestone | Est. Effort | Status | Started | Completed | Notes |
 |---|-----------|-------------|--------|---------|-----------|-------|
 | 1 | Foundation | 2-3 days | ✅ Completed | 2026-07-12 | 2026-07-12 | FastAPI skeleton, CORS, SSE, RunManager, EnvStore |
-| 2 | Analyze Tab | 3-4 days | ❌ Not started | — | — | Form, cost estimate, SSE pipeline, ticker search |
+| 2 | Analyze Tab | 3-4 days | ✅ Completed | 2026-07-12 | 2026-07-12 | Form, cost estimate, SSE pipeline, ticker search, 24 endpoints |
 | 3 | Scheduler Tab | 2-3 days | ❌ Not started | — | — | APScheduler cron, daemon, progress tracking |
 | 4 | Config + API Keys | 2 days | ❌ Not started | — | — | Providers, vendors, risk profile, keys |
 | 5 | Reports Tab | 2-3 days | ❌ Not started | — | — | Markdown reader, export, debate viewer |
@@ -51,7 +51,7 @@ Last Updated: 2026-07-12
 - [ ] Presets save/load form state across sessions
 
 ### Ticker & Scheduler
-- [ ] Ticker search autocomplete works with Yahoo Finance API (including KRX conversion)
+- [x] Ticker search autocomplete works with Yahoo Finance API (including KRX conversion)
 - [ ] Scheduler runs cron jobs at correct times (timezone-aware)
 - [ ] Scheduler daemon can be started/stopped independently
 

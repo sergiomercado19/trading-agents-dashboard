@@ -5,7 +5,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.routes import health, stream, runs, config, env
+from backend.app.routes import health, stream, runs, config, env, analyze, ticker, estimate, providers, reports
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,6 +33,11 @@ app.include_router(stream.router)
 app.include_router(runs.router)
 app.include_router(config.router)
 app.include_router(env.router)
+app.include_router(analyze.router)
+app.include_router(ticker.router)
+app.include_router(estimate.router)
+app.include_router(providers.router)
+app.include_router(reports.router)
 
 
 @app.get("/api")
