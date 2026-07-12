@@ -95,3 +95,35 @@ class InstallResponse(BaseModel):
     success: bool
     installed: list[str]
     errors: list[str]
+
+
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant", "system"] = "user"
+    content: str
+    timestamp: float = 0.0
+
+
+class ChatSession(BaseModel):
+    id: str
+    title: str = "New Chat"
+    model: str = "gpt-4o-mini"
+    pinned_reports: list[str] = Field(default_factory=list)
+    messages: list[ChatMessage] = Field(default_factory=list)
+    created_at: float = 0.0
+    updated_at: float = 0.0
+
+
+class ChatSessionSummary(BaseModel):
+    id: str
+    title: str = "New Chat"
+    model: str = "gpt-4o-mini"
+    pinned_reports: list[str] = Field(default_factory=list)
+    created_at: float = 0.0
+    updated_at: float = 0.0
+    message_count: int = 0
+
+
+class ChatModel(BaseModel):
+    id: str
+    name: str
+    provider: str

@@ -11,23 +11,24 @@ Build the Chat tab with multi-session management, report pinning, model switcher
 ## Tasks
 
 ### Backend
-- [ ] `ChatSession` service — Multi-session chat with report pinning
-- [ ] `GET /api/chat/sessions` — List chat sessions
-- [ ] `POST /api/chat/sessions` — Create session
-- [ ] `GET /api/chat/sessions/{id}` — Get session detail
-- [ ] `PATCH /api/chat/sessions/{id}` — Update session (rename, pin)
-- [ ] `DELETE /api/chat/sessions/{id}` — Delete session
-- [ ] `POST /api/chat/sessions/{id}/messages` — Send message, stream reply via SSE
-- [ ] `GET /api/chat/models` — List chat-capable models
+- [x] `ChatSession` service — Multi-session chat with report pinning
+- [x] `GET /api/chat/sessions` — List chat sessions
+- [x] `POST /api/chat/sessions` — Create session
+- [x] `GET /api/chat/sessions/{id}` — Get session detail
+- [x] `PATCH /api/chat/sessions/{id}` — Update session (rename, pin)
+- [x] `DELETE /api/chat/sessions/{id}` — Delete session
+- [x] `POST /api/chat/sessions/{id}/messages` — Send message, stream reply via SSE
+- [x] `GET /api/chat/models` — List chat-capable models
 
 ### Frontend
-- [ ] `ChatPage` — Session list + thread + pinned reports + model switcher
-- [ ] Session sidebar with create/rename/delete
-- [ ] Chat message thread with streaming responses
-- [ ] Pinned report context indicator
-- [ ] Model switcher for chat
-- [ ] `useChatSessions()` — Session CRUD hook
-- [ ] `useChatStream(sessionId, message)` — Streaming reply hook
+- [x] `ChatPage` — Session list + thread + pinned reports + model switcher
+- [x] Session sidebar with create/rename/delete
+- [x] Chat message thread with streaming responses
+- [x] Pinned report context indicator
+- [x] Model switcher for chat
+- [x] `useChatSessions()` — Session CRUD hook
+- [x] `useChatSession(id)` — Single session detail hook
+- [x] `useChatStream(sessionId, message)` — Streaming reply hook
 
 ## Backend Services Created
 
@@ -49,9 +50,9 @@ Build the Chat tab with multi-session management, report pinning, model switcher
 
 ## Definition of Done
 
-- [ ] User can create, rename, and delete chat sessions
-- [ ] Messages stream in real-time via SSE
-- [ ] Reports can be pinned to provide context for chat
-- [ ] Model switcher changes chat LLM
-- [ ] Chat history persists across sessions and page reloads
-- [ ] Pinned reports shown as context indicators in the thread
+- [x] User can create, rename, and delete chat sessions
+- [x] Messages stream in real-time via SSE
+- [x] Reports can be pinned to provide context for chat
+- [x] Model switcher changes chat LLM
+- [x] Chat history persists across sessions and page reloads
+- [x] Pinned reports shown as context indicators in the thread
