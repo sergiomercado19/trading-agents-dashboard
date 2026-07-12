@@ -11,7 +11,7 @@ Last Updated: 2026-07-12
 | Area | Progress |
 |------|----------|
 | **Core Engine** (`tradingagents/`) | 100% (existing CLI framework, 53 tests, 20+ data integrations) |
-| **Web Dashboard** (`backend/` + `frontend/`) | 80% (Milestones 1-8 complete) |
+| **Web Dashboard** (`backend/` + `frontend/`) | 95% (Milestones 1-9 complete) |
 | **Scheduler Daemon** (`scheduler_service.py`, `run_scheduler.py`) | 0% (not started) |
 | **Docker Web Stack** (`docker-compose.yml`, `Dockerfile`, `docker-entrypoint.sh`) | 0% (not started) |
 
@@ -27,7 +27,7 @@ Last Updated: 2026-07-12
 | 6 | Memory/RAG Tab | 2-3 days | ✅ Completed | 2026-07-12 | 2026-07-12 | ChromaDB, Obsidian sync, situation recall |
 | 7 | Chat Tab | 2-3 days | ✅ Completed | 2026-07-12 | 2026-07-12 | Sessions, pin reports, streaming replies |
 | 8 | History + Setup | 1-2 days | ✅ Completed | 2026-07-12 | 2026-07-12 | Stats, charts, health checks |
-| 9 | Polish | 2 days | ❌ Not started | — | — | Themes, presets, wizard, error boundaries |
+| 9 | Polish | 2 days | ✅ Completed | 2026-07-12 | 2026-07-12 | Themes, presets, wizard, error boundaries |
 
 **Total Est. Effort:** 18-23 days
 

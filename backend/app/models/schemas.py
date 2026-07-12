@@ -127,3 +127,11 @@ class ChatModel(BaseModel):
     id: str
     name: str
     provider: str
+
+
+class Preset(BaseModel):
+    id: str
+    name: str
+    config: dict = Field(default_factory=dict)
+    created_at: float = 0.0
+    updated_at: float = 0.0

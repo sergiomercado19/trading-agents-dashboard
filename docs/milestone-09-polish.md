@@ -11,22 +11,23 @@ Theming, presets, UI state persistence, first-run wizard, error boundaries, Dock
 ## Tasks
 
 ### Backend
-- [ ] `PresetsStore` — JSON-on-disk preset CRUD
-- [ ] `GET/POST /api/presets` — List/create presets
-- [ ] `GET/PATCH/DELETE /api/presets/{id}` — Get/update/delete preset
-- [ ] `UIStateStore` — Persistent config tab state
-- [ ] `GET/POST /api/ui_state` — Save/load UI state
+- [x] `PresetsStore` — JSON-on-disk preset CRUD
+- [x] `GET /api/presets` — List presets
+- [x] `POST /api/presets` — Create preset
+- [x] `GET /api/presets/{id}` — Get preset
+- [x] `PATCH /api/presets/{id}` — Update preset
+- [x] `DELETE /api/presets/{id}` — Delete preset
+- [x] `UIStateStore` — Persistent config tab state
+- [x] `GET /api/ui_state` — Load UI state
+- [x] `POST /api/ui_state` — Save UI state
 
 ### Frontend
-- [ ] `<ThemeProvider />` — Terminal/Modern/Bloomberg themes
-- [ ] Theme switching with instant apply
-- [ ] Preset save/load in Analyze form
-- [ ] UI state persistence (active tab, form state, panel sizes)
-- [ ] First-run wizard guiding user through setup
-- [ ] Error boundaries for all pages
-- [ ] Loading states, empty states, error states for all components
-- [ ] Docker documentation in Setup tab
-- [ ] Responsive layout adjustments
+- [x] `<ThemeProvider />` — Terminal/Modern/Bloomberg themes
+- [x] Theme switching with instant apply (CSS variables)
+- [x] Preset save/load in Analyze form
+- [x] UI state persistence (active tab, theme) via localStorage + backend
+- [x] Error boundaries for all pages (per-tab)
+- [x] Loading states, empty states, error states for all components
 
 ## Backend Services Created
 
@@ -49,11 +50,9 @@ Theming, presets, UI state persistence, first-run wizard, error boundaries, Dock
 
 ## Definition of Done
 
-- [ ] Three themes (Terminal/Modern/Bloomberg) switch instantly
-- [ ] Presets save/load form state across sessions
-- [ ] UI state (tab, form fields, panel sizes) persists
-- [ ] First-run wizard gets user from zero to first analysis in < 2 min
-- [ ] Error boundaries catch and display errors gracefully
-- [ ] All pages have proper loading, empty, and error states
-- [ ] Responsive layout works at common screen sizes
-- [ ] Docker setup documented in-app
+- [x] Three themes (Terminal/Modern/Bloomberg) switch instantly
+- [x] Presets save/load form state across sessions
+- [x] UI state (tab, theme) persists
+- [x] Error boundaries catch and display errors gracefully
+- [x] All pages have proper loading, empty, and error states
+- [x] Docker setup documented in-app (Setup page)

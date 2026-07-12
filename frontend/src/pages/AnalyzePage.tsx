@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TickerSearch from "../components/TickerSearch";
 import ProviderSelector from "../components/ProviderSelector";
 import ModelSelect from "../components/ModelSelect";
@@ -10,6 +10,13 @@ import { useRunStream } from "../hooks/useRunStream";
 import { useRuns } from "../hooks/useRuns";
 import { useCostEstimate } from "../hooks/useCostEstimate";
 import { useDebateTranscript } from "../hooks/useDebateTranscript";
+import { fetchJson, postJson } from "../api/client";
+
+interface Preset {
+  id: string;
+  name: string;
+  config: Record<string, unknown>;
+}
 
 const ANALYSTS = [
   { id: "market", label: "Market" },
@@ -34,6 +41,12 @@ export default function AnalyzePage() {
   const [deepModel, setDeepModel] = useState("gpt-5.5");
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [showDebate, setShowDebate] = useState(false);
+  const [presets, setPresets] = useState<Preset[]>([]);
+  const [presetName, setPresetName] = useState("");
+
+  useEffect(() => {
+    fetchJson<Preset[]>("/presets").then(setPresets).catch(() => {});
+  }, []);
 
   const { start, stop } = useRuns();
   const { snapshot, agents, messages, stats, done, error } = useRunStream(activeRunId);
@@ -75,6 +88,28 @@ export default function AnalyzePage() {
     }
   };
 
+  const handleSavePreset = async () => {
+    if (!presetName.trim()) return;
+    const config = { analysts, depth, provider, quickModel, deepModel };
+    const data = await postJson<Preset>("/presets", { name: presetName.trim(), config });
+    setPresets((prev) => [...prev, data]);
+    setPresetName("");
+  };
+
+  const handleLoadPreset = (p: Preset) => {
+    const c = p.config;
+    if (c.analysts) setAnalysts(c.analysts as string[]);
+    if (c.depth) setDepth(c.depth as number);
+    if (c.provider) setProvider(c.provider as string);
+    if (c.quickModel) setQuickModel(c.quickModel as string);
+    if (c.deepModel) setDeepModel(c.deepModel as string);
+  };
+
+  const handleDeletePreset = async (id: string) => {
+    await fetch(`/api/presets/${id}`, { method: "DELETE" });
+    setPresets((prev) => prev.filter((p) => p.id !== id));
+  };
+
   const running = snapshot?.status === "running";
 
   return (
@@ -82,6 +117,30 @@ export default function AnalyzePage() {
       {/* Left: Form */}
       <div style={{ width: 360, flexShrink: 0, overflow: "auto", display: "flex", flexDirection: "column", gap: 16 }}>
         <h2 style={{ fontSize: 18 }}>Analyze</h2>
+
+        {/* Presets */}
+        <div style={{ padding: "10px 14px", background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 6 }}>Presets</div>
+          <div style={{ display: "flex", gap: 6, marginBottom: presets.length > 0 ? 8 : 0 }}>
+            <input
+              value={presetName}
+              onChange={(e) => setPresetName(e.target.value)}
+              placeholder="Preset name..."
+              style={{ flex: 1, padding: "4px 8px", fontSize: 12, background: "var(--bg-tertiary)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-primary)", outline: "none" }}
+            />
+            <button onClick={handleSavePreset} disabled={!presetName.trim()} style={{ padding: "4px 10px", fontSize: 11, background: "var(--accent)", border: "none", borderRadius: 4, color: "#000", fontWeight: 600, cursor: presetName.trim() ? "pointer" : "default", opacity: presetName.trim() ? 1 : 0.4 }}>Save</button>
+          </div>
+          {presets.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              {presets.map((p) => (
+                <span key={p.id} onClick={() => handleLoadPreset(p)} style={{ padding: "3px 8px", fontSize: 11, background: "var(--bg-tertiary)", border: "1px solid var(--border)", borderRadius: 4, cursor: "pointer", color: "var(--text-secondary)" }}>
+                  {p.name}
+                  <span onClick={(e) => { e.stopPropagation(); handleDeletePreset(p.id); }} style={{ marginLeft: 4, opacity: 0.5 }}>×</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
 
         <TickerSearch value={ticker} onChange={setTicker} />
 
