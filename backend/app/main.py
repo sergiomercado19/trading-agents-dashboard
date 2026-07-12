@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from backend.app.routes import health, stream, runs, config, env, analyze, ticker, estimate, providers, reports, file_reports, scheduler, test_key
+from backend.app.routes import health, stream, runs, config, env, analyze, ticker, estimate, providers, reports, file_reports, scheduler, test_key, memory
 
 
 logging.basicConfig(
@@ -60,6 +60,7 @@ app.include_router(reports.router)
 app.include_router(file_reports.router)
 app.include_router(scheduler.router)
 app.include_router(test_key.router)
+app.include_router(memory.router)
 
 
 @app.get("/api")
