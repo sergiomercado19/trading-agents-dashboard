@@ -40,10 +40,14 @@ export function useRunStream(runId: string | null) {
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const esRef = useRef<EventSource | null>(null);
+  const closedRef = useRef(false);
+  const serverErrorRef = useRef(false);
 
   useEffect(() => {
     if (!runId) return;
 
+    closedRef.current = false;
+    serverErrorRef.current = false;
     const es = createEventSource(`/stream?run_id=${runId}`);
     esRef.current = es;
 
@@ -78,22 +82,25 @@ export function useRunStream(runId: string | null) {
     es.addEventListener("error", (e: MessageEvent) => {
       try {
         const data = JSON.parse(e.data);
+        serverErrorRef.current = true;
         setError(data.error || "Unknown error");
       } catch {
-        setError("SSE connection lost");
+        if (!closedRef.current) setError("SSE connection lost");
       }
     });
 
     es.addEventListener("done", () => {
+      closedRef.current = true;
       setDone(true);
       es.close();
     });
 
     es.onerror = () => {
-      setError("SSE connection lost");
+      if (!closedRef.current && !serverErrorRef.current) setError("SSE connection lost");
     };
 
     return () => {
+      closedRef.current = true;
       es.close();
       esRef.current = null;
     };
