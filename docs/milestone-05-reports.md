@@ -11,17 +11,19 @@ Build the Reports tab with report list, markdown reader with TOC sidebar, export
 ## Tasks
 
 ### Backend
-- [ ] `GET /api/reports` — List available reports
-- [ ] `GET /api/reports/read` — Read report content
-- [ ] `GET /api/reports/download` — Download report as file
-- [ ] `POST /api/reports/delete` — Delete report(s)
-- [ ] `GET /api/reports/export` — Export in MD/HTML/PDF format
-- [ ] `FactChecker` service — URL verification agent
+- [x] `GET /api/reports` — List available reports
+- [x] `GET /api/reports/read` — Read report content
+- [x] `GET /api/reports/download` — Download report as file
+- [x] `POST /api/reports/delete` — Delete report(s)
+- [x] `GET /api/reports/export` — Export in MD/HTML/PDF format
+- [x] `GET /api/reports/check_urls` — URL verification
+- [x] `FactChecker` service — URL verification agent
 
 ### Frontend
-- [ ] `ReportsPage` — Dropdown picker + TOC sidebar + markdown reader + export + debate log viewer
-- [ ] `<ReportReader />` — Markdown renderer with TOC navigation, copy, export
-- [ ] Integration with `useDebateTranscript(runId)` and `useSummary(runId)`
+- [x] `ReportsPage` — Report list sidebar + report/debate toggle + export + URL check + delete
+- [x] `<ReportReader />` — Markdown renderer with TOC sidebar navigation, copy, export
+- [x] `DebateTranscript` — Structured Bull/Bear/Risk/Neutral sections with speaker attribution
+- [x] Integration with `useDebateTranscript(runId)` and `useSummary(runId)`
 
 ## Backend Services Created
 
@@ -38,13 +40,14 @@ Build the Reports tab with report list, markdown reader with TOC sidebar, export
 | GET | `/api/reports/download` | Download report |
 | POST | `/api/reports/delete` | Delete report |
 | GET | `/api/reports/export` | Export (MD/HTML/PDF) |
+| GET | `/api/reports/check_urls` | Verify URLs in report |
 
 ## Definition of Done
 
-- [ ] Reports list shows all available reports with metadata
-- [ ] Report reader renders markdown with working TOC sidebar
-- [ ] Export works to MD, HTML, and PDF formats
-- [ ] Debate transcript viewer shows structured Bull/Bear/Risk/Neutral sections
-- [ ] Auto-summary displayed alongside report
-- [ ] Fact Checker validates URLs in reports
-- [ ] Reports can be deleted from UI
+- [x] Reports list shows all available reports with metadata
+- [x] Report reader renders markdown with working TOC sidebar
+- [x] Export works to MD, HTML, and PDF formats
+- [x] Debate transcript viewer shows structured Bull/Bear/Risk/Neutral sections
+- [x] Auto-summary displayed alongside report
+- [x] Fact Checker validates URLs in reports
+- [x] Reports can be deleted from UI

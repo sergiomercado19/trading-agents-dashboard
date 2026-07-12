@@ -4,6 +4,7 @@ interface Props {
 }
 
 type StatusKey = NonNullable<Props["status"]>;
+export type FactCheckStatus = StatusKey;
 
 const STATUS_CONFIG: Record<StatusKey, { icon: string; color: string; label: string }> = {
   valid: { icon: "\u2713", color: "var(--success)", label: "Valid" },
