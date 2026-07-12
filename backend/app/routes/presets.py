@@ -4,7 +4,6 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from backend.app.services.presets_store import presets_store
-from backend.app.services.ui_state_store import ui_state_store
 
 router = APIRouter(prefix="/api", tags=["presets"])
 

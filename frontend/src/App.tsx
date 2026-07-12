@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ThemeProvider, useTheme, THEME_IDS, THEME_LABELS } from "./components/ThemeProvider";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { fetchJson, postJson } from "./api/client";
+
 import AnalyzePage from "./pages/AnalyzePage";
 import SchedulerPage from "./pages/SchedulerPage";
 import ConfigPage from "./pages/ConfigPage";
@@ -49,20 +49,6 @@ function AppInner() {
   useEffect(() => {
     try { localStorage.setItem("ta-active-tab", activeTab); } catch {}
   }, [activeTab]);
-
-  // Load UI state from backend on mount
-  useEffect(() => {
-    fetchJson<Record<string, unknown>>("/ui_state").then((state) => {
-      if (state.activeTab && TABS.some((t) => t.id === state.activeTab)) {
-        setActiveTab(state.activeTab as TabId);
-      }
-    }).catch(() => {});
-  }, []);
-
-  // Save UI state to backend on tab change
-  useEffect(() => {
-    postJson("/ui_state", { state: { activeTab, theme } }).catch(() => {});
-  }, [activeTab, theme]);
 
   const ActivePage = pages[activeTab];
 
