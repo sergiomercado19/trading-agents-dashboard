@@ -1,0 +1,11 @@
+[tools]
+python = { version = "3.12", venv = ".venv" }
+
+[tasks.cli]
+run = "python -m cli.main"
+
+[tasks.frontend]
+run = "cd frontend && npm run dev"
+
+[tasks.backend]
+run = "python -m uvicorn backend.app.main:app --reload"

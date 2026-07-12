@@ -225,4 +225,3 @@ reports/
 # Private
 .graphify/
 .playwright-mcp/
-mise.toml
