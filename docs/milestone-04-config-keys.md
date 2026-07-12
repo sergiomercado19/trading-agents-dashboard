@@ -11,19 +11,19 @@ Build the Configuration tab (provider/model selection, data vendor config, risk 
 ## Tasks
 
 ### Backend
-- [ ] `POST /api/test_key` — Test API key validity
-- [ ] `GET /api/env` — Read current `.env` (masked)
-- [ ] `POST /api/env` — Save `.env` values
-- [ ] Provider/model validation via `create_llm_client`
+- [x] `POST /api/test_key` — Test API key validity
+- [x] `GET /api/env` — Read current `.env` (masked)
+- [x] `POST /api/env` — Save `.env` values
+- [x] Provider/model validation via `create_llm_client`
 
 ### Frontend
-- [ ] `ConfigPage` — Provider/model selection + data vendors + risk profile
-- [ ] `ApiKeysPage` — Grouped key inputs + test connection + Alpha Vantage + Obsidian vault path
-- [ ] `<FactCheckBadge />` — URL verification status indicator (valid/broken/protected)
-- [ ] Provider/model dropdowns populated from API
-- [ ] Data vendor toggles (18+ sources)
-- [ ] Risk profile selector (conservative/neutral/aggressive)
-- [ ] Key masking and test button per provider
+- [x] `ConfigPage` — Provider/model selection + data vendors + risk profile
+- [x] `ApiKeysPage` — Grouped key inputs + test connection + Alpha Vantage + Obsidian vault path
+- [x] `<FactCheckBadge />` — URL verification status indicator (valid/broken/protected)
+- [x] Provider/model dropdowns populated from API
+- [x] Data vendor toggles (18+ sources)
+- [x] Risk profile selector (conservative/neutral/aggressive)
+- [x] Key masking and test button per provider
 
 ## API Endpoints Delivered
 
@@ -35,10 +35,10 @@ Build the Configuration tab (provider/model selection, data vendor config, risk 
 
 ## Definition of Done
 
-- [ ] User can select provider and model from live dropdowns
-- [ ] 18+ data vendor sources can be toggled on/off
-- [ ] Risk profile selector works (conservative/neutral/aggressive)
-- [ ] API keys can be entered, tested, and saved
-- [ ] Keys are masked when displayed
-- [ ] Alpha Vantage and Obsidian vault path configurable
-- [ ] Test connection returns success/failure per provider
+- [x] User can select provider and model from live dropdowns
+- [x] 18+ data vendor sources can be toggled on/off
+- [x] Risk profile selector works (conservative/neutral/aggressive)
+- [x] API keys can be entered, tested, and saved
+- [x] Keys are masked when displayed
+- [x] Alpha Vantage and Obsidian vault path configurable
+- [x] Test connection returns success/failure per provider

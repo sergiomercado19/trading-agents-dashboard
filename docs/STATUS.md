@@ -11,7 +11,7 @@ Last Updated: 2026-07-12
 | Area | Progress |
 |------|----------|
 | **Core Engine** (`tradingagents/`) | 100% (existing CLI framework, 53 tests, 20+ data integrations) |
-| **Web Dashboard** (`backend/` + `frontend/`) | 30% (Milestones 1-3 complete) |
+| **Web Dashboard** (`backend/` + `frontend/`) | 40% (Milestones 1-4 complete) |
 | **Scheduler Daemon** (`scheduler_service.py`, `run_scheduler.py`) | 0% (not started) |
 | **Docker Web Stack** (`docker-compose.yml`, `Dockerfile`, `docker-entrypoint.sh`) | 0% (not started) |
 
@@ -22,7 +22,7 @@ Last Updated: 2026-07-12
 | 1 | Foundation | 2-3 days | ✅ Completed | 2026-07-12 | 2026-07-12 | FastAPI skeleton, CORS, SSE, RunManager, EnvStore |
 | 2 | Analyze Tab | 3-4 days | ✅ Completed | 2026-07-12 | 2026-07-12 | Form, cost estimate, SSE pipeline, ticker search, 24 endpoints |
 | 3 | Scheduler Tab | 2-3 days | ✅ Completed | 2026-07-12 | 2026-07-12 | APScheduler cron, daemon, progress tracking |
-| 4 | Config + API Keys | 2 days | ❌ Not started | — | — | Providers, vendors, risk profile, keys |
+| 4 | Config + API Keys | 2 days | ✅ Completed | 2026-07-12 | 2026-07-12 | Providers, vendors, risk profile, keys |
 | 5 | Reports Tab | 2-3 days | ❌ Not started | — | — | Markdown reader, export, debate viewer |
 | 6 | Memory/RAG Tab | 2-3 days | ❌ Not started | — | — | ChromaDB, Obsidian sync, situation recall |
 | 7 | Chat Tab | 2-3 days | ❌ Not started | — | — | Sessions, pin reports, streaming replies |
