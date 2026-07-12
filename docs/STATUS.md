@@ -4,14 +4,14 @@
 > After finishing any task or milestone, update the date, milestone status, and check off any success criteria that are now met.
 > This file is the single source of truth for project progress — keeping it accurate is required.
 
-Last Updated: 2026-07-09
+Last Updated: 2026-07-12
 
 ## Overall Progress
 
 | Area | Progress |
 |------|----------|
 | **Core Engine** (`tradingagents/`) | 100% (existing CLI framework, 53 tests, 20+ data integrations) |
-| **Web Dashboard** (`backend/` + `frontend/`) | 0% (not started) |
+| **Web Dashboard** (`backend/` + `frontend/`) | 10% (Milestone 1 complete) |
 | **Scheduler Daemon** (`scheduler_service.py`, `run_scheduler.py`) | 0% (not started) |
 | **Docker Web Stack** (`docker-compose.yml`, `Dockerfile`, `docker-entrypoint.sh`) | 0% (not started) |
 
@@ -19,7 +19,7 @@ Last Updated: 2026-07-09
 
 | # | Milestone | Est. Effort | Status | Started | Completed | Notes |
 |---|-----------|-------------|--------|---------|-----------|-------|
-| 1 | Foundation | 2-3 days | ❌ Not started | — | — | FastAPI skeleton, CORS, SSE, RunManager, EnvStore |
+| 1 | Foundation | 2-3 days | ✅ Completed | 2026-07-12 | 2026-07-12 | FastAPI skeleton, CORS, SSE, RunManager, EnvStore |
 | 2 | Analyze Tab | 3-4 days | ❌ Not started | — | — | Form, cost estimate, SSE pipeline, ticker search |
 | 3 | Scheduler Tab | 2-3 days | ❌ Not started | — | — | APScheduler cron, daemon, progress tracking |
 | 4 | Config + API Keys | 2 days | ❌ Not started | — | — | Providers, vendors, risk profile, keys |
@@ -45,7 +45,7 @@ Last Updated: 2026-07-09
 - [ ] Chat can pin reports and stream responses
 
 ### Setup & Experience
-- [ ] Health checks catch missing deps and guide user to fix
+- [x] Health checks catch missing deps and guide user to fix
 - [ ] First-run wizard gets user to first analysis in < 2 minutes
 - [ ] Theme switching (Terminal/Modern/Bloomberg) works instantly
 - [ ] Presets save/load form state across sessions

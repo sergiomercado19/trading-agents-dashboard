@@ -10,15 +10,15 @@ Set up the FastAPI backend skeleton, enable CORS, implement SSE streaming infras
 
 ## Tasks
 
-- [ ] FastAPI app skeleton with `main.py`, router registration, CORS middleware
-- [ ] `/api/health` and `/api/health/detailed` endpoints
-- [ ] `POST /api/install_missing` — install missing Python deps
-- [ ] SSE infrastructure (`GET /api/stream`) using `sse_starlette`
-- [ ] `RunManager` service — manage concurrent runs, persist to `~/.tradingagents/runs.json`
-- [ ] `EnvStore` — atomic `.env` read/write with masking
-- [ ] Basic error handling and logging
-- [ ] Vite proxy config for `/api` → `localhost:8000`
-- [ ] Backend `pyproject.toml` with dependencies (FastAPI, uvicorn, sse-starlette, etc.)
+- [x] FastAPI app skeleton with `main.py`, router registration, CORS middleware
+- [x] `/api/health` and `/api/health/detailed` endpoints
+- [x] `POST /api/install_missing` — install missing Python deps
+- [x] SSE infrastructure (`GET /api/stream`) using `sse_starlette`
+- [x] `RunManager` service — manage concurrent runs, persist to `~/.tradingagents/runs.json`
+- [x] `EnvStore` — atomic `.env` read/write with masking
+- [x] Basic error handling and logging
+- [x] Vite proxy config for `/api` → `localhost:8000`
+- [x] Backend `pyproject.toml` with dependencies (FastAPI, uvicorn, sse-starlette, etc.)
 
 ## Backend Services Created
 
@@ -44,9 +44,9 @@ Set up the FastAPI backend skeleton, enable CORS, implement SSE streaming infras
 
 ## Definition of Done
 
-- [ ] `uvicorn backend.app.main:app --reload` starts without errors
-- [ ] `GET /api/health` returns 200
-- [ ] SSE stream sends ping events every 20s
-- [ ] RunManager creates, tracks, and persists runs
-- [ ] EnvStore reads/writes `.env` atomically
-- [ ] Frontend proxies `/api` to backend
+- [x] `uvicorn backend.app.main:app --reload` starts without errors
+- [x] `GET /api/health` returns 200
+- [x] SSE stream sends ping events every 20s
+- [x] RunManager creates, tracks, and persists runs
+- [x] EnvStore reads/writes `.env` atomically
+- [x] Frontend proxies `/api` to backend
