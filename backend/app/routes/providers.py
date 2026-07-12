@@ -40,6 +40,10 @@ MODELS: dict[str, dict[str, list[str]]] = {
         "quick": ["deepseek-v4-flash"],
         "deep": ["deepseek-v4-pro", "deepseek-v4-flash"],
     },
+    "nvidia": {
+        "quick": ["nvidia/nemotron-3-nano-30b-a3b", "nvidia/nemotron-3-mini-8b-a3b"],
+        "deep": ["nvidia/nemotron-3-ultra-550b-a55b", "nvidia/nemotron-3-super-49b-a49b"],
+    },
     "ollama": {
         "quick": ["qwen3:latest", "gpt-oss:latest", "glm-4.7-flash:latest"],
         "deep": ["qwen3:latest", "gpt-oss:latest", "glm-4.7-flash:latest"],

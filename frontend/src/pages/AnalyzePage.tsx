@@ -36,9 +36,9 @@ export default function AnalyzePage() {
   const [date, setDate] = useState(() => new Date().toISOString().split("T")[0] ?? new Date().toISOString().slice(0, 10));
   const [analysts, setAnalysts] = useState<string[]>(["market", "social", "news", "fundamentals"]);
   const [depth, setDepth] = useState(3);
-  const [provider, setProvider] = useState("openai");
-  const [quickModel, setQuickModel] = useState("gpt-5.4-mini");
-  const [deepModel, setDeepModel] = useState("gpt-5.5");
+  const [provider, setProvider] = useState("nvidia");
+  const [quickModel, setQuickModel] = useState("nvidia/nemotron-3-nano-30b-a3b");
+  const [deepModel, setDeepModel] = useState("nvidia/nemotron-3-ultra-550b-a55b");
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [showDebate, setShowDebate] = useState(false);
   const [presets, setPresets] = useState<Preset[]>([]);
