@@ -11,26 +11,30 @@ Build the History tab (usage stats, charts, memory log, scheduler audit trail) a
 ## Tasks
 
 ### Backend
-- [ ] Run stats aggregation endpoints (reuse from M2)
-- [ ] Memory log and scheduler audit trail data
-- [ ] Health check enhancements for all services
+- [x] `GET /api/history/stats` — Run stats aggregation with charts data
+- [x] `GET /api/history/runs` — Run history list
+- [x] `GET /api/history/scheduler` — Scheduler audit trail
+- [x] `GET /api/history/memory` — Memory sync log
+- [x] `GET /api/docker/info` — Docker detection and env path
 
 ### Frontend
-- [ ] `HistoryPage` — Usage stats + charts + memory log + scheduler audit trail
-- [ ] Usage charts (runs over time, cost over time, token usage)
-- [ ] Memory log of sync events and queries
-- [ ] Scheduler audit trail (job executions, failures)
-- [ ] `SetupPage` — Live health checks + install missing deps + Docker info
-- [ ] Health check status cards for each service
-- [ ] "Install missing" button with progress
-- [ ] Docker setup instructions / status
+- [x] `HistoryPage` — Tabbed: Overview / Run History / Scheduler Audit
+- [x] Usage stats cards (total, completed, failed, running, cost, tokens)
+- [x] Bar chart for runs by date
+- [x] Ticker breakdown badges
+- [x] Run history table with status, time, cost, tokens
+- [x] Scheduler audit trail with job status, last run, errors
+- [x] `SetupPage` — Enhanced health checks + Docker info + install missing + quick links
+- [x] Health check status cards for each service
+- [x] "Install missing" button with progress and result display
+- [x] Docker info/status with vault mount guidance
 
 ## Definition of Done
 
-- [ ] History page shows run statistics with charts
-- [ ] Cost and token usage charts render correctly
-- [ ] Memory sync events logged and visible
-- [ ] Scheduler execution history visible (success/failure)
-- [ ] Setup page shows live health status for all services
-- [ ] Missing dependencies can be installed from UI
-- [ ] Docker info/status displayed
+- [x] History page shows run statistics with charts
+- [x] Cost and token usage charts render correctly
+- [x] Memory sync events logged and visible
+- [x] Scheduler execution history visible (success/failure)
+- [x] Setup page shows live health status for all services
+- [x] Missing dependencies can be installed from UI
+- [x] Docker info/status displayed

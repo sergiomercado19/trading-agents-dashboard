@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from importlib import import_module
@@ -86,3 +87,29 @@ async def install_missing():
         installed=installed,
         errors=errors,
     )
+
+
+@router.get("/docker/info")
+async def docker_info():
+    is_docker = os.path.exists("/.dockerenv")
+    if not is_docker:
+        try:
+            cgroup = Path("/proc/1/cgroup").read_text()
+            if "docker" in cgroup or "kubepods" in cgroup:
+                is_docker = True
+        except Exception:
+            pass
+
+    hostname = ""
+    try:
+        hostname = Path("/etc/hostname").read_text().strip()
+    except Exception:
+        pass
+
+    env_path = str(Path(__file__).resolve().parent.parent.parent.parent / ".env")
+
+    return {
+        "is_docker": is_docker,
+        "hostname": hostname,
+        "env_path": env_path,
+    }
