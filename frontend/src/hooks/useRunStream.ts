@@ -65,7 +65,13 @@ export function useRunStream(runId: string | null) {
 
     es.addEventListener("message", (e: MessageEvent) => {
       const data = JSON.parse(e.data);
-      setMessages((prev) => [...prev, { agent: data.agent, content: data.content }]);
+      const content = data.content?.trim() || "";
+      if (!content) return;
+      setMessages((prev) => {
+        const last = prev.length > 0 ? prev[prev.length - 1] : undefined;
+        if (last && last.content === content) return prev;
+        return [...prev, { agent: data.agent, content }];
+      });
     });
 
     es.addEventListener("stats", (e: MessageEvent) => {

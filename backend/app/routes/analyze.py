@@ -114,6 +114,9 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
         prev_state: dict = {}
         completed_stages: set[str] = set()
         started_at = (await run_manager.get(run_id)).started
+        # Track message IDs already sent to avoid duplicates and empty msgs.
+        _seen_msg_ids: set[int] = set()
+        _last_sent_content: str = ""
 
         # --- stage detection helpers -----------------------------------
         # Analyst stages are detected by their report field appearing.
@@ -204,13 +207,24 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
             # Detect pipeline stage transitions from state field changes.
             await _detect_stages(chunk)
 
-            # Forward message content to the SSE message feed.
+            # Forward ALL new message content to the SSE message feed.
+            # Skip empty-content messages (e.g. AIMessages with only
+            # tool_calls) and duplicates across consecutive chunks.
             if "messages" in chunk:
                 messages = chunk["messages"]
-                if messages:
-                    last_msg = messages[-1]
-                    content = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
-                    agent = getattr(last_msg, "name", None) or "agent"
+                for msg in messages:
+                    msg_id = id(msg)
+                    if msg_id in _seen_msg_ids:
+                        continue
+                    _seen_msg_ids.add(msg_id)
+                    content = msg.content if hasattr(msg, "content") else str(msg)
+                    if not content or not content.strip():
+                        continue
+                    # Skip if identical to the last sent message (dedup).
+                    if content == _last_sent_content:
+                        continue
+                    _last_sent_content = content
+                    agent = getattr(msg, "name", None) or "agent"
                     await run_manager.add_event(run_id, {
                         "type": "message",
                         "run_id": run_id,
