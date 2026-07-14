@@ -3,7 +3,7 @@
   "mcp": {
     "playwright": {
       "type": "local",
-      "command": ["npx", "@playwright/mcp@latest", "--browser", "chromium", "--viewport-size", "1280x800"],
+      "command": ["npx", "@playwright/mcp@latest", "--browser", "chromium", "--viewport", "null"],
       "enabled": true
     }
   }

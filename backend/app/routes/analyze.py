@@ -5,6 +5,7 @@ import logging
 import queue
 import threading
 import time
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
@@ -252,6 +253,23 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
             fr = final_state["final_report"]
             reports["final"] = fr.content if hasattr(fr, "content") else str(fr)
 
+        # Save the report tree to disk (same structure as the CLI).
+        report_path = None
+        try:
+            from tradingagents.reporting import write_report_tree
+            from tradingagents.dataflows.utils import safe_ticker_component
+            from tradingagents.default_config import DEFAULT_CONFIG as _DC
+            from datetime import datetime as _dt
+
+            _results = Path(config.get("results_dir", _DC["results_dir"]))
+            _stamp = _dt.now().strftime("%Y%m%d_%H%M%S")
+            _save = _results / f"{safe_ticker_component(request.ticker)}_{_stamp}"
+            complete = write_report_tree(final_state, request.ticker, _save)
+            report_path = str(complete)
+            logger.info("Report saved for run %s → %s", run_id, report_path)
+        except Exception:
+            logger.exception("Failed to save report tree for run %s", run_id)
+
         await run_manager.update(
             run_id,
             status="completed",
@@ -263,6 +281,7 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
             "type": "final_report",
             "run_id": run_id,
             "decision": decision,
+            "report_path": report_path,
         })
         await run_manager.add_event(run_id, {
             "type": "done",
