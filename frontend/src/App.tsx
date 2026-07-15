@@ -43,7 +43,6 @@ function AppInner() {
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     try { return (localStorage.getItem("ta-active-tab") as TabId) || "analyze"; } catch { return "analyze"; }
   });
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
 
   useEffect(() => {
     try { localStorage.setItem("ta-active-tab", activeTab); } catch {}
@@ -96,8 +95,11 @@ function AppInner() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="btn btn-ghost btn-sm"
+              className="btn btn-ghost"
               style={{
+                padding: "var(--space-2) var(--space-3)",
+                fontSize: "var(--text-sm)",
+                fontWeight: "var(--weight-medium)",
                 background: activeTab === tab.id ? "var(--color-bg-elevated)" : "transparent",
                 color: activeTab === tab.id ? "var(--color-text-primary)" : "var(--color-text-muted)",
                 borderRadius: "var(--radius-sm)",
@@ -108,55 +110,67 @@ function AppInner() {
           ))}
         </nav>
 
-        {/* Theme switcher */}
-        <div style={{ position: "relative" }}>
-          <button
-            onClick={() => setShowThemeMenu(!showThemeMenu)}
-            className="btn btn-ghost btn-sm"
-            style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}
-          >
-            {THEME_LABELS[theme]}
-          </button>
-          {showThemeMenu && (
-            <>
-              <div
-                style={{ position: "fixed", inset: 0, zIndex: "var(--z-overlay)" }}
-                onClick={() => setShowThemeMenu(false)}
-              />
-              <div
+        {/* Theme switcher — segmented icon control */}
+        <div
+          style={{
+            display: "flex",
+            background: "var(--color-bg-elevated)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-md)",
+            padding: 2,
+            gap: 2,
+          }}
+        >
+          {THEME_IDS.map((t) => {
+            const active = theme === t;
+            return (
+              <button
+                key={t}
+                onClick={() => setTheme(t)}
+                title={THEME_LABELS[t]}
                 style={{
-                  position: "absolute",
-                  top: "100%",
-                  right: 0,
-                  marginTop: "var(--space-1)",
-                  background: "var(--color-bg-elevated)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius-md)",
-                  padding: "var(--space-1)",
-                  zIndex: "var(--z-overlay)",
-                  minWidth: 120,
-                  boxShadow: "var(--shadow-lg)",
+                  width: 30,
+                  height: 26,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "var(--radius-sm)",
+                  border: "none",
+                  cursor: "pointer",
+                  background: active ? "var(--color-accent)" : "transparent",
+                  color: active ? "#fff" : "var(--color-text-faint)",
+                  transition: "all var(--duration-fast) var(--ease-out)",
+                  padding: 0,
                 }}
               >
-                {THEME_IDS.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => { setTheme(t); setShowThemeMenu(false); }}
-                    className="btn btn-ghost btn-sm"
-                    style={{
-                      width: "100%",
-                      justifyContent: "flex-start",
-                      background: theme === t ? "var(--color-accent-subtle)" : "transparent",
-                      color: theme === t ? "var(--color-accent)" : "var(--color-text-secondary)",
-                      borderRadius: "var(--radius-sm)",
-                    }}
-                  >
-                    {THEME_LABELS[t]}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+                {t === "terminal" && (
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13.5 8.5a5.5 5.5 0 0 1-7-7 5.5 5.5 0 1 0 7 7z" />
+                  </svg>
+                )}
+                {t === "modern" && (
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                    <circle cx="8" cy="8" r="3" />
+                    <line x1="8" y1="1" x2="8" y2="3" />
+                    <line x1="8" y1="13" x2="8" y2="15" />
+                    <line x1="1" y1="8" x2="3" y2="8" />
+                    <line x1="13" y1="8" x2="15" y2="8" />
+                    <line x1="3.05" y1="3.05" x2="4.46" y2="4.46" />
+                    <line x1="11.54" y1="11.54" x2="12.95" y2="12.95" />
+                    <line x1="3.05" y1="12.95" x2="4.46" y2="11.54" />
+                    <line x1="11.54" y1="4.46" x2="12.95" y2="3.05" />
+                  </svg>
+                )}
+                {t === "bloomberg" && (
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="1" y="9" width="3" height="6" rx="0.5" />
+                    <rect x="5.5" y="5" width="3" height="10" rx="0.5" />
+                    <rect x="10" y="2" width="3" height="13" rx="0.5" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
         </div>
       </header>
 
