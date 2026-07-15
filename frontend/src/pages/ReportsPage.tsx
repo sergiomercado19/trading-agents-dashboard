@@ -82,40 +82,44 @@ export default function ReportsPage() {
         style={{
           width: 280,
           minWidth: 280,
-          borderRight: "1px solid var(--border)",
+          borderRight: "1px solid var(--color-border-subtle)",
           display: "flex",
           flexDirection: "column",
-          background: "var(--bg-secondary)",
+          background: "var(--color-bg-surface)",
         }}
       >
-        <div style={{ padding: "12px 12px 8px", fontWeight: 600, fontSize: 15 }}>
-          Reports ({reports.length})
+        <div className="panel-header">
+          <span className="panel-title">Reports</span>
+          <span className="badge" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-muted)" }}>
+            {reports.length}
+          </span>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "0 8px 12px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-2)" }}>
           {reports.map((r) => (
             <div
               key={r.id}
               onClick={() => { setSelected(r); setShowDebate(false); }}
               style={{
-                padding: "10px 10px",
-                borderRadius: 6,
+                padding: "var(--space-2) var(--space-3)",
+                borderRadius: "var(--radius-md)",
                 cursor: "pointer",
-                marginBottom: 4,
-                background: selected?.id === r.id ? "var(--bg-tertiary)" : "transparent",
-                border: selected?.id === r.id ? "1px solid var(--accent)" : "1px solid transparent",
+                marginBottom: "var(--space-1)",
+                background: selected?.id === r.id ? "var(--color-bg-elevated)" : "transparent",
+                border: selected?.id === r.id ? "1px solid var(--color-border-accent)" : "1px solid transparent",
+                transition: "all var(--duration-fast) var(--ease-out)",
               }}
             >
-              <div style={{ fontWeight: 600, fontSize: 14 }}>{r.ticker}</div>
-              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+              <div style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>{r.ticker}</div>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
                 {r.date.replace(/_/g, " ").replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")}
               </div>
-              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}>
                 {(r.size_bytes / 1024).toFixed(0)} KB
               </div>
             </div>
           ))}
           {reports.length === 0 && (
-            <div style={{ color: "var(--text-muted)", fontSize: 13, padding: 12 }}>
+            <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)", padding: "var(--space-3)" }}>
               No reports found.
             </div>
           )}
@@ -125,7 +129,7 @@ export default function ReportsPage() {
       {/* Main content */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {!selected ? (
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-faint)", fontSize: "var(--text-sm)" }}>
             Select a report to view
           </div>
         ) : (
@@ -134,109 +138,59 @@ export default function ReportsPage() {
             <div
               style={{
                 display: "flex",
-                gap: 8,
-                padding: "10px 16px",
-                borderBottom: "1px solid var(--border)",
+                gap: "var(--space-2)",
+                padding: "var(--space-2) var(--space-4)",
+                borderBottom: "1px solid var(--color-border-subtle)",
                 alignItems: "center",
-                background: "var(--bg-secondary)",
+                background: "var(--color-bg-surface)",
               }}
             >
-              <span style={{ fontWeight: 600, fontSize: 15 }}>{selected.ticker}</span>
+              <span style={{ fontWeight: "var(--weight-bold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)" }}>{selected.ticker}</span>
               <div style={{ flex: 1 }} />
-              <button
-                onClick={() => setShowDebate(false)}
-                style={{
-                  background: !showDebate ? "var(--accent)" : "var(--bg-tertiary)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 4,
-                  color: !showDebate ? "#000" : "var(--text-primary)",
-                  padding: "4px 12px",
-                  cursor: "pointer",
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
-              >
+              <button onClick={() => setShowDebate(false)} className={`btn btn-sm ${!showDebate ? "btn-primary" : "btn-ghost"}`}>
                 Report
               </button>
-              <button
-                onClick={() => setShowDebate(true)}
-                style={{
-                  background: showDebate ? "var(--accent)" : "var(--bg-tertiary)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 4,
-                  color: showDebate ? "#000" : "var(--text-primary)",
-                  padding: "4px 12px",
-                  cursor: "pointer",
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
-              >
+              <button onClick={() => setShowDebate(true)} className={`btn btn-sm ${showDebate ? "btn-primary" : "btn-ghost"}`}>
                 Debate Log
               </button>
-              <button
-                onClick={handleCheckUrls}
-                disabled={checkingUrls}
-                style={{
-                  background: "var(--bg-tertiary)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 4,
-                  color: "var(--text-primary)",
-                  padding: "4px 12px",
-                  cursor: "pointer",
-                  fontSize: 12,
-                }}
-              >
+              <button onClick={handleCheckUrls} disabled={checkingUrls} className="btn btn-sm btn-secondary">
                 {checkingUrls ? "Checking..." : "Check URLs"}
               </button>
-              <button
-                onClick={handleDelete}
-                style={{
-                  background: "transparent",
-                  border: "1px solid var(--danger)",
-                  borderRadius: 4,
-                  color: "var(--danger)",
-                  padding: "4px 12px",
-                  cursor: "pointer",
-                  fontSize: 12,
-                }}
-              >
+              <button onClick={handleDelete} className="btn btn-sm btn-ghost" style={{ color: "var(--color-error)", borderColor: "var(--color-error)" }}>
                 Delete
               </button>
             </div>
 
             {/* Content area */}
             {showDebate ? (
-              <div style={{ flex: 1, overflowY: "auto", padding: "20px 28px" }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-5) var(--space-6)" }}>
                 <DebateTranscript debate={debate} />
               </div>
             ) : (
               <>
-                {/* URL checks */}
                 {urlChecks.length > 0 && (
-                  <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>URL Verification Results</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={{ padding: "var(--space-3) var(--space-4)", borderBottom: "1px solid var(--color-border-subtle)" }}>
+                    <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)", color: "var(--color-text-primary)" }}>URL Verification</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
                       {urlChecks.map((uc) => (
-                        <div key={uc.url} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+                        <div key={uc.url} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-xs)" }}>
                           <FactCheckBadge url={uc.url} status={uc.status as FactCheckStatus} />
-                          <span style={{ color: "var(--text-secondary)", wordBreak: "break-all" }}>{uc.url}</span>
+                          <span style={{ color: "var(--color-text-secondary)", wordBreak: "break-all" }}>{uc.url}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Summary */}
                 {summary && (
-                  <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--bg-secondary)" }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Summary</div>
-                    <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{summary}</div>
+                  <div style={{ padding: "var(--space-3) var(--space-4)", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg-surface)" }}>
+                    <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--space-1)" }}>Summary</div>
+                    <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: "var(--leading-relaxed)" }}>{summary}</div>
                   </div>
                 )}
 
-                {/* Report reader */}
                 {loading ? (
-                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
                     Loading...
                   </div>
                 ) : (
@@ -255,37 +209,42 @@ export default function ReportsPage() {
 
 function DebateTranscript({ debate }: { debate: Transcript | null }) {
   if (!debate) {
-    return <div style={{ color: "var(--text-muted)" }}>No debate transcript available.</div>;
+    return <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>No debate transcript available.</div>;
   }
   const sections = [
-    { key: "bull" as const, label: "Bull Case", color: "var(--accent)" },
-    { key: "bear" as const, label: "Bear Case", color: "var(--danger)" },
-    { key: "risk" as const, label: "Risk Analysis", color: "var(--warning)" },
-    { key: "neutral" as const, label: "Neutral", color: "var(--text-muted)" },
+    { key: "bull" as const, label: "Bull Case", color: "var(--color-success)", icon: "↑" },
+    { key: "bear" as const, label: "Bear Case", color: "var(--color-error)", icon: "↓" },
+    { key: "risk" as const, label: "Risk Analysis", color: "var(--color-warning)", icon: "!" },
+    { key: "neutral" as const, label: "Neutral", color: "var(--color-text-muted)", icon: "→" },
   ];
   return (
-    <div>
-      {sections.map(({ key, label, color }) => {
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+      {sections.map(({ key, label, color, icon }) => {
         const entries = debate[key];
         if (!entries || entries.length === 0) return null;
         return (
-          <div key={key} style={{ marginBottom: 20 }}>
-            <div style={{ fontWeight: 600, color, marginBottom: 6, fontSize: 14 }}>{label}</div>
-            {entries.map((entry, i) => (
-              <div key={i} style={{ marginBottom: 8 }}>
-                {entry.speaker && (
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{entry.speaker}</div>
-                )}
-                <div style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)", whiteSpace: "pre-wrap" }}>
-                  {entry.text}
+          <div key={key}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
+              <span style={{ width: 20, height: 20, borderRadius: "var(--radius-sm)", background: `color-mix(in oklch, ${color} 15%, transparent)`, color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "var(--text-xs)", fontWeight: "var(--weight-bold)" }}>{icon}</span>
+              <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)" }}>{label}</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              {entries.map((entry, i) => (
+                <div key={i} style={{ padding: "var(--space-3)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border-subtle)" }}>
+                  {entry.speaker && (
+                    <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-accent)", marginBottom: "var(--space-1)" }}>{entry.speaker}</div>
+                  )}
+                  <div style={{ fontSize: "var(--text-sm)", lineHeight: "var(--leading-relaxed)", color: "var(--color-text-secondary)", whiteSpace: "pre-wrap" }}>
+                    {entry.text}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         );
       })}
       {!debate.bull?.length && !debate.bear?.length && !debate.risk?.length && !debate.neutral?.length && (
-        <div style={{ color: "var(--text-muted)", fontSize: 13 }}>No structured debate sections found.</div>
+        <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>No structured debate sections found.</div>
       )}
     </div>
   );

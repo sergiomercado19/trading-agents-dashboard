@@ -22,24 +22,16 @@ export default function ModelSelect({ provider, value, onChange, type = "quick" 
 
   return (
     <div>
-      <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>
-        {type === "quick" ? "Quick Think Model" : "Deep Think Model"}
+      <label style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", display: "block" }}>
+        {type === "quick" ? "Quick" : "Deep"}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "8px 12px",
-          fontSize: 13,
-          background: "var(--bg-tertiary)",
-          border: "1px solid var(--border)",
-          borderRadius: 6,
-          color: "var(--text)",
-          outline: "none",
-        }}
+        className="input"
+        style={{ fontSize: "var(--text-xs)", padding: "var(--space-2)" }}
       >
-        {options.length === 0 && <option value={value}>{value || "Select provider first"}</option>}
+        {options.length === 0 && <option value={value}>{value || "Select provider"}</option>}
         {options.map((m) => (
           <option key={m} value={m}>{m}</option>
         ))}

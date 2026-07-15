@@ -30,11 +30,11 @@ export default function MemoryPage() {
   };
 
   return (
-    <div style={{ padding: "20px 28px", maxWidth: 900 }}>
-      <h2 style={{ fontSize: 18, marginBottom: 20 }}>Memory / RAG</h2>
+    <div style={{ padding: "var(--space-6)", maxWidth: 900, display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+      <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Memory / RAG</h2>
 
       {/* Status + Config row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
         <MemoryStatusCard status={status} loading={loading} />
         <ObsidianConfig
           currentPath={status?.vault_path ?? null}
@@ -44,104 +44,80 @@ export default function MemoryPage() {
       </div>
 
       {/* Sync */}
-      <div style={{ marginBottom: 24 }}>
-        <button
-          onClick={handleSync}
-          disabled={syncing}
-          style={{
-            padding: "10px 24px",
-            background: "var(--accent)",
-            border: "none",
-            borderRadius: 6,
-            color: "#000",
-            fontWeight: 600,
-            fontSize: 13,
-            cursor: syncing ? "wait" : "pointer",
-            opacity: syncing ? 0.6 : 1,
-          }}
-        >
-          {syncing ? "Syncing vault..." : "Sync Vault → ChromaDB"}
-        </button>
-        {syncResult && (
-          <span style={{ marginLeft: 12, fontSize: 13, color: syncResult.status === "ok" ? "var(--success, #4caf50)" : "var(--error, #f44336)" }}>
-            {syncResult.status === "ok"
-              ? `Indexed ${syncResult.indexed} notes from ${syncResult.indexed} chunks`
-              : syncResult.message}
-          </span>
-        )}
-      </div>
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">Sync</span>
+        </div>
+        <div className="panel-body">
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <button onClick={handleSync} disabled={syncing} className="btn btn-primary">
+              {syncing ? "Syncing vault..." : "Sync Vault → ChromaDB"}
+            </button>
+            {syncResult && (
+              <span style={{ fontSize: "var(--text-sm)", color: syncResult.status === "ok" ? "var(--color-success)" : "var(--color-error)" }}>
+                {syncResult.status === "ok"
+                  ? `Indexed ${syncResult.indexed} notes`
+                  : syncResult.message}
+              </span>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Similarity Search */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>Similarity Search</div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="Search past situations and recommendations..."
-            style={{
-              flex: 1,
-              padding: "8px 12px",
-              background: "var(--bg-tertiary)",
-              border: "1px solid var(--border)",
-              borderRadius: 6,
-              color: "var(--text-primary)",
-              fontSize: 13,
-            }}
-          />
-          <button
-            onClick={handleSearch}
-            disabled={searching || !query.trim()}
-            style={{
-              padding: "8px 20px",
-              background: "var(--bg-tertiary)",
-              border: "1px solid var(--border)",
-              borderRadius: 6,
-              color: "var(--text-primary)",
-              fontWeight: 600,
-              fontSize: 13,
-              cursor: "pointer",
-            }}
-          >
-            {searching ? "Searching..." : "Search"}
-          </button>
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">Similarity Search</span>
         </div>
-
-        {/* Search results */}
-        {results.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {results.map((r) => (
-              <div
-                key={r.id}
-                style={{
-                  padding: "12px 14px",
-                  border: "1px solid var(--border)",
-                  borderRadius: 6,
-                  background: "var(--bg-secondary)",
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>
-                    {String(r.metadata.source || r.id)}
-                  </span>
-                  {r.distance !== null && (
-                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                      Distance: {r.distance.toFixed(3)}
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
-                  {r.document.length > 500 ? r.document.slice(0, 500) + "..." : r.document}
-                </div>
-              </div>
-            ))}
+        <div className="panel-body">
+          <div style={{ display: "flex", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="Search past situations and recommendations..."
+              className="input"
+              style={{ flex: 1 }}
+            />
+            <button onClick={handleSearch} disabled={searching || !query.trim()} className="btn btn-secondary">
+              {searching ? "Searching..." : "Search"}
+            </button>
           </div>
-        )}
-        {results.length === 0 && query && !searching && (
-          <div style={{ fontSize: 13, color: "var(--text-muted)" }}>No results found.</div>
-        )}
-      </div>
+
+          {results.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              {results.map((r) => (
+                <div
+                  key={r.id}
+                  style={{
+                    padding: "var(--space-3)",
+                    background: "var(--color-bg-elevated)",
+                    borderRadius: "var(--radius-md)",
+                    border: "1px solid var(--color-border-subtle)",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
+                    <span style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)" }}>
+                      {String(r.metadata.source || r.id)}
+                    </span>
+                    {r.distance !== null && (
+                      <span className="badge" style={{ background: "var(--color-bg-overlay)", color: "var(--color-text-muted)" }}>
+                        {r.distance.toFixed(3)}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", lineHeight: "var(--leading-relaxed)", whiteSpace: "pre-wrap" }}>
+                    {r.document.length > 500 ? r.document.slice(0, 500) + "..." : r.document}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {results.length === 0 && query && !searching && (
+            <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>No results found.</div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

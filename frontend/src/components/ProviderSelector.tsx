@@ -21,24 +21,16 @@ export default function ProviderSelector({ value, onChange }: Props) {
 
   return (
     <div>
-      <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>
+      <label style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", display: "block" }}>
         Provider
       </label>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 6 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "var(--space-1)" }}>
         {providers.map((p) => (
           <button
             key={p.id}
             onClick={() => onChange(p.id)}
-            style={{
-              padding: "8px 10px",
-              fontSize: 12,
-              background: value === p.id ? "var(--accent)" : "var(--bg-tertiary)",
-              color: value === p.id ? "#fff" : "var(--text)",
-              border: `1px solid ${value === p.id ? "var(--accent)" : "var(--border)"}`,
-              borderRadius: 6,
-              cursor: "pointer",
-              textAlign: "center",
-            }}
+            className={`btn btn-sm ${value === p.id ? "btn-primary" : "btn-secondary"}`}
+            style={{ fontSize: "var(--text-xs)", padding: "var(--space-2)" }}
           >
             {p.name}
           </button>

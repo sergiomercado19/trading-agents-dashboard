@@ -1,8 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  useChatSessions,
-  useChatSession,
-} from "../hooks/useChatSessions";
+import { useChatSessions, useChatSession } from "../hooks/useChatSessions";
 import { useChatStream } from "../hooks/useChatStream";
 
 const CHAT_MODELS = [
@@ -62,39 +59,53 @@ export default function ChatPage() {
   return (
     <div style={{ display: "flex", height: "100%" }}>
       {/* Sidebar */}
-      <div style={sidebarStyle}>
-        <div style={{ padding: "12px 12px 8px", display: "flex", alignItems: "center", gap: 8 }}>
-          <button onClick={handleNew} style={newBtnStyle}>+ New Chat</button>
+      <div
+        style={{
+          width: 260,
+          minWidth: 260,
+          borderRight: "1px solid var(--color-border-subtle)",
+          display: "flex",
+          flexDirection: "column",
+          background: "var(--color-bg-surface)",
+        }}
+      >
+        <div style={{ padding: "var(--space-3)" }}>
+          <button onClick={handleNew} className="btn btn-primary" style={{ width: "100%" }}>+ New Chat</button>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "0 8px 12px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "0 var(--space-2) var(--space-2)" }}>
           {sessions.map((s) => (
             <div
               key={s.id}
               onClick={() => { setActiveId(s.id); reset(); }}
               style={{
-                ...sessionItemStyle,
-                background: activeId === s.id ? "var(--bg-tertiary)" : "transparent",
-                border: activeId === s.id ? "1px solid var(--accent)" : "1px solid transparent",
+                padding: "var(--space-2) var(--space-3)",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                marginBottom: "var(--space-1)",
+                background: activeId === s.id ? "var(--color-bg-elevated)" : "transparent",
+                border: activeId === s.id ? "1px solid var(--color-border-accent)" : "1px solid transparent",
+                transition: "all var(--duration-fast) var(--ease-out)",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontWeight: 600, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, color: "var(--color-text-primary)" }}>
                   {s.title}
                 </span>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(s.id); }}
-                  style={deleteBtnStyle}
+                  className="btn btn-ghost btn-sm"
+                  style={{ padding: 0, width: 16, height: 16, fontSize: "var(--text-sm)", lineHeight: 1, color: "var(--color-text-faint)" }}
                 >
                   ×
                 </button>
               </div>
-              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
-                {s.message_count} messages · {s.model}
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginTop: "var(--space-1)" }}>
+                {s.message_count} msgs · {s.model}
               </div>
             </div>
           ))}
           {sessions.length === 0 && (
-            <div style={{ color: "var(--text-muted)", fontSize: 13, padding: 12 }}>No chats yet.</div>
+            <div style={{ color: "var(--color-text-faint)", fontSize: "var(--text-sm)", padding: "var(--space-3)" }}>No chats yet.</div>
           )}
         </div>
       </div>
@@ -102,13 +113,22 @@ export default function ChatPage() {
       {/* Main area */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {!activeId ? (
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-faint)", fontSize: "var(--text-sm)" }}>
             Select or create a chat
           </div>
         ) : (
           <>
             {/* Header */}
-            <div style={headerStyle}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2)",
+                padding: "var(--space-2) var(--space-4)",
+                borderBottom: "1px solid var(--color-border-subtle)",
+                background: "var(--color-bg-surface)",
+              }}
+            >
               {editingTitle ? (
                 <input
                   value={titleInput}
@@ -116,27 +136,27 @@ export default function ChatPage() {
                   onKeyDown={(e) => e.key === "Enter" && handleRename()}
                   onBlur={handleRename}
                   autoFocus
-                  style={{ background: "var(--bg-tertiary)", border: "1px solid var(--accent)", borderRadius: 4, color: "var(--text-primary)", padding: "2px 8px", fontSize: 14, fontWeight: 600, width: 200 }}
+                  className="input"
+                  style={{ width: 200, padding: "var(--space-1) var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}
                 />
               ) : (
                 <span
                   onClick={() => { setEditingTitle(true); setTitleInput(selectedSession?.title || ""); }}
-                  style={{ cursor: "pointer", fontWeight: 600, fontSize: 14 }}
+                  style={{ cursor: "pointer", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)" }}
                   title="Click to rename"
                 >
                   {selectedSession?.title || "Chat"}
                 </span>
               )}
               <div style={{ flex: 1 }} />
-              {/* Pinned reports */}
               {selectedSession?.pinned_reports && selectedSession.pinned_reports.length > 0 && (
-                <div style={{ display: "flex", gap: 4, marginRight: 12 }}>
+                <div style={{ display: "flex", gap: "var(--space-1)", marginRight: "var(--space-3)" }}>
                   {selectedSession.pinned_reports.map((r) => (
-                    <span key={r} style={pinBadgeStyle}>
+                    <span key={r} className="badge badge-accent">
                       {r.split("/").pop()?.split("_")[0] || r}
                       <span
                         onClick={() => togglePin(activeId, r, selectedSession.pinned_reports)}
-                        style={{ cursor: "pointer", marginLeft: 4, opacity: 0.6 }}
+                        style={{ cursor: "pointer", marginLeft: "var(--space-1)", opacity: 0.6 }}
                       >
                         ×
                       </span>
@@ -144,7 +164,6 @@ export default function ChatPage() {
                   ))}
                 </div>
               )}
-              {/* Model switcher */}
               <select
                 value={selectedSession?.model || "gpt-4o-mini"}
                 onChange={async (e) => {
@@ -155,7 +174,8 @@ export default function ChatPage() {
                   });
                   refreshSessions();
                 }}
-                style={selectStyle}
+                className="input"
+                style={{ width: "auto", padding: "var(--space-1) var(--space-2)", fontSize: "var(--text-xs)" }}
               >
                 {CHAT_MODELS.map((m) => (
                   <option key={m.id} value={m.id}>{m.name}</option>
@@ -164,21 +184,21 @@ export default function ChatPage() {
             </div>
 
             {/* Messages */}
-            <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px" }}>
+            <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-4) var(--space-6)" }}>
               {(session?.messages || []).map((msg, i) => (
-                <div key={i} style={{ marginBottom: 16 }}>
-                  <div style={{ fontWeight: 600, fontSize: 12, color: msg.role === "user" ? "var(--accent)" : "var(--text-muted)", marginBottom: 4 }}>
+                <div key={i} style={{ marginBottom: "var(--space-4)" }}>
+                  <div style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-xs)", color: msg.role === "user" ? "var(--color-accent)" : "var(--color-text-muted)", marginBottom: "var(--space-1)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                     {msg.role === "user" ? "You" : "Assistant"}
                   </div>
-                  <div style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
+                  <div style={{ fontSize: "var(--text-sm)", lineHeight: "var(--leading-relaxed)", color: "var(--color-text-primary)", whiteSpace: "pre-wrap" }}>
                     {msg.content}
                   </div>
                 </div>
               ))}
               {streaming && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontWeight: 600, fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>Assistant</div>
-                  <div style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
+                <div style={{ marginBottom: "var(--space-4)" }}>
+                  <div style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", textTransform: "uppercase", letterSpacing: "0.04em" }}>Assistant</div>
+                  <div style={{ fontSize: "var(--text-sm)", lineHeight: "var(--leading-relaxed)", color: "var(--color-text-primary)", whiteSpace: "pre-wrap" }}>
                     {streamText || <span style={{ animation: "pulse 1s infinite", opacity: 0.5 }}>Thinking...</span>}
                   </div>
                 </div>
@@ -187,7 +207,16 @@ export default function ChatPage() {
             </div>
 
             {/* Input */}
-            <div style={inputBarStyle}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-end",
+                gap: "var(--space-2)",
+                padding: "var(--space-3) var(--space-4)",
+                borderTop: "1px solid var(--color-border-subtle)",
+                background: "var(--color-bg-surface)",
+              }}
+            >
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -199,17 +228,16 @@ export default function ChatPage() {
                 }}
                 placeholder="Ask about your reports..."
                 rows={1}
-                style={textareaStyle}
+                className="input"
+                style={{ resize: "none", minHeight: 42, maxHeight: 120, fontFamily: "inherit", fontSize: "var(--text-sm)" }}
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || streaming}
-                style={{
-                  ...sendBtnStyle,
-                  opacity: !input.trim() || streaming ? 0.4 : 1,
-                }}
+                className="btn btn-primary"
+                style={{ width: 42, height: 42, padding: 0, fontSize: "var(--text-lg)", opacity: !input.trim() || streaming ? 0.4 : 1 }}
               >
-                {streaming ? "..." : "→"}
+                →
               </button>
             </div>
           </>
@@ -218,110 +246,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-const sidebarStyle: React.CSSProperties = {
-  width: 260,
-  minWidth: 260,
-  borderRight: "1px solid var(--border)",
-  display: "flex",
-  flexDirection: "column",
-  background: "var(--bg-secondary)",
-};
-
-const sessionItemStyle: React.CSSProperties = {
-  padding: "10px 10px",
-  borderRadius: 6,
-  cursor: "pointer",
-  marginBottom: 4,
-};
-
-const headerStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  padding: "10px 16px",
-  borderBottom: "1px solid var(--border)",
-  background: "var(--bg-secondary)",
-};
-
-const inputBarStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "flex-end",
-  gap: 8,
-  padding: "12px 16px",
-  borderTop: "1px solid var(--border)",
-  background: "var(--bg-secondary)",
-};
-
-const textareaStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "10px 14px",
-  background: "var(--bg-tertiary)",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
-  color: "var(--text-primary)",
-  fontSize: 14,
-  resize: "none",
-  minHeight: 42,
-  maxHeight: 120,
-  outline: "none",
-  fontFamily: "inherit",
-};
-
-const sendBtnStyle: React.CSSProperties = {
-  width: 42,
-  height: 42,
-  borderRadius: 8,
-  background: "var(--accent)",
-  border: "none",
-  color: "#000",
-  fontSize: 18,
-  fontWeight: 700,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const newBtnStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "8px 12px",
-  background: "var(--accent)",
-  border: "none",
-  borderRadius: 6,
-  color: "#000",
-  fontWeight: 600,
-  fontSize: 13,
-  cursor: "pointer",
-};
-
-const deleteBtnStyle: React.CSSProperties = {
-  background: "transparent",
-  border: "none",
-  color: "var(--text-muted)",
-  fontSize: 16,
-  cursor: "pointer",
-  padding: "0 4px",
-  lineHeight: 1,
-};
-
-const selectStyle: React.CSSProperties = {
-  padding: "4px 8px",
-  background: "var(--bg-tertiary)",
-  border: "1px solid var(--border)",
-  borderRadius: 4,
-  color: "var(--text-primary)",
-  fontSize: 12,
-  cursor: "pointer",
-};
-
-const pinBadgeStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  padding: "2px 8px",
-  background: "var(--bg-tertiary)",
-  border: "1px solid var(--border)",
-  borderRadius: 4,
-  fontSize: 11,
-  color: "var(--text-secondary)",
-};

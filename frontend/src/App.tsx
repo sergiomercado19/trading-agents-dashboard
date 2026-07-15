@@ -15,10 +15,10 @@ import SetupPage from "./pages/SetupPage";
 const TABS = [
   { id: "analyze", label: "Analyze" },
   { id: "scheduler", label: "Scheduler" },
-  { id: "config", label: "Configuration" },
+  { id: "config", label: "Config" },
   { id: "api-keys", label: "API Keys" },
   { id: "reports", label: "Reports" },
-  { id: "memory", label: "Memory/RAG" },
+  { id: "memory", label: "Memory" },
   { id: "chat", label: "Chat" },
   { id: "history", label: "History" },
   { id: "setup", label: "Setup" },
@@ -45,7 +45,6 @@ function AppInner() {
   });
   const [showThemeMenu, setShowThemeMenu] = useState(false);
 
-  // Persist tab
   useEffect(() => {
     try { localStorage.setItem("ta-active-tab", activeTab); } catch {}
   }, [activeTab]);
@@ -53,93 +52,116 @@ function AppInner() {
   const ActivePage = pages[activeTab];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-bg-root)" }}>
+      {/* Header */}
       <header
         style={{
           display: "flex",
           alignItems: "center",
-          padding: "0 16px",
-          height: 48,
-          borderBottom: "1px solid var(--border)",
-          background: "var(--bg-secondary)",
-          gap: 16,
+          padding: "0 var(--space-4)",
+          height: "var(--header-height)",
+          borderBottom: "1px solid var(--color-border-subtle)",
+          background: "var(--color-bg-surface)",
+          gap: "var(--space-6)",
+          zIndex: "var(--z-sticky)",
+          flexShrink: 0,
         }}
       >
-        <h1 style={{ fontSize: 14, fontWeight: 700, color: "var(--accent)", whiteSpace: "nowrap" }}>
-          TradingAgents
-        </h1>
-        <nav style={{ display: "flex", gap: 2, overflow: "auto", flex: 1 }}>
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+          <div
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: "var(--color-accent)",
+              boxShadow: "0 0 8px var(--color-accent)",
+            }}
+          />
+          <span
+            style={{
+              fontSize: "var(--text-sm)",
+              fontWeight: "var(--weight-bold)",
+              color: "var(--color-text-primary)",
+              letterSpacing: "0.04em",
+            }}
+          >
+            TRADINGAGENTS
+          </span>
+        </div>
+
+        {/* Nav */}
+        <nav style={{ display: "flex", gap: "var(--space-1)", overflow: "auto", flex: 1 }}>
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
+              className="btn btn-ghost btn-sm"
               style={{
-                padding: "6px 12px",
-                fontSize: 12,
-                background: activeTab === tab.id ? "var(--accent)" : "transparent",
-                color: activeTab === tab.id ? "#fff" : "var(--text-muted)",
-                border: "none",
-                borderRadius: 4,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
+                background: activeTab === tab.id ? "var(--color-bg-elevated)" : "transparent",
+                color: activeTab === tab.id ? "var(--color-text-primary)" : "var(--color-text-muted)",
+                borderRadius: "var(--radius-sm)",
               }}
             >
               {tab.label}
             </button>
           ))}
         </nav>
+
         {/* Theme switcher */}
         <div style={{ position: "relative" }}>
           <button
             onClick={() => setShowThemeMenu(!showThemeMenu)}
-            style={{
-              padding: "4px 10px",
-              fontSize: 11,
-              background: "var(--bg-tertiary)",
-              border: "1px solid var(--border)",
-              borderRadius: 4,
-              color: "var(--text-muted)",
-              cursor: "pointer",
-            }}
+            className="btn btn-ghost btn-sm"
+            style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}
           >
             {THEME_LABELS[theme]}
           </button>
           {showThemeMenu && (
-            <div
-              style={{
-                position: "absolute",
-                top: "100%",
-                right: 0,
-                marginTop: 4,
-                background: "var(--bg-secondary)",
-                border: "1px solid var(--border)",
-                borderRadius: 6,
-                padding: 4,
-                zIndex: 100,
-                minWidth: 120,
-              }}
-            >
-              {THEME_IDS.map((t) => (
-                <div
-                  key={t}
-                  onClick={() => { setTheme(t); setShowThemeMenu(false); }}
-                  style={{
-                    padding: "6px 12px",
-                    fontSize: 12,
-                    cursor: "pointer",
-                    borderRadius: 4,
-                    background: theme === t ? "var(--accent)" : "transparent",
-                    color: theme === t ? "#fff" : "var(--text-primary)",
-                  }}
-                >
-                  {THEME_LABELS[t]}
-                </div>
-              ))}
-            </div>
+            <>
+              <div
+                style={{ position: "fixed", inset: 0, zIndex: "var(--z-overlay)" }}
+                onClick={() => setShowThemeMenu(false)}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  marginTop: "var(--space-1)",
+                  background: "var(--color-bg-elevated)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "var(--space-1)",
+                  zIndex: "var(--z-overlay)",
+                  minWidth: 120,
+                  boxShadow: "var(--shadow-lg)",
+                }}
+              >
+                {THEME_IDS.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => { setTheme(t); setShowThemeMenu(false); }}
+                    className="btn btn-ghost btn-sm"
+                    style={{
+                      width: "100%",
+                      justifyContent: "flex-start",
+                      background: theme === t ? "var(--color-accent-subtle)" : "transparent",
+                      color: theme === t ? "var(--color-accent)" : "var(--color-text-secondary)",
+                      borderRadius: "var(--radius-sm)",
+                    }}
+                  >
+                    {THEME_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </header>
-      <main style={{ flex: 1, overflow: "auto", padding: 16 }}>
+
+      {/* Main content */}
+      <main style={{ flex: 1, overflow: "hidden" }}>
         <ErrorBoundary key={activeTab}>
           <ActivePage />
         </ErrorBoundary>

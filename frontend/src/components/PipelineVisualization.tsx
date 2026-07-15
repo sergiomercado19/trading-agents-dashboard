@@ -14,38 +14,49 @@ const STAGE_ORDER = [
   "trader",
 ];
 
-const STATUS_COLORS: Record<string, string> = {
-  pending: "var(--text-muted)",
-  in_progress: "var(--accent)",
-  completed: "var(--success)",
-  error: "var(--error)",
-};
+const STATUS_FALLBACK = { color: "var(--color-text-faint)", icon: "○", bg: "transparent" };
 
-const STATUS_ICONS: Record<string, string> = {
-  pending: "\u25cb",
-  in_progress: "\u25cf",
-  completed: "\u2713",
-  error: "\u2717",
-};
+function getStatusConfig(status: string) {
+  switch (status) {
+    case "in_progress":
+      return { color: "var(--color-accent)", icon: "●", bg: "var(--color-accent-subtle)" };
+    case "completed":
+      return { color: "var(--color-success)", icon: "✓", bg: "var(--color-success-subtle)" };
+    case "error":
+      return { color: "var(--color-error)", icon: "✗", bg: "var(--color-error-subtle)" };
+    default:
+      return STATUS_FALLBACK;
+  }
+}
+
+function formatStageName(stage: string): string {
+  return stage.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 export default function PipelineVisualization({ agents }: Props) {
   const activeStages = STAGE_ORDER.filter((s) => s in agents);
 
   if (activeStages.length === 0) {
     return (
-      <div style={{ padding: 16, color: "var(--text-muted)", fontSize: 13 }}>
-        Waiting for analysis to start...
+      <div
+        style={{
+          padding: "var(--space-4)",
+          color: "var(--color-text-faint)",
+          fontSize: "var(--text-sm)",
+          textAlign: "center",
+        }}
+      >
+        Waiting for pipeline...
       </div>
     );
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {activeStages.map((stage) => {
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+      {activeStages.map((stage, index) => {
         const status = agents[stage] || "pending";
-        const color = STATUS_COLORS[status] || "var(--text-muted)";
-        const icon = STATUS_ICONS[status] || "\u25cb";
-        const label = stage.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        const config = getStatusConfig(status);
+        const isActive = status === "in_progress";
 
         return (
           <div
@@ -53,16 +64,36 @@ export default function PipelineVisualization({ agents }: Props) {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 10,
-              padding: "6px 12px",
-              background: status === "in_progress" ? "rgba(59,130,246,0.1)" : "transparent",
-              borderRadius: 4,
-              borderLeft: `3px solid ${color}`,
+              gap: "var(--space-2)",
+              padding: "var(--space-2) var(--space-3)",
+              background: config.bg,
+              borderRadius: "var(--radius-sm)",
+              borderLeft: `2px solid ${config.color}`,
+              transition: "all var(--duration-normal) var(--ease-out)",
+              animation: "slideInLeft var(--duration-normal) var(--ease-out) both",
+              animationDelay: `${index * 30}ms`,
             }}
           >
-            <span style={{ color, fontSize: 14, width: 16, textAlign: "center" }}>{icon}</span>
-            <span style={{ fontSize: 13, color: status === "in_progress" ? "var(--text)" : "var(--text-muted)" }}>
-              {label}
+            <span
+              style={{
+                color: config.color,
+                fontSize: "var(--text-sm)",
+                width: 16,
+                textAlign: "center",
+                fontFamily: "var(--font-mono)",
+                animation: isActive ? "pulse 1.5s ease-in-out infinite" : "none",
+              }}
+            >
+              {config.icon}
+            </span>
+            <span
+              style={{
+                fontSize: "var(--text-xs)",
+                color: isActive ? "var(--color-text-primary)" : "var(--color-text-muted)",
+                fontWeight: isActive ? "var(--weight-medium)" : "var(--weight-regular)",
+              }}
+            >
+              {formatStageName(stage)}
             </span>
           </div>
         );

@@ -16,17 +16,6 @@ const RISK_PROFILES = [
   { id: "aggressive", label: "Aggressive", desc: "Higher risk tolerance, more opportunities" },
 ];
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "8px 12px",
-  fontSize: 13,
-  background: "var(--bg-tertiary)",
-  border: "1px solid var(--border)",
-  borderRadius: 6,
-  color: "var(--text)",
-  outline: "none",
-};
-
 export default function ConfigPage() {
   const [providers, setProviders] = useState<Array<{ id: string; name: string }>>([]);
   const [models, setModels] = useState<Record<string, { quick: string[]; deep: string[] }>>({});
@@ -63,115 +52,102 @@ export default function ConfigPage() {
   };
 
   return (
-    <div style={{ maxWidth: 640, display: "flex", flexDirection: "column", gap: 20 }}>
-      <h2 style={{ fontSize: 18 }}>Configuration</h2>
+    <div style={{ padding: "var(--space-6)", maxWidth: 720, display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+      <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Configuration</h2>
 
       {/* Provider */}
-      <section>
-        <h3 style={{ fontSize: 14, marginBottom: 8 }}>LLM Provider</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 6 }}>
-          {providers.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setSelectedProvider(p.id)}
-              style={{
-                padding: "8px 10px",
-                fontSize: 12,
-                background: selectedProvider === p.id ? "var(--accent)" : "var(--bg-tertiary)",
-                color: selectedProvider === p.id ? "#fff" : "var(--text)",
-                border: `1px solid ${selectedProvider === p.id ? "var(--accent)" : "var(--border)"}`,
-                borderRadius: 6,
-                cursor: "pointer",
-                textAlign: "center",
-              }}
-            >
-              {p.name}
-            </button>
-          ))}
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">LLM Provider</span>
+        </div>
+        <div className="panel-body">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "var(--space-1)" }}>
+            {providers.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setSelectedProvider(p.id)}
+                className={`btn btn-sm ${selectedProvider === p.id ? "btn-primary" : "btn-secondary"}`}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Models */}
-      <section>
-        <h3 style={{ fontSize: 14, marginBottom: 8 }}>Models</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <div>
-            <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Quick Think</label>
-            <select value={quickModel} onChange={(e) => setQuickModel(e.target.value)} style={inputStyle}>
-              {providerModels?.quick.map((m) => <option key={m} value={m}>{m}</option>)}
-              {!providerModels && <option value={quickModel}>{quickModel}</option>}
-            </select>
-          </div>
-          <div>
-            <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Deep Think</label>
-            <select value={deepModel} onChange={(e) => setDeepModel(e.target.value)} style={inputStyle}>
-              {providerModels?.deep.map((m) => <option key={m} value={m}>{m}</option>)}
-              {!providerModels && <option value={deepModel}>{deepModel}</option>}
-            </select>
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">Models</span>
+        </div>
+        <div className="panel-body">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+            <div>
+              <label style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", display: "block" }}>Quick Think</label>
+              <select value={quickModel} onChange={(e) => setQuickModel(e.target.value)} className="input">
+                {providerModels?.quick.map((m) => <option key={m} value={m}>{m}</option>)}
+                {!providerModels && <option value={quickModel}>{quickModel}</option>}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", display: "block" }}>Deep Think</label>
+              <select value={deepModel} onChange={(e) => setDeepModel(e.target.value)} className="input">
+                {providerModels?.deep.map((m) => <option key={m} value={m}>{m}</option>)}
+                {!providerModels && <option value={deepModel}>{deepModel}</option>}
+              </select>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Data Vendors */}
-      <section>
-        <h3 style={{ fontSize: 14, marginBottom: 8 }}>Data Vendors</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {DATA_VENDOR_CATEGORIES.map((cat) => (
-            <div key={cat.key} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ fontSize: 13, width: 180 }}>{cat.label}</span>
-              <select
-                value={vendors[cat.key] || cat.options[0]}
-                onChange={(e) => setVendors((prev) => ({ ...prev, [cat.key]: e.target.value }))}
-                style={{ ...inputStyle, width: 180 }}
-              >
-                {cat.options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
-              </select>
-            </div>
-          ))}
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">Data Vendors</span>
+        </div>
+        <div className="panel-body">
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            {DATA_VENDOR_CATEGORIES.map((cat) => (
+              <div key={cat.key} style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+                <span style={{ fontSize: "var(--text-sm)", width: 180, color: "var(--color-text-secondary)" }}>{cat.label}</span>
+                <select
+                  value={vendors[cat.key] || cat.options[0]}
+                  onChange={(e) => setVendors((prev) => ({ ...prev, [cat.key]: e.target.value }))}
+                  className="input"
+                  style={{ width: 180 }}
+                >
+                  {cat.options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Risk Profile */}
-      <section>
-        <h3 style={{ fontSize: 14, marginBottom: 8 }}>Risk Profile</h3>
-        <div style={{ display: "flex", gap: 8 }}>
-          {RISK_PROFILES.map((rp) => (
-            <button
-              key={rp.id}
-              onClick={() => setRiskProfile(rp.id)}
-              style={{
-                flex: 1,
-                padding: "10px 12px",
-                fontSize: 13,
-                background: riskProfile === rp.id ? "var(--accent)" : "var(--bg-tertiary)",
-                color: riskProfile === rp.id ? "#fff" : "var(--text)",
-                border: `1px solid ${riskProfile === rp.id ? "var(--accent)" : "var(--border)"}`,
-                borderRadius: 6,
-                cursor: "pointer",
-                textAlign: "center",
-              }}
-            >
-              <div style={{ fontWeight: 600, marginBottom: 2 }}>{rp.label}</div>
-              <div style={{ fontSize: 11, opacity: 0.8 }}>{rp.desc}</div>
-            </button>
-          ))}
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">Risk Profile</span>
+        </div>
+        <div className="panel-body">
+          <div style={{ display: "flex", gap: "var(--space-2)" }}>
+            {RISK_PROFILES.map((rp) => (
+              <button
+                key={rp.id}
+                onClick={() => setRiskProfile(rp.id)}
+                className={`btn ${riskProfile === rp.id ? "btn-primary" : "btn-secondary"}`}
+                style={{ flex: 1, padding: "var(--space-3)", textAlign: "center", flexDirection: "column" }}
+              >
+                <div style={{ fontWeight: "var(--weight-semibold)" }}>{rp.label}</div>
+                <div style={{ fontSize: "var(--text-xs)", opacity: 0.7, marginTop: "var(--space-1)" }}>{rp.desc}</div>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      <button
-        onClick={handleSave}
-        style={{
-          alignSelf: "flex-start",
-          padding: "10px 24px",
-          fontSize: 14,
-          fontWeight: 600,
-          background: saved ? "var(--success)" : "var(--accent)",
-          color: "#fff",
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
-      >
+      <button onClick={handleSave} className={`btn ${saved ? "btn-primary" : "btn-primary"}`}
+        style={{ alignSelf: "flex-start", padding: "var(--space-2) var(--space-6)", background: saved ? "var(--color-success)" : undefined }}>
         {saved ? "Saved!" : "Save Configuration"}
       </button>
     </div>

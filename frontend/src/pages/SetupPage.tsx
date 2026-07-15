@@ -50,8 +50,8 @@ export default function SetupPage() {
     setInstalling(false);
   };
 
-  if (loading) return <div style={{ padding: 20, color: "var(--text-muted)" }}>Loading health checks...</div>;
-  if (error) return <div style={{ padding: 20, color: "var(--error, #f44336)" }}>Error: {error}</div>;
+  if (loading) return <div style={{ padding: "var(--space-6)", color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>Loading health checks...</div>;
+  if (error) return <div style={{ padding: "var(--space-6)", color: "var(--color-error)", fontSize: "var(--text-sm)" }}>Error: {error}</div>;
   if (!health) return null;
 
   const checks = [
@@ -63,147 +63,130 @@ export default function SetupPage() {
   ];
 
   return (
-    <div style={{ padding: "20px 28px", maxWidth: 800 }}>
-      <h2 style={{ fontSize: 18, marginBottom: 20 }}>Setup</h2>
+    <div style={{ padding: "var(--space-6)", maxWidth: 800, display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+      <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Setup</h2>
 
       {/* Health checks */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 10 }}>Health Checks</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {checks.map((check) => (
-            <div key={check.label} style={rowStyle}>
-              <span style={{ color: check.ok ? "var(--success, #4caf50)" : "var(--error, #f44336)", fontSize: 16 }}>
-                {check.ok ? "\u2713" : "\u2717"}
-              </span>
-              <span style={{ fontSize: 13, fontWeight: 500 }}>{check.label}</span>
-              {check.detail && (
-                <span style={{ marginLeft: "auto", color: "var(--text-muted)", fontSize: 12 }}>{check.detail}</span>
-              )}
-            </div>
-          ))}
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">Health Checks</span>
+          <span className={`badge ${checks.every((c) => c.ok) ? "badge-success" : "badge-warning"}`}>
+            {checks.every((c) => c.ok) ? "All OK" : "Issues found"}
+          </span>
         </div>
-      </div>
+        <div className="panel-body">
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+            {checks.map((check) => (
+              <div
+                key={check.label}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2)",
+                  padding: "var(--space-2) var(--space-3)",
+                  borderRadius: "var(--radius-sm)",
+                  background: "var(--color-bg-elevated)",
+                  borderLeft: `2px solid ${check.ok ? "var(--color-success)" : "var(--color-error)"}`,
+                }}
+              >
+                <span style={{ color: check.ok ? "var(--color-success)" : "var(--color-error)", fontSize: "var(--text-sm)", width: 16, textAlign: "center" }}>
+                  {check.ok ? "✓" : "✗"}
+                </span>
+                <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{check.label}</span>
+                {check.detail && (
+                  <span style={{ marginLeft: "auto", color: "var(--color-text-muted)", fontSize: "var(--text-xs)", fontFamily: "var(--font-mono)" }}>{check.detail}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Docker info */}
       {docker && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 10 }}>Docker</div>
-          <div style={cardStyle}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 13 }}>
+        <section className="panel">
+          <div className="panel-header">
+            <span className="panel-title">Docker</span>
+          </div>
+          <div className="panel-body">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)", fontSize: "var(--text-sm)" }}>
               <div>
-                <div style={labelStyle}>Running in Docker</div>
-                <div>{docker.is_docker ? "Yes" : "No"}</div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "var(--space-1)" }}>Running in Docker</div>
+                <div style={{ color: "var(--color-text-primary)" }}>{docker.is_docker ? "Yes" : "No"}</div>
               </div>
               <div>
-                <div style={labelStyle}>Hostname</div>
-                <div style={{ fontFamily: "monospace", fontSize: 12 }}>{docker.hostname || "—"}</div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "var(--space-1)" }}>Hostname</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", color: "var(--color-text-secondary)" }}>{docker.hostname || "—"}</div>
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <div style={labelStyle}>.env Path</div>
-                <div style={{ fontFamily: "monospace", fontSize: 12, wordBreak: "break-all" }}>{docker.env_path || "—"}</div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "var(--space-1)" }}>.env Path</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", wordBreak: "break-all", color: "var(--color-text-secondary)" }}>{docker.env_path || "—"}</div>
               </div>
             </div>
             {docker.is_docker && (
-              <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(255,200,0,0.08)", border: "1px solid var(--warning, #f0ad4e)", borderRadius: 6, fontSize: 12, color: "var(--warning, #f0ad4e)" }}>
+              <div style={{ marginTop: "var(--space-3)", padding: "var(--space-2) var(--space-3)", background: "var(--color-warning-subtle)", border: "1px solid var(--color-warning)", borderRadius: "var(--radius-md)", fontSize: "var(--text-xs)", color: "var(--color-warning)" }}>
                 When running in Docker, mount your Obsidian vault and .env file into the container.
               </div>
             )}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Missing deps */}
       {health.missing_deps.length > 0 && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 10 }}>Missing Dependencies</div>
-          <div style={cardStyle}>
-            <div style={{ fontSize: 13, color: "var(--warning, #f0ad4e)", marginBottom: 10 }}>
+        <section className="panel">
+          <div className="panel-header">
+            <span className="panel-title">Missing Dependencies</span>
+            <span className="badge badge-warning">{health.missing_deps.length}</span>
+          </div>
+          <div className="panel-body">
+            <div style={{ fontSize: "var(--text-sm)", color: "var(--color-warning)", marginBottom: "var(--space-3)", fontFamily: "var(--font-mono)" }}>
               {health.missing_deps.join(", ")}
             </div>
-            <button
-              onClick={handleInstall}
-              disabled={installing}
-              style={{
-                padding: "8px 20px",
-                background: "var(--accent)",
-                border: "none",
-                borderRadius: 6,
-                color: "#000",
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: installing ? "wait" : "pointer",
-                opacity: installing ? 0.6 : 1,
-              }}
-            >
+            <button onClick={handleInstall} disabled={installing} className="btn btn-primary">
               {installing ? "Installing..." : "Install Missing"}
             </button>
           </div>
-        </div>
+        </section>
       )}
 
       {/* Install result */}
       {installResult && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 10 }}>Install Result</div>
-          <div style={cardStyle}>
+        <section className="panel">
+          <div className="panel-header">
+            <span className="panel-title">Install Result</span>
+            <span className={`badge ${installResult.success ? "badge-success" : "badge-error"}`}>
+              {installResult.success ? "Success" : "Failed"}
+            </span>
+          </div>
+          <div className="panel-body">
             {installResult.installed.length > 0 && (
-              <div style={{ fontSize: 13, color: "var(--success, #4caf50)", marginBottom: 6 }}>
+              <div style={{ fontSize: "var(--text-sm)", color: "var(--color-success)", marginBottom: "var(--space-2)" }}>
                 Installed: {installResult.installed.join(", ")}
               </div>
             )}
             {installResult.errors.length > 0 && (
-              <div style={{ fontSize: 13, color: "var(--error, #f44336)" }}>
+              <div style={{ fontSize: "var(--text-sm)", color: "var(--color-error)" }}>
                 Errors: {installResult.errors.join("; ")}
               </div>
             )}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Quick links */}
-      <div>
-        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 10 }}>Quick Links</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <a href="/api/docs" target="_blank" style={linkStyle}>API Docs (Swagger)</a>
-          <a href="/api/health" target="_blank" style={linkStyle}>Health Endpoint</a>
-          <a href="/api/health/detailed" target="_blank" style={linkStyle}>Detailed Health</a>
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">Quick Links</span>
         </div>
-      </div>
+        <div className="panel-body">
+          <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+            <a href="/api/docs" target="_blank" className="btn btn-secondary btn-sm" style={{ textDecoration: "none" }}>API Docs</a>
+            <a href="/api/health" target="_blank" className="btn btn-secondary btn-sm" style={{ textDecoration: "none" }}>Health</a>
+            <a href="/api/health/detailed" target="_blank" className="btn btn-secondary btn-sm" style={{ textDecoration: "none" }}>Detailed Health</a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
-
-const rowStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  padding: "10px 14px",
-  background: "var(--bg-secondary)",
-  border: "1px solid var(--border)",
-  borderRadius: 6,
-};
-
-const cardStyle: React.CSSProperties = {
-  padding: "14px 18px",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
-  background: "var(--bg-secondary)",
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 11,
-  color: "var(--text-muted)",
-  textTransform: "uppercase" as const,
-  letterSpacing: 0.5,
-  marginBottom: 2,
-};
-
-const linkStyle: React.CSSProperties = {
-  padding: "6px 14px",
-  background: "var(--bg-tertiary)",
-  border: "1px solid var(--border)",
-  borderRadius: 6,
-  color: "var(--accent, #2196f3)",
-  fontSize: 13,
-  textDecoration: "none",
-};

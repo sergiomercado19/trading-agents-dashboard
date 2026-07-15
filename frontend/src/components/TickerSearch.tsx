@@ -19,8 +19,8 @@ export default function TickerSearch({ value, onChange }: Props) {
 
   return (
     <div style={{ position: "relative" }}>
-      <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>
-        Ticker Symbol
+      <label style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", display: "block" }}>
+        Ticker
       </label>
       <input
         type="text"
@@ -31,17 +31,9 @@ export default function TickerSearch({ value, onChange }: Props) {
         }}
         onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
         onFocus={() => query && setShowDropdown(true)}
-        placeholder="e.g. AAPL, 005930 (KRX)"
-        style={{
-          width: "100%",
-          padding: "8px 12px",
-          fontSize: 14,
-          background: "var(--bg-tertiary)",
-          border: "1px solid var(--border)",
-          borderRadius: 6,
-          color: "var(--text)",
-          outline: "none",
-        }}
+        placeholder="AAPL, TSLA, 005930..."
+        className="input"
+        style={{ fontSize: "var(--text-sm)", textTransform: "uppercase", letterSpacing: "0.04em" }}
       />
       {showDropdown && suggestions.length > 0 && (
         <div
@@ -50,13 +42,14 @@ export default function TickerSearch({ value, onChange }: Props) {
             top: "100%",
             left: 0,
             right: 0,
-            background: "var(--bg-secondary)",
-            border: "1px solid var(--border)",
-            borderRadius: 6,
-            marginTop: 4,
+            background: "var(--color-bg-elevated)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-md)",
+            marginTop: "var(--space-1)",
             maxHeight: 200,
             overflow: "auto",
-            zIndex: 100,
+            zIndex: "var(--z-elevated)",
+            boxShadow: "var(--shadow-lg)",
           }}
         >
           {suggestions.map((s) => (
@@ -67,19 +60,20 @@ export default function TickerSearch({ value, onChange }: Props) {
                 display: "flex",
                 justifyContent: "space-between",
                 width: "100%",
-                padding: "8px 12px",
-                fontSize: 13,
+                padding: "var(--space-2) var(--space-3)",
+                fontSize: "var(--text-sm)",
                 background: "transparent",
                 border: "none",
-                color: "var(--text)",
+                color: "var(--color-text-primary)",
                 cursor: "pointer",
                 textAlign: "left",
+                transition: "background var(--duration-fast) var(--ease-out)",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-tertiary)")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
-              <span style={{ fontWeight: 600 }}>{s.symbol}</span>
-              <span style={{ color: "var(--text-muted)", marginLeft: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "var(--weight-semibold)", fontFamily: "var(--font-mono)" }}>{s.symbol}</span>
+              <span style={{ color: "var(--color-text-muted)", marginLeft: "var(--space-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {s.name}
               </span>
             </button>
@@ -87,7 +81,7 @@ export default function TickerSearch({ value, onChange }: Props) {
         </div>
       )}
       {loading && (
-        <span style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, display: "block" }}>
+        <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginTop: "var(--space-1)", display: "block" }}>
           Searching...
         </span>
       )}

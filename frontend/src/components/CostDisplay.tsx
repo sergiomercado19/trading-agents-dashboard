@@ -8,7 +8,7 @@ interface Props {
 export default function CostDisplay({ estimate, loading }: Props) {
   if (loading) {
     return (
-      <div style={{ padding: 12, background: "var(--bg-tertiary)", borderRadius: 6, fontSize: 12, color: "var(--text-muted)" }}>
+      <div style={{ padding: "var(--space-3)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
         Estimating cost...
       </div>
     );
@@ -17,32 +17,25 @@ export default function CostDisplay({ estimate, loading }: Props) {
   if (!estimate) return null;
 
   return (
-    <div
-      style={{
-        padding: 12,
-        background: "var(--bg-tertiary)",
-        borderRadius: 6,
-        border: "1px solid var(--border)",
-      }}
-    >
-      <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>Estimated Cost</div>
-      <div style={{ display: "flex", gap: 24, fontSize: 13 }}>
+    <div style={{ padding: "var(--space-3)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border-subtle)" }}>
+      <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-2)" }}>Estimated Cost</div>
+      <div style={{ display: "flex", gap: "var(--space-4)", fontSize: "var(--text-xs)" }}>
         <div>
-          <span style={{ color: "var(--text-muted)" }}>Input: </span>
-          <span>{estimate.estimated_tokens_in.toLocaleString()} tokens</span>
+          <span style={{ color: "var(--color-text-muted)" }}>In: </span>
+          <span>{estimate.estimated_tokens_in.toLocaleString()}</span>
         </div>
         <div>
-          <span style={{ color: "var(--text-muted)" }}>Output: </span>
-          <span>{estimate.estimated_tokens_out.toLocaleString()} tokens</span>
+          <span style={{ color: "var(--color-text-muted)" }}>Out: </span>
+          <span>{estimate.estimated_tokens_out.toLocaleString()}</span>
         </div>
         <div>
-          <span style={{ color: "var(--text-muted)" }}>Cost: </span>
-          <span style={{ color: "var(--accent)", fontWeight: 600 }}>
+          <span style={{ color: "var(--color-text-muted)" }}>Cost: </span>
+          <span style={{ color: "var(--color-accent)", fontWeight: "var(--weight-semibold)" }}>
             ${estimate.estimated_cost_usd.toFixed(4)}
           </span>
         </div>
       </div>
-      <div style={{ marginTop: 8, fontSize: 11, color: "var(--text-muted)" }}>
+      <div style={{ marginTop: "var(--space-2)", fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}>
         {estimate.stages.length} stages | {estimate.provider}
       </div>
     </div>

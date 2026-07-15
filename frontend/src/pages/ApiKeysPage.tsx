@@ -21,17 +21,6 @@ const KEY_GROUPS: KeyEntry[] = [
   { envKey: "FRED_API_KEY", label: "FRED (Federal Reserve)", provider: "fred", category: "Data Providers" },
 ];
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "8px 12px",
-  fontSize: 13,
-  background: "var(--bg-tertiary)",
-  border: "1px solid var(--border)",
-  borderRadius: 6,
-  color: "var(--text)",
-  outline: "none",
-};
-
 export default function ApiKeysPage() {
   const [envData, setEnvData] = useState<Record<string, string>>({});
   const [edits, setEdits] = useState<Record<string, string>>({});
@@ -91,87 +80,80 @@ export default function ApiKeysPage() {
   const categories = [...new Set(KEY_GROUPS.map((k) => k.category))];
 
   return (
-    <div style={{ maxWidth: 640, display: "flex", flexDirection: "column", gap: 20 }}>
-      <h2 style={{ fontSize: 18 }}>API Keys</h2>
+    <div style={{ padding: "var(--space-6)", maxWidth: 720, display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+      <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>API Keys</h2>
 
       {categories.map((cat) => (
-        <section key={cat}>
-          <h3 style={{ fontSize: 14, marginBottom: 8 }}>{cat}</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {KEY_GROUPS.filter((k) => k.category === cat).map((entry) => {
-              const masked = envData[entry.envKey] || "";
-              const editVal = edits[entry.envKey];
-              const displayVal = editVal !== undefined ? editVal : (masked ? "********" : "");
-              const testResult = testResults[entry.envKey];
-              const isTesting = testing === entry.envKey;
+        <section key={cat} className="panel">
+          <div className="panel-header">
+            <span className="panel-title">{cat}</span>
+          </div>
+          <div className="panel-body">
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+              {KEY_GROUPS.filter((k) => k.category === cat).map((entry) => {
+                const masked = envData[entry.envKey] || "";
+                const editVal = edits[entry.envKey];
+                const displayVal = editVal !== undefined ? editVal : (masked ? "********" : "");
+                const testResult = testResults[entry.envKey];
+                const isTesting = testing === entry.envKey;
 
-              return (
-                <div key={entry.envKey} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 13, width: 140, flexShrink: 0 }}>{entry.label}</span>
-                  <input
-                    type="text"
-                    value={displayVal}
-                    onChange={(e) => handleKeyChange(entry.envKey, e.target.value)}
-                    placeholder={masked ? "Set (enter new to change)" : "Not set"}
-                    style={{ ...inputStyle, flex: 1 }}
-                  />
-                  <button
-                    onClick={() => handleTest(entry)}
-                    disabled={isTesting}
-                    style={{
-                      padding: "6px 12px",
-                      fontSize: 12,
-                      background: testResult?.valid ? "var(--success)" : testResult && !testResult.valid ? "var(--error)" : "var(--bg-tertiary)",
-                      color: testResult ? "#fff" : "var(--text-muted)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 4,
-                      cursor: "pointer",
-                      minWidth: 60,
-                    }}
-                  >
-                    {isTesting ? "..." : testResult?.valid ? "Valid" : testResult ? "Invalid" : "Test"}
-                  </button>
-                  {testResult && (
-                    <span style={{ fontSize: 11, color: testResult.valid ? "var(--success)" : "var(--error)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {testResult.message}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+                return (
+                  <div key={entry.envKey} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                    <span style={{ fontSize: "var(--text-sm)", width: 140, flexShrink: 0, color: "var(--color-text-secondary)" }}>{entry.label}</span>
+                    <input
+                      type="text"
+                      value={displayVal}
+                      onChange={(e) => handleKeyChange(entry.envKey, e.target.value)}
+                      placeholder={masked ? "Set (enter new to change)" : "Not set"}
+                      className="input"
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      onClick={() => handleTest(entry)}
+                      disabled={isTesting}
+                      className="btn btn-sm"
+                      style={{
+                        background: testResult?.valid ? "var(--color-success)" : testResult && !testResult.valid ? "var(--color-error)" : "var(--color-bg-elevated)",
+                        color: testResult ? "#fff" : "var(--color-text-muted)",
+                        minWidth: 60,
+                      }}
+                    >
+                      {isTesting ? "..." : testResult?.valid ? "Valid" : testResult ? "Invalid" : "Test"}
+                    </button>
+                    {testResult && (
+                      <span style={{ fontSize: "var(--text-xs)", color: testResult.valid ? "var(--color-success)" : "var(--color-error)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {testResult.message}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
       ))}
 
       {/* Vault Path */}
-      <section>
-        <h3 style={{ fontSize: 14, marginBottom: 8 }}>Obsidian Vault Path</h3>
-        <input
-          type="text"
-          value={vaultPath}
-          onChange={(e) => setVaultPath(e.target.value)}
-          placeholder="/path/to/vault/TradingAgents/Reports"
-          style={inputStyle}
-        />
-        <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
-          Optional: Path to Obsidian vault for auto-saving reports
-        </p>
+      <section className="panel">
+        <div className="panel-header">
+          <span className="panel-title">Obsidian Vault Path</span>
+        </div>
+        <div className="panel-body">
+          <input
+            type="text"
+            value={vaultPath}
+            onChange={(e) => setVaultPath(e.target.value)}
+            placeholder="/path/to/vault/TradingAgents/Reports"
+            className="input"
+          />
+          <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginTop: "var(--space-2)" }}>
+            Optional: Path to Obsidian vault for auto-saving reports
+          </div>
+        </div>
       </section>
 
-      <button
-        onClick={handleSaveAll}
-        style={{
-          alignSelf: "flex-start",
-          padding: "10px 24px",
-          fontSize: 14,
-          fontWeight: 600,
-          background: saved ? "var(--success)" : "var(--accent)",
-          color: "#fff",
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
-      >
+      <button onClick={handleSaveAll} className={`btn btn-primary`}
+        style={{ alignSelf: "flex-start", padding: "var(--space-2) var(--space-6)", background: saved ? "var(--color-success)" : undefined }}>
         {saved ? "Saved!" : "Save Keys"}
       </button>
     </div>

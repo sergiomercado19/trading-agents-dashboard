@@ -33,11 +33,13 @@ interface SchedulerAudit {
   error: string | null;
 }
 
+type TabId = "overview" | "runs" | "scheduler";
+
 export default function HistoryPage() {
   const [stats, setStats] = useState<HistoryStats | null>(null);
   const [runs, setRuns] = useState<RunRecord[]>([]);
   const [schedulerAudit, setSchedulerAudit] = useState<SchedulerAudit[]>([]);
-  const [tab, setTab] = useState<"overview" | "runs" | "scheduler">("overview");
+  const [tab, setTab] = useState<TabId>("overview");
 
   useEffect(() => {
     fetchJson<HistoryStats>("/history/stats").then(setStats).catch(() => {});
@@ -45,28 +47,25 @@ export default function HistoryPage() {
     fetchJson<SchedulerAudit[]>("/history/scheduler").then(setSchedulerAudit).catch(() => {});
   }, []);
 
+  const tabs: { id: TabId; label: string }[] = [
+    { id: "overview", label: "Overview" },
+    { id: "runs", label: "Run History" },
+    { id: "scheduler", label: "Scheduler Audit" },
+  ];
+
   return (
-    <div style={{ padding: "20px 28px", maxWidth: 1000 }}>
-      <h2 style={{ fontSize: 18, marginBottom: 16 }}>History</h2>
+    <div style={{ padding: "var(--space-6)", maxWidth: 1000, display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+      <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>History</h2>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>
-        {(["overview", "runs", "scheduler"] as const).map((t) => (
+      <div style={{ display: "flex", gap: "var(--space-1)" }}>
+        {tabs.map((t) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            style={{
-              padding: "6px 16px",
-              background: tab === t ? "var(--accent)" : "var(--bg-tertiary)",
-              border: "1px solid var(--border)",
-              borderRadius: 6,
-              color: tab === t ? "#000" : "var(--text-primary)",
-              fontWeight: 600,
-              fontSize: 13,
-              cursor: "pointer",
-            }}
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`btn btn-sm ${tab === t.id ? "btn-primary" : "btn-ghost"}`}
           >
-            {t === "overview" ? "Overview" : t === "runs" ? "Run History" : "Scheduler Audit"}
+            {t.label}
           </button>
         ))}
       </div>
@@ -74,37 +73,43 @@ export default function HistoryPage() {
       {tab === "overview" && stats && (
         <div>
           {/* Stats cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "var(--space-3)", marginBottom: "var(--space-5)" }}>
             <StatCard label="Total Runs" value={stats.total_runs} />
-            <StatCard label="Completed" value={stats.completed} color="var(--success, #4caf50)" />
-            <StatCard label="Failed" value={stats.failed} color="var(--error, #f44336)" />
-            <StatCard label="Running" value={stats.running} color="var(--accent, #2196f3)" />
+            <StatCard label="Completed" value={stats.completed} color="var(--color-success)" />
+            <StatCard label="Failed" value={stats.failed} color="var(--color-error)" />
+            <StatCard label="Running" value={stats.running} color="var(--color-accent)" />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)", marginBottom: "var(--space-5)" }}>
             <StatCard label="Total Cost" value={`$${stats.total_cost_usd.toFixed(2)}`} />
             <StatCard label="Total Tokens" value={stats.total_tokens.toLocaleString()} />
           </div>
 
-          {/* Runs by date chart (simple bar) */}
           {Object.keys(stats.runs_by_date).length > 0 && (
-            <div style={cardStyle}>
-              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 12 }}>Runs by Date</div>
-              <BarChart data={stats.runs_by_date} />
+            <div className="panel" style={{ marginBottom: "var(--space-3)" }}>
+              <div className="panel-header">
+                <span className="panel-title">Runs by Date</span>
+              </div>
+              <div className="panel-body">
+                <BarChart data={stats.runs_by_date} />
+              </div>
             </div>
           )}
 
-          {/* Ticker breakdown */}
           {Object.keys(stats.ticker_counts).length > 0 && (
-            <div style={{ ...cardStyle, marginTop: 12 }}>
-              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 12 }}>Ticker Breakdown</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {Object.entries(stats.ticker_counts)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([ticker, count]) => (
-                    <span key={ticker} style={badgeStyle}>
-                      {ticker} ({count})
-                    </span>
-                  ))}
+            <div className="panel">
+              <div className="panel-header">
+                <span className="panel-title">Ticker Breakdown</span>
+              </div>
+              <div className="panel-body">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1)" }}>
+                  {Object.entries(stats.ticker_counts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([ticker, count]) => (
+                      <span key={ticker} className="badge" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
+                        {ticker} ({count})
+                      </span>
+                    ))}
+                </div>
               </div>
             </div>
           )}
@@ -112,16 +117,18 @@ export default function HistoryPage() {
       )}
 
       {tab === "runs" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {runs.length === 0 && <div style={{ color: "var(--text-muted)", fontSize: 13 }}>No runs yet.</div>}
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+          {runs.length === 0 && <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>No runs yet.</div>}
           {runs.map((r) => (
-            <div key={r.run_id} style={runRowStyle}>
-              <span style={{ fontWeight: 600, minWidth: 60 }}>{r.ticker}</span>
-              <span style={{ ...statusBadgeStyle, color: statusColor(r.status) }}>{r.status}</span>
-              <span style={{ fontSize: 12, color: "var(--text-muted)", flex: 1 }}>
+            <div key={r.run_id} className="panel" style={{ padding: "var(--space-2) var(--space-3)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+              <span style={{ fontWeight: "var(--weight-semibold)", minWidth: 60, fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>{r.ticker}</span>
+              <span className={`badge ${r.status === "completed" ? "badge-success" : r.status === "error" || r.status === "failed" ? "badge-error" : "badge-accent"}`}>
+                {r.status}
+              </span>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", flex: 1 }}>
                 {r.started ? new Date(r.started * 1000).toLocaleString() : "—"}
               </span>
-              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", fontFamily: "var(--font-mono)" }}>
                 ${r.stats.cost_usd.toFixed(3)} · {(r.stats.tokens_in + r.stats.tokens_out).toLocaleString()} tok
               </span>
             </div>
@@ -130,19 +137,21 @@ export default function HistoryPage() {
       )}
 
       {tab === "scheduler" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
           {schedulerAudit.length === 0 && (
-            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>No scheduler executions yet.</div>
+            <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>No scheduler executions yet.</div>
           )}
           {schedulerAudit.map((j) => (
-            <div key={j.job_id} style={runRowStyle}>
-              <span style={{ fontWeight: 600, minWidth: 60 }}>{j.ticker || j.job_id}</span>
-              <span style={{ ...statusBadgeStyle, color: statusColor(j.status) }}>{j.status}</span>
-              <span style={{ fontSize: 12, color: "var(--text-muted)", flex: 1 }}>
+            <div key={j.job_id} className="panel" style={{ padding: "var(--space-2) var(--space-3)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+              <span style={{ fontWeight: "var(--weight-semibold)", minWidth: 60, fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>{j.ticker || j.job_id}</span>
+              <span className={`badge ${j.status === "completed" ? "badge-success" : j.status === "error" ? "badge-error" : "badge-accent"}`}>
+                {j.status}
+              </span>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", flex: 1 }}>
                 {j.last_run ? new Date(j.last_run * 1000).toLocaleString() : "Never"}
               </span>
               {j.error && (
-                <span style={{ fontSize: 11, color: "var(--error, #f44336)", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ fontSize: "var(--text-xs)", color: "var(--color-error)", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {j.error}
                 </span>
               )}
@@ -156,9 +165,9 @@ export default function HistoryPage() {
 
 function StatCard({ label, value, color }: { label: string; value: string | number; color?: string }) {
   return (
-    <div style={cardStyle}>
-      <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: color || "var(--text-primary)" }}>{value}</div>
+    <div className="panel" style={{ padding: "var(--space-3) var(--space-4)" }}>
+      <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "var(--space-1)" }}>{label}</div>
+      <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: color || "var(--color-text-primary)" }}>{value}</div>
     </div>
   );
 }
@@ -167,21 +176,21 @@ function BarChart({ data }: { data: Record<string, number> }) {
   const entries = Object.entries(data).sort((a, b) => a[0].localeCompare(b[0]));
   const max = Math.max(...entries.map(([, v]) => v), 1);
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 120 }}>
+    <div style={{ display: "flex", alignItems: "flex-end", gap: "var(--space-1)", height: 120 }}>
       {entries.map(([date, count]) => (
         <div key={date} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-          <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{count}</div>
+          <div style={{ fontSize: 10, color: "var(--color-text-muted)" }}>{count}</div>
           <div
             style={{
               width: "100%",
               maxWidth: 40,
               height: `${(count / max) * 80}px`,
-              background: "var(--accent)",
-              borderRadius: 3,
+              background: "var(--color-accent)",
+              borderRadius: "var(--radius-sm)",
               minHeight: 2,
             }}
           />
-          <div style={{ fontSize: 9, color: "var(--text-muted)", writingMode: "vertical-lr", transform: "rotate(180deg)", height: 40, overflow: "hidden" }}>
+          <div style={{ fontSize: 9, color: "var(--color-text-faint)", writingMode: "vertical-lr", transform: "rotate(180deg)", height: 40, overflow: "hidden" }}>
             {date.slice(5)}
           </div>
         </div>
@@ -189,44 +198,3 @@ function BarChart({ data }: { data: Record<string, number> }) {
     </div>
   );
 }
-
-function statusColor(status: string): string {
-  if (status === "completed") return "var(--success, #4caf50)";
-  if (status === "error" || status === "failed") return "var(--error, #f44336)";
-  if (status === "running") return "var(--accent, #2196f3)";
-  return "var(--text-muted)";
-}
-
-const cardStyle: React.CSSProperties = {
-  padding: "14px 18px",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
-  background: "var(--bg-secondary)",
-};
-
-const badgeStyle: React.CSSProperties = {
-  padding: "3px 10px",
-  background: "var(--bg-tertiary)",
-  border: "1px solid var(--border)",
-  borderRadius: 4,
-  fontSize: 12,
-  color: "var(--text-secondary)",
-};
-
-const runRowStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  padding: "8px 12px",
-  background: "var(--bg-secondary)",
-  border: "1px solid var(--border)",
-  borderRadius: 6,
-  fontSize: 13,
-};
-
-const statusBadgeStyle: React.CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
-  textTransform: "uppercase" as const,
-  minWidth: 70,
-};

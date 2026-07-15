@@ -13,44 +13,26 @@ export default function SchedulerPage() {
   };
 
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18 }}>Scheduler</h2>
+    <div style={{ padding: "var(--space-6)", maxWidth: 800 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-5)" }}>
+        <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Scheduler</h2>
         {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            style={{
-              padding: "8px 16px",
-              fontSize: 13,
-              fontWeight: 600,
-              background: "var(--accent)",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              cursor: "pointer",
-            }}
-          >
+          <button onClick={() => setShowForm(true)} className="btn btn-primary">
             + New Job
           </button>
         )}
       </div>
 
       {showForm && (
-        <div
-          style={{
-            padding: 16,
-            background: "var(--bg-secondary)",
-            borderRadius: 8,
-            border: "1px solid var(--border)",
-            marginBottom: 16,
-          }}
-        >
-          <SchedulerForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
+        <div className="panel" style={{ marginBottom: "var(--space-5)" }}>
+          <div className="panel-body">
+            <SchedulerForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
+          </div>
         </div>
       )}
 
       {loading ? (
-        <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Loading jobs...</div>
+        <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>Loading jobs...</div>
       ) : (
         <SchedulerJobList jobs={jobs} onDelete={removeJob} />
       )}
