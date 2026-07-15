@@ -52,7 +52,7 @@ export default function ConfigPage() {
   };
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 720, display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+    <div style={{ padding: "var(--space-6)", maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
       <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Configuration</h2>
 
       {/* Provider */}

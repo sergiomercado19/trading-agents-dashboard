@@ -30,7 +30,7 @@ export default function MemoryPage() {
   };
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 900, display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+    <div style={{ padding: "var(--space-6)", maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
       <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Memory / RAG</h2>
 
       {/* Status + Config row */}

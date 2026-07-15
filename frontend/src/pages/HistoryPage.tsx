@@ -54,7 +54,7 @@ export default function HistoryPage() {
   ];
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 1000, display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+    <div style={{ padding: "var(--space-6)", maxWidth: 1000, margin: "0 auto", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
       <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>History</h2>
 
       {/* Tabs */}

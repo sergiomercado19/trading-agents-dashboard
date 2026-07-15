@@ -13,7 +13,7 @@ export default function SchedulerPage() {
   };
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 800 }}>
+    <div style={{ padding: "var(--space-6)", maxWidth: 800, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-5)" }}>
         <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Scheduler</h2>
         {!showForm && (

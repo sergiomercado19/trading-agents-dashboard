@@ -80,7 +80,7 @@ export default function ApiKeysPage() {
   const categories = [...new Set(KEY_GROUPS.map((k) => k.category))];
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 720, display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+    <div style={{ padding: "var(--space-6)", maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
       <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>API Keys</h2>
 
       {categories.map((cat) => (
