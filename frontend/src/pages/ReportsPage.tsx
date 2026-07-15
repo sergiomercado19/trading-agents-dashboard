@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { fetchJson } from "../api/client";
-import { useDebateTranscript, type Transcript } from "../hooks/useDebateTranscript";
-import { useSummary } from "../hooks/useSummary";
 import ReportReader from "../components/ReportReader";
 import FactCheckBadge from "../components/FactCheckBadge";
 import type { FactCheckStatus } from "../components/FactCheckBadge";
@@ -13,6 +11,17 @@ interface ReportMeta {
   path: string;
   size_bytes: number;
   modified: number;
+}
+
+interface ReportFile {
+  name: string;
+  path: string;
+}
+
+interface ReportSection {
+  label: string;
+  path: string;
+  files: ReportFile[];
 }
 
 interface UrlCheck {
@@ -36,16 +45,14 @@ export default function ReportsPage() {
   const [selected, setSelected] = useState<ReportMeta | null>(null);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showDebate, setShowDebate] = useState(false);
   const [urlChecks, setUrlChecks] = useState<UrlCheck[]>([]);
   const [checkingUrls, setCheckingUrls] = useState(false);
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
   const [showTimestamps, setShowTimestamps] = useState(false);
   const [tickerNames, setTickerNames] = useState<Record<string, string>>({});
   const [tickerFilter, setTickerFilter] = useState("");
-
-  const { transcript: debate } = useDebateTranscript(selected?.id || null);
-  const { summary } = useSummary(selected?.id || null);
+  const [fileTree, setFileTree] = useState<ReportSection[]>([]);
+  const [selectedFile, setSelectedFile] = useState<ReportFile | null>(null);
 
   useEffect(() => {
     fetchJson<Record<string, string>>("/ticker/names").then(setTickerNames).catch(() => {});
@@ -58,10 +65,28 @@ export default function ReportsPage() {
   useEffect(() => {
     if (!selected) return;
     setLoading(true);
-    fetchJson<{ path: string; content: string }>(`/reports/read?path=${encodeURIComponent(selected.path)}`)
-      .then((d) => { setContent(d.content || ""); setLoading(false); })
+    setSelectedFile(null);
+    setContent("");
+    fetchJson<ReportSection[]>(`/reports/tree?path=${encodeURIComponent(selected.path)}`)
+      .then((sections) => {
+        setFileTree(sections);
+        // Default to complete_report.md if available
+        const completeSection = sections.find(s => s.label === "Complete Report");
+        if (completeSection?.files[0]) {
+          setSelectedFile(completeSection.files[0]);
+        }
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, [selected]);
+
+  useEffect(() => {
+    if (!selectedFile) return;
+    setLoading(true);
+    fetchJson<{ path: string; content: string }>(`/reports/read?path=${encodeURIComponent(selectedFile.path)}`)
+      .then((d) => { setContent(d.content || ""); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [selectedFile]);
 
   const tickerGroups = useMemo(() => {
     const groups: Record<string, ReportMeta[]> = {};
@@ -96,11 +121,15 @@ export default function ReportsPage() {
   const handleBackToTickers = () => {
     setShowTimestamps(false);
     setSelectedTicker(null);
+    setSelected(null);
+    setFileTree([]);
+    setSelectedFile(null);
   };
 
   const handleReportClick = (report: ReportMeta) => {
     setSelected(report);
-    setShowDebate(false);
+    setFileTree([]);
+    setSelectedFile(null);
   };
 
   const handleExport = (fmt: string) => {
@@ -313,13 +342,13 @@ export default function ReportsPage() {
             >
               <span style={{ fontWeight: "var(--weight-bold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>{selected.ticker}</span>
               <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}>{formatDate(selected.id)}</span>
+              {selectedFile && (
+                <>
+                  <span style={{ color: "var(--color-text-muted)", margin: "0 var(--space-1)" }}>/</span>
+                  <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>{selectedFile.name}</span>
+                </>
+              )}
               <div style={{ flex: 1 }} />
-              <button onClick={() => setShowDebate(false)} className={`btn btn-sm ${!showDebate ? "btn-primary" : "btn-ghost"}`}>
-                Report
-              </button>
-              <button onClick={() => setShowDebate(true)} className={`btn btn-sm ${showDebate ? "btn-primary" : "btn-ghost"}`}>
-                Debate Log
-              </button>
               <button onClick={handleCheckUrls} disabled={checkingUrls} className="btn btn-sm btn-secondary">
                 {checkingUrls ? "Checking..." : "Check URLs"}
               </button>
@@ -329,90 +358,42 @@ export default function ReportsPage() {
             </div>
 
             {/* Content area */}
-            {showDebate ? (
-              <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-5) var(--space-6)" }}>
-                <DebateTranscript debate={debate} />
+            {urlChecks.length > 0 && (
+              <div style={{ padding: "var(--space-3) var(--space-4)", borderBottom: "1px solid var(--color-border-subtle)" }}>
+                <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)", color: "var(--color-text-primary)" }}>URL Verification</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+                  {urlChecks.map((uc) => (
+                    <div key={uc.url} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-xs)" }}>
+                      <FactCheckBadge url={uc.url} status={uc.status as FactCheckStatus} />
+                      <span style={{ color: "var(--color-text-secondary)", wordBreak: "break-all" }}>{uc.url}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {loading ? (
+              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
+                Loading...
+              </div>
+            ) : selectedFile ? (
+              <div style={{ flex: 1, overflow: "hidden" }}>
+                <ReportReader
+                  content={content}
+                  onExport={handleExport}
+                  fileTree={fileTree}
+                  selectedFile={selectedFile}
+                  onSelectFile={setSelectedFile}
+                />
               </div>
             ) : (
-              <>
-                {urlChecks.length > 0 && (
-                  <div style={{ padding: "var(--space-3) var(--space-4)", borderBottom: "1px solid var(--color-border-subtle)" }}>
-                    <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)", color: "var(--color-text-primary)" }}>URL Verification</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-                      {urlChecks.map((uc) => (
-                        <div key={uc.url} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-xs)" }}>
-                          <FactCheckBadge url={uc.url} status={uc.status as FactCheckStatus} />
-                          <span style={{ color: "var(--color-text-secondary)", wordBreak: "break-all" }}>{uc.url}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {summary && (
-                  <div style={{ padding: "var(--space-3) var(--space-4)", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg-surface)" }}>
-                    <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--space-1)" }}>Summary</div>
-                    <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: "var(--leading-relaxed)" }}>{summary}</div>
-                  </div>
-                )}
-
-                {loading ? (
-                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
-                    Loading...
-                  </div>
-                ) : (
-                  <div style={{ flex: 1, overflow: "hidden" }}>
-                    <ReportReader content={content} onExport={handleExport} />
-                  </div>
-                )}
-              </>
+              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-faint)", fontSize: "var(--text-sm)" }}>
+                Select a report to view
+              </div>
             )}
           </>
         )}
       </div>
-    </div>
-  );
-}
-
-function DebateTranscript({ debate }: { debate: Transcript | null }) {
-  if (!debate) {
-    return <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>No debate transcript available.</div>;
-  }
-  const sections = [
-    { key: "bull" as const, label: "Bull Case", color: "var(--color-success)", icon: "↑" },
-    { key: "bear" as const, label: "Bear Case", color: "var(--color-error)", icon: "↓" },
-    { key: "risk" as const, label: "Risk Analysis", color: "var(--color-warning)", icon: "!" },
-    { key: "neutral" as const, label: "Neutral", color: "var(--color-text-muted)", icon: "→" },
-  ];
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-      {sections.map(({ key, label, color, icon }) => {
-        const entries = debate[key];
-        if (!entries || entries.length === 0) return null;
-        return (
-          <div key={key}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
-              <span style={{ width: 20, height: 20, borderRadius: "var(--radius-sm)", background: `color-mix(in oklch, ${color} 15%, transparent)`, color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "var(--text-xs)", fontWeight: "var(--weight-bold)" }}>{icon}</span>
-              <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)" }}>{label}</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-              {entries.map((entry, i) => (
-                <div key={i} style={{ padding: "var(--space-3)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border-subtle)" }}>
-                  {entry.speaker && (
-                    <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-accent)", marginBottom: "var(--space-1)" }}>{entry.speaker}</div>
-                  )}
-                  <div style={{ fontSize: "var(--text-sm)", lineHeight: "var(--leading-relaxed)", color: "var(--color-text-secondary)", whiteSpace: "pre-wrap" }}>
-                    {entry.text}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-      {!debate.bull?.length && !debate.bear?.length && !debate.risk?.length && !debate.neutral?.length && (
-        <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>No structured debate sections found.</div>
-      )}
     </div>
   );
 }

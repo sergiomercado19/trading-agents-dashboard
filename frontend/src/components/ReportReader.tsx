@@ -1,14 +1,22 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
+
+interface ReportFile {
+  name: string;
+  path: string;
+}
+
+interface ReportSection {
+  label: string;
+  path: string;
+  files: ReportFile[];
+}
 
 interface Props {
   content: string;
   onExport?: (fmt: string) => void;
-}
-
-interface TocItem {
-  level: number;
-  text: string;
-  id: string;
+  fileTree?: ReportSection[];
+  selectedFile?: ReportFile | null;
+  onSelectFile?: (file: ReportFile) => void;
 }
 
 function slugify(text: string): string {
@@ -18,23 +26,7 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, "");
 }
 
-export default function ReportReader({ content, onExport }: Props) {
-  const [activeId, setActiveId] = useState("");
-
-  const toc = useMemo(() => {
-    const items: TocItem[] = [];
-    const lines = content.split("\n");
-    for (const line of lines) {
-      const match = line.match(/^(#{1,4})\s+(.+)/);
-      if (match) {
-        const level = match[1]!.length;
-        const text = match[2]!.trim();
-        items.push({ level, text, id: slugify(text) });
-      }
-    }
-    return items;
-  }, [content]);
-
+export default function ReportReader({ content, onExport, fileTree, selectedFile, onSelectFile }: Props) {
   const html = useMemo(() => {
     return mdToHtml(content);
   }, [content]);
@@ -44,7 +36,11 @@ export default function ReportReader({ content, onExport }: Props) {
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
+            const heading = entry.target as HTMLElement;
+            const id = heading.getAttribute("id");
+            if (id) {
+              document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
           }
         }
       },
@@ -55,14 +51,9 @@ export default function ReportReader({ content, onExport }: Props) {
     return () => observer.disconnect();
   }, [html]);
 
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
     <div style={{ display: "flex", gap: 0, height: "100%" }}>
-      {/* TOC sidebar */}
+      {/* File tree sidebar */}
       <div
         style={{
           width: 220,
@@ -77,24 +68,59 @@ export default function ReportReader({ content, onExport }: Props) {
         <div style={{ fontWeight: 600, marginBottom: 8, color: "var(--text-primary)" }}>
           Contents
         </div>
-        {toc.map((item, i) => (
-          <div
-            key={i}
-            onClick={() => scrollTo(item.id)}
-            style={{
-              paddingLeft: (item.level - 1) * 10,
-              padding: `${3 + (item.level - 1) * 2}px ${(item.level - 1) * 10}px`,
-              cursor: "pointer",
-              color: activeId === item.id ? "var(--accent)" : "var(--text-secondary)",
-              fontWeight: activeId === item.id ? 600 : 400,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {item.text}
+        {fileTree?.map((section) => (
+          <div key={section.path} style={{ marginBottom: 12 }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: "var(--text-muted)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                padding: "4px 8px",
+                marginBottom: 4,
+              }}
+            >
+              {section.label}
+            </div>
+            {section.files.map((file) => (
+              <div
+                key={file.path}
+                onClick={() => onSelectFile?.(file)}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                  marginBottom: 2,
+                  background: selectedFile?.path === file.path ? "var(--bg-tertiary)" : "transparent",
+                  border: selectedFile?.path === file.path ? "1px solid var(--accent)" : "1px solid transparent",
+                  color: selectedFile?.path === file.path ? "var(--accent)" : "var(--text-secondary)",
+                  fontWeight: selectedFile?.path === file.path ? 600 : 400,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedFile?.path !== file.path) {
+                    e.currentTarget.style.background = "var(--bg-hover)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedFile?.path !== file.path) {
+                    e.currentTarget.style.background = "transparent";
+                  }
+                }}
+              >
+                {file.name}
+              </div>
+            ))}
           </div>
         ))}
+        {(!fileTree || fileTree.length === 0) && (
+          <div style={{ color: "var(--text-muted)", fontSize: 11 }}>
+            No files available
+          </div>
+        )}
       </div>
 
       {/* Content */}

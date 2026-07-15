@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import os
+import re
 import shutil
 from pathlib import Path
 
@@ -14,6 +15,14 @@ from backend.app.services.fact_checker import fact_checker
 router = APIRouter(prefix="/api", tags=["reports"])
 
 REPORTS_DIR = REPO_ROOT / "reports"
+
+_FOLDER_LABELS = {
+    "1_analysts": "Analysts",
+    "2_research": "Research",
+    "3_trading": "Trading",
+    "4_risk": "Risk",
+    "5_portfolio": "Portfolio",
+}
 
 
 def _list_report_dirs() -> list[dict]:
@@ -48,12 +57,53 @@ async def list_reports():
     return _list_report_dirs()
 
 
+@router.get("/reports/tree")
+async def report_tree(path: str = Query(...)):
+    """Return the folder/file hierarchy for a report directory."""
+    report_dir = REPO_ROOT / path
+    if not report_dir.exists() or not report_dir.is_dir():
+        raise HTTPException(status_code=404, detail="Report directory not found")
+
+    sections: list[dict] = []
+
+    # Root-level complete_report.md
+    complete = report_dir / "complete_report.md"
+    if complete.exists():
+        sections.append({
+            "label": "Complete Report",
+            "path": str(complete.relative_to(REPO_ROOT)),
+            "files": [{"name": "complete_report.md", "path": str(complete.relative_to(REPO_ROOT))}],
+        })
+
+    # Subdirectories sorted by prefix number
+    subdirs = sorted(
+        [d for d in report_dir.iterdir() if d.is_dir()],
+        key=lambda d: d.name,
+    )
+    for subdir in subdirs:
+        md_files = sorted(subdir.glob("*.md"))
+        if not md_files:
+            continue
+        label = _FOLDER_LABELS.get(subdir.name, subdir.name.replace("_", " ").title())
+        sections.append({
+            "label": label,
+            "path": str(subdir.relative_to(REPO_ROOT)),
+            "files": [
+                {"name": f.stem.replace("_", " ").title(), "path": str(f.relative_to(REPO_ROOT))}
+                for f in md_files
+            ],
+        })
+
+    return sections
+
+
 @router.get("/reports/read")
 async def read_report(path: str = Query(...)):
     report_path = REPO_ROOT / path
     if not report_path.exists():
         raise HTTPException(status_code=404, detail="Report not found")
     if report_path.is_dir():
+        # If it's a directory, try to read complete_report.md for backwards compat
         report_file = report_path / "complete_report.md"
         if report_file.exists():
             report_path = report_file
