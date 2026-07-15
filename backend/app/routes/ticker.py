@@ -4,8 +4,10 @@ import logging
 
 import httpx
 from fastapi import APIRouter, Query
+from pydantic import BaseModel
 
 from backend.app.models.schemas import TickerSuggestion
+from backend.app.services.tickers_store import tickers_store
 
 router = APIRouter(prefix="/api", tags=["ticker"])
 
@@ -63,3 +65,17 @@ async def search_ticker(q: str = Query(..., min_length=1)):
             pass
 
     return suggestions
+
+
+class UpdateTickerNamesRequest(BaseModel):
+    names: dict[str, str | None]
+
+
+@router.get("/ticker/names")
+async def get_ticker_names():
+    return tickers_store.list()
+
+
+@router.put("/ticker/names")
+async def update_ticker_names(req: UpdateTickerNamesRequest):
+    return tickers_store.update(req.names)

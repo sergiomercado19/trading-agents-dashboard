@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { fetchJson } from "../api/client";
 import { useDebateTranscript, type Transcript } from "../hooks/useDebateTranscript";
 import { useSummary } from "../hooks/useSummary";
@@ -21,6 +21,16 @@ interface UrlCheck {
   status_code: number | null;
 }
 
+function formatDate(dateStr: string): string {
+  const cleaned = dateStr.replace(/_/g, " ");
+  const match = cleaned.match(/(\d{4})(\d{2})(\d{2})\s*(\d{2})(\d{2})(\d{2})/);
+  if (!match) return cleaned;
+  const [, y, m, d, h, min, s] = match;
+  const dt = new Date(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(s));
+  return dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    + " " + dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+}
+
 export default function ReportsPage() {
   const [reports, setReports] = useState<ReportMeta[]>([]);
   const [selected, setSelected] = useState<ReportMeta | null>(null);
@@ -29,9 +39,16 @@ export default function ReportsPage() {
   const [showDebate, setShowDebate] = useState(false);
   const [urlChecks, setUrlChecks] = useState<UrlCheck[]>([]);
   const [checkingUrls, setCheckingUrls] = useState(false);
+  const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
+  const [showTimestamps, setShowTimestamps] = useState(false);
+  const [tickerNames, setTickerNames] = useState<Record<string, string>>({});
 
   const { transcript: debate } = useDebateTranscript(selected?.id || null);
   const { summary } = useSummary(selected?.id || null);
+
+  useEffect(() => {
+    fetchJson<Record<string, string>>("/ticker/names").then(setTickerNames).catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetchJson<ReportMeta[]>("/reports").then(setReports).catch(() => {});
@@ -44,6 +61,41 @@ export default function ReportsPage() {
       .then((d) => { setContent(d.content || ""); setLoading(false); })
       .catch(() => setLoading(false));
   }, [selected]);
+
+  const tickerGroups = useMemo(() => {
+    const groups: Record<string, ReportMeta[]> = {};
+    for (const r of reports) {
+      const arr = groups[r.ticker];
+      if (arr) {
+        arr.push(r);
+      } else {
+        groups[r.ticker] = [r];
+      }
+    }
+    for (const ticker of Object.keys(groups)) {
+      groups[ticker]?.sort((a, b) => b.modified - a.modified);
+    }
+    return groups;
+  }, [reports]);
+
+  const sortedTickers = useMemo(() => Object.keys(tickerGroups).sort(), [tickerGroups]);
+
+  const tickerReports = selectedTicker ? tickerGroups[selectedTicker] || [] : [];
+
+  const handleTickerClick = (ticker: string) => {
+    setSelectedTicker(ticker);
+    setShowTimestamps(true);
+  };
+
+  const handleBackToTickers = () => {
+    setShowTimestamps(false);
+    setSelectedTicker(null);
+  };
+
+  const handleReportClick = (report: ReportMeta) => {
+    setSelected(report);
+    setShowDebate(false);
+  };
 
   const handleExport = (fmt: string) => {
     if (!selected) return;
@@ -77,7 +129,7 @@ export default function ReportsPage() {
 
   return (
     <div style={{ display: "flex", height: "100%" }}>
-      {/* Report list sidebar */}
+      {/* ── Sidebar ── */}
       <div
         style={{
           width: 280,
@@ -86,51 +138,152 @@ export default function ReportsPage() {
           display: "flex",
           flexDirection: "column",
           background: "var(--color-bg-surface)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        {/* Header */}
         <div className="panel-header">
           <span className="panel-title">Reports</span>
           <span className="badge" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-muted)" }}>
             {reports.length}
           </span>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-2)" }}>
-          {reports.map((r) => (
-            <div
-              key={r.id}
-              onClick={() => { setSelected(r); setShowDebate(false); }}
-              style={{
-                padding: "var(--space-2) var(--space-3)",
-                borderRadius: "var(--radius-md)",
-                cursor: "pointer",
-                marginBottom: "var(--space-1)",
-                background: selected?.id === r.id ? "var(--color-bg-elevated)" : "transparent",
-                border: selected?.id === r.id ? "1px solid var(--color-border-accent)" : "1px solid transparent",
-                transition: "all var(--duration-fast) var(--ease-out)",
-              }}
-            >
-              <div style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>{r.ticker}</div>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
-                {r.date.replace(/_/g, " ").replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")}
+
+        {/* ── Layer 1: Ticker list ── */}
+        <div
+          style={{
+            position: "absolute",
+            top: 41,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            flexDirection: "column",
+            opacity: showTimestamps ? 0 : 1,
+            transform: showTimestamps ? "translateX(-20px)" : "translateX(0)",
+            transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
+            pointerEvents: showTimestamps ? "none" : "auto",
+          }}
+        >
+          <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-2)" }}>
+            {sortedTickers.map((ticker) => {
+              const reports_for_ticker = tickerGroups[ticker] ?? [];
+              const companyName = tickerNames[ticker];
+              return (
+                <div
+                  key={ticker}
+                  onClick={() => handleTickerClick(ticker)}
+                  style={{
+                    padding: "var(--space-2) var(--space-3)",
+                    borderRadius: "var(--radius-md)",
+                    cursor: "pointer",
+                    marginBottom: "var(--space-1)",
+                    transition: "background var(--duration-fast) var(--ease-out)",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>
+                      {ticker}
+                    </span>
+                    <span className="badge" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-faint)", fontSize: "var(--text-xs)" }}>
+                      {reports_for_ticker.length}
+                    </span>
+                  </div>
+                  {companyName && (
+                    <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "var(--space-1)" }}>
+                      {companyName}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {sortedTickers.length === 0 && (
+              <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)", padding: "var(--space-3)" }}>
+                No reports found.
               </div>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}>
-                {(r.size_bytes / 1024).toFixed(0)} KB
+            )}
+          </div>
+        </div>
+
+        {/* ── Layer 2: Timestamp list (morphs in) ── */}
+        <div
+          style={{
+            position: "absolute",
+            top: 41,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            flexDirection: "column",
+            opacity: showTimestamps ? 1 : 0,
+            transform: showTimestamps ? "translateX(0)" : "translateX(20px)",
+            transition: "opacity var(--duration-slow) var(--ease-out), transform var(--duration-slow) var(--ease-out)",
+            transitionDelay: showTimestamps ? "150ms" : "0ms",
+            pointerEvents: showTimestamps ? "auto" : "none",
+          }}
+        >
+          {/* Back header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2)",
+              padding: "var(--space-2) var(--space-3)",
+              borderBottom: "1px solid var(--color-border-subtle)",
+              cursor: "pointer",
+              transition: "background var(--duration-fast) var(--ease-out)",
+            }}
+            onClick={handleBackToTickers}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+          >
+            <span style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>←</span>
+            <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>
+              {selectedTicker}
+            </span>
+            {selectedTicker && tickerNames[selectedTicker] && (
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginLeft: "var(--space-1)" }}>
+                {tickerNames[selectedTicker]}
+              </span>
+            )}
+          </div>
+
+          {/* Timestamp list */}
+          <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-2)" }}>
+            {tickerReports.map((r) => (
+              <div
+                key={r.id}
+                onClick={() => handleReportClick(r)}
+                style={{
+                  padding: "var(--space-2) var(--space-3)",
+                  borderRadius: "var(--radius-md)",
+                  cursor: "pointer",
+                  marginBottom: "var(--space-1)",
+                  background: selected?.id === r.id ? "var(--color-bg-elevated)" : "transparent",
+                  border: selected?.id === r.id ? "1px solid var(--color-border-accent)" : "1px solid transparent",
+                  transition: "all var(--duration-fast) var(--ease-out)",
+                }}
+              >
+                <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>
+                  {formatDate(r.id)}
+                </div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginTop: "var(--space-1)", fontFamily: "var(--font-mono)" }}>
+                  {(r.size_bytes / 1024).toFixed(0)} KB
+                </div>
               </div>
-            </div>
-          ))}
-          {reports.length === 0 && (
-            <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)", padding: "var(--space-3)" }}>
-              No reports found.
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Main content */}
+      {/* ── Main content ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {!selected ? (
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-faint)", fontSize: "var(--text-sm)" }}>
-            Select a report to view
+            {reports.length === 0 ? "No reports found" : "Select a report to view"}
           </div>
         ) : (
           <>
@@ -145,7 +298,8 @@ export default function ReportsPage() {
                 background: "var(--color-bg-surface)",
               }}
             >
-              <span style={{ fontWeight: "var(--weight-bold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)" }}>{selected.ticker}</span>
+              <span style={{ fontWeight: "var(--weight-bold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>{selected.ticker}</span>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}>{formatDate(selected.id)}</span>
               <div style={{ flex: 1 }} />
               <button onClick={() => setShowDebate(false)} className={`btn btn-sm ${!showDebate ? "btn-primary" : "btn-ghost"}`}>
                 Report
