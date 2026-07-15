@@ -42,6 +42,7 @@ export default function ReportsPage() {
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
   const [showTimestamps, setShowTimestamps] = useState(false);
   const [tickerNames, setTickerNames] = useState<Record<string, string>>({});
+  const [tickerFilter, setTickerFilter] = useState("");
 
   const { transcript: debate } = useDebateTranscript(selected?.id || null);
   const { summary } = useSummary(selected?.id || null);
@@ -78,7 +79,12 @@ export default function ReportsPage() {
     return groups;
   }, [reports]);
 
-  const sortedTickers = useMemo(() => Object.keys(tickerGroups).sort(), [tickerGroups]);
+  const sortedTickers = useMemo(() => {
+    const all = Object.keys(tickerGroups).sort();
+    if (!tickerFilter) return all;
+    const q = tickerFilter.toUpperCase();
+    return all.filter((t) => t === q || (tickerNames[t] ?? "").toUpperCase() === q);
+  }, [tickerGroups, tickerNames, tickerFilter]);
 
   const tickerReports = selectedTicker ? tickerGroups[selectedTicker] || [] : [];
 
@@ -150,22 +156,31 @@ export default function ReportsPage() {
           </span>
         </div>
 
-        {/* ── Layer 1: Ticker list ── */}
-        <div
-          style={{
-            position: "absolute",
-            top: 41,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            flexDirection: "column",
-            opacity: showTimestamps ? 0 : 1,
-            transform: showTimestamps ? "translateX(-20px)" : "translateX(0)",
-            transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
-            pointerEvents: showTimestamps ? "none" : "auto",
-          }}
-        >
+        <div style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--color-border-subtle)", flexShrink: 0 }}>
+          <input
+            type="text"
+            placeholder="Search ticker..."
+            value={tickerFilter}
+            onChange={(e) => setTickerFilter(e.target.value)}
+            className="input"
+            style={{ width: "100%", fontSize: "var(--text-sm)", padding: "var(--space-1) var(--space-2)" }}
+          />
+        </div>
+
+        <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
+          {/* ── Layer 1: Ticker list ── */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              opacity: showTimestamps ? 0 : 1,
+              transform: showTimestamps ? "translateX(-20px)" : "translateX(0)",
+              transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
+              pointerEvents: showTimestamps ? "none" : "auto",
+            }}
+          >
           <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-2)" }}>
             {sortedTickers.map((ticker) => {
               const reports_for_ticker = tickerGroups[ticker] ?? [];
@@ -212,10 +227,7 @@ export default function ReportsPage() {
         <div
           style={{
             position: "absolute",
-            top: 41,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            inset: 0,
             display: "flex",
             flexDirection: "column",
             opacity: showTimestamps ? 1 : 0,
@@ -276,6 +288,7 @@ export default function ReportsPage() {
               </div>
             ))}
           </div>
+        </div>
         </div>
       </div>
 
