@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import ControlPanel from "../components/ControlPanel";
 import MessageFeed from "../components/MessageFeed";
-import DecisionPanel from "../components/DecisionPanel";
 import StatsDrawer from "../components/StatsDrawer";
 import { useRunStream } from "../hooks/useRunStream";
 import { useRuns } from "../hooks/useRuns";
 import { useCostEstimate } from "../hooks/useCostEstimate";
-import { useDebateTranscript } from "../hooks/useDebateTranscript";
 import { fetchJson, postJson } from "../api/client";
 
 interface Preset {
@@ -44,7 +42,6 @@ export default function AnalyzePage() {
     quick_model: quickModel,
     deep_model: deepModel,
   });
-  const { transcript } = useDebateTranscript(done && activeRunId ? activeRunId : null);
 
   const running = snapshot?.status === "running";
 
@@ -125,11 +122,11 @@ export default function AnalyzePage() {
         Stats
       </button>
 
-      {/* Terminal grid: 3 panels */}
+      {/* Terminal grid: 2 panels */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "320px 1fr 1fr",
+          gridTemplateColumns: "320px 1fr",
           gap: "var(--space-3)",
           padding: "var(--space-3)",
           height: "100%",
@@ -172,15 +169,6 @@ export default function AnalyzePage() {
         {/* Panel 2: Message Feed */}
         <div style={{ minHeight: 0 }}>
           <MessageFeed messages={messages} />
-        </div>
-
-        {/* Panel 3: Decision */}
-        <div style={{ minHeight: 0 }}>
-          <DecisionPanel
-            transcript={transcript}
-            decision={snapshot?.decision || null}
-            done={done}
-          />
         </div>
       </div>
 
