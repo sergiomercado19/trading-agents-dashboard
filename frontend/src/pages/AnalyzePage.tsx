@@ -26,6 +26,8 @@ export default function AnalyzePage() {
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [presets, setPresets] = useState<Preset[]>([]);
   const [statsOpen, setStatsOpen] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
     fetchJson<Preset[]>("/presets").then(setPresets).catch(() => {});
@@ -44,8 +46,28 @@ export default function AnalyzePage() {
   });
   const { transcript } = useDebateTranscript(done && activeRunId ? activeRunId : null);
 
+  const running = snapshot?.status === "running";
+
+  useEffect(() => {
+    if (!running || !startTime) {
+      return;
+    }
+    const id = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startTime) / 1000));
+    }, 250);
+    return () => clearInterval(id);
+  }, [running, startTime]);
+
+  useEffect(() => {
+    if (done || error) {
+      setStartTime(null);
+    }
+  }, [done, error]);
+
   const handleStart = async () => {
     if (!ticker) return;
+    setStartTime(Date.now());
+    setElapsedSeconds(0);
     const run = await start({
       ticker,
       date,
@@ -83,8 +105,6 @@ export default function AnalyzePage() {
     await fetch(`/api/presets/${id}`, { method: "DELETE" });
     setPresets((prev) => prev.filter((p) => p.id !== id));
   };
-
-  const running = snapshot?.status === "running";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
@@ -133,6 +153,7 @@ export default function AnalyzePage() {
             quickModel={quickModel}
             deepModel={deepModel}
             stats={stats}
+            elapsedSeconds={elapsedSeconds}
             onStart={handleStart}
             onStop={handleStop}
             onSavePreset={handleSavePreset}

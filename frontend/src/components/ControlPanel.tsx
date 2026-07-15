@@ -27,6 +27,7 @@ interface Props {
   quickModel: string;
   deepModel: string;
   stats: RunSnapshot["stats"] | null;
+  elapsedSeconds: number;
   onStart: () => void;
   onStop: () => void;
   onSavePreset: (name: string) => void;
@@ -69,6 +70,7 @@ export default function ControlPanel({
   quickModel,
   deepModel,
   stats,
+  elapsedSeconds,
   onStart,
   onStop,
   onSavePreset,
@@ -298,7 +300,7 @@ export default function ControlPanel({
                 ${stats.cost_usd?.toFixed(4) || "0.00"}
               </span>
               <span className="badge" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-muted)" }}>
-                {stats.elapsed_s?.toFixed(0) || 0}s
+                {elapsedSeconds}s
               </span>
             </div>
           )}

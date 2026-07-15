@@ -49,12 +49,12 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
 
     try:
         await run_manager.update(run_id, status="running")
-        await run_manager.add_event(run_id, {
-            "type": "status",
-            "run_id": run_id,
-            "status": "running",
-            "message": "Analysis started",
-        })
+        run = await run_manager.get(run_id)
+        if run:
+            await run_manager.add_event(run_id, {
+                "type": "snapshot",
+                "data": run.model_dump(),
+            })
 
         # Build config from request
         config = dict(DEFAULT_CONFIG)
@@ -197,12 +197,13 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
                 raise chunk
 
             if run_id not in _active_runs:
-                await run_manager.add_event(run_id, {
-                    "type": "status",
-                    "run_id": run_id,
-                    "status": "stopped",
-                    "message": "Analysis stopped by user",
-                })
+                await run_manager.update(run_id, status="stopped", ended=time.time())
+                run = await run_manager.get(run_id)
+                if run:
+                    await run_manager.add_event(run_id, {
+                        "type": "snapshot",
+                        "data": run.model_dump(),
+                    })
                 return
 
             # Detect pipeline stage transitions from state field changes.
@@ -277,6 +278,12 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
             decision=decision,
             reports=reports,
         )
+        run = await run_manager.get(run_id)
+        if run:
+            await run_manager.add_event(run_id, {
+                "type": "snapshot",
+                "data": run.model_dump(),
+            })
         await run_manager.add_event(run_id, {
             "type": "final_report",
             "run_id": run_id,
@@ -291,6 +298,12 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
     except Exception as e:
         logger.exception("Analysis failed for run %s", run_id)
         await run_manager.update(run_id, status="error", ended=time.time(), error=str(e))
+        run = await run_manager.get(run_id)
+        if run:
+            await run_manager.add_event(run_id, {
+                "type": "snapshot",
+                "data": run.model_dump(),
+            })
         await run_manager.add_event(run_id, {
             "type": "error",
             "run_id": run_id,

@@ -34,26 +34,9 @@ function formatStageName(stage: string): string {
 }
 
 export default function PipelineVisualization({ agents }: Props) {
-  const activeStages = STAGE_ORDER.filter((s) => s in agents);
-
-  if (activeStages.length === 0) {
-    return (
-      <div
-        style={{
-          padding: "var(--space-4)",
-          color: "var(--color-text-faint)",
-          fontSize: "var(--text-sm)",
-          textAlign: "center",
-        }}
-      >
-        Waiting for pipeline...
-      </div>
-    );
-  }
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-      {activeStages.map((stage, index) => {
+      {STAGE_ORDER.map((stage, index) => {
         const status = agents[stage] || "pending";
         const config = getStatusConfig(status);
         const isActive = status === "in_progress";

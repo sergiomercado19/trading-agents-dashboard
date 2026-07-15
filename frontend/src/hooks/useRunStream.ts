@@ -52,7 +52,8 @@ export function useRunStream(runId: string | null) {
     esRef.current = es;
 
     es.addEventListener("snapshot", (e: MessageEvent) => {
-      const data = JSON.parse(e.data);
+      const raw = JSON.parse(e.data);
+      const data = raw.data ?? raw;
       setSnapshot(data);
       if (data.agents) setAgents(data.agents);
       if (data.stats) setStats(data.stats);
