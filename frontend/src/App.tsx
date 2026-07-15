@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { ThemeProvider, useTheme, THEME_IDS, THEME_LABELS } from "./components/ThemeProvider";
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 import AnalyzePage from "./pages/AnalyzePage";
@@ -13,42 +13,20 @@ import HistoryPage from "./pages/HistoryPage";
 import SetupPage from "./pages/SetupPage";
 
 const TABS = [
-  { id: "analyze", label: "Analyze" },
-  { id: "scheduler", label: "Scheduler" },
-  { id: "config", label: "Config" },
-  { id: "api-keys", label: "API Keys" },
-  { id: "reports", label: "Reports" },
-  { id: "memory", label: "Memory" },
-  { id: "chat", label: "Chat" },
-  { id: "history", label: "History" },
-  { id: "setup", label: "Setup" },
+  { path: "/", label: "Analyze" },
+  { path: "/scheduler", label: "Scheduler" },
+  { path: "/config", label: "Config" },
+  { path: "/api-keys", label: "API Keys" },
+  { path: "/reports", label: "Reports" },
+  { path: "/memory", label: "Memory" },
+  { path: "/chat", label: "Chat" },
+  { path: "/history", label: "History" },
+  { path: "/setup", label: "Setup" },
 ] as const;
-
-type TabId = (typeof TABS)[number]["id"];
-
-const pages: Record<TabId, React.FC> = {
-  analyze: AnalyzePage,
-  scheduler: SchedulerPage,
-  config: ConfigPage,
-  "api-keys": ApiKeysPage,
-  reports: ReportsPage,
-  memory: MemoryPage,
-  chat: ChatPage,
-  history: HistoryPage,
-  setup: SetupPage,
-};
 
 function AppInner() {
   const { theme, setTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState<TabId>(() => {
-    try { return (localStorage.getItem("ta-active-tab") as TabId) || "analyze"; } catch { return "analyze"; }
-  });
-
-  useEffect(() => {
-    try { localStorage.setItem("ta-active-tab", activeTab); } catch {}
-  }, [activeTab]);
-
-  const ActivePage = pages[activeTab];
+  const location = useLocation();
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-bg-root)" }}>
@@ -92,21 +70,23 @@ function AppInner() {
         {/* Nav */}
         <nav style={{ display: "flex", gap: "var(--space-1)", overflow: "auto", flex: 1 }}>
           {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+            <NavLink
+              key={tab.path}
+              to={tab.path}
+              end={tab.path === "/"}
               className="btn btn-ghost"
-              style={{
+              style={({ isActive }) => ({
                 padding: "var(--space-2) var(--space-3)",
                 fontSize: "var(--text-sm)",
                 fontWeight: "var(--weight-medium)",
-                background: activeTab === tab.id ? "var(--color-bg-elevated)" : "transparent",
-                color: activeTab === tab.id ? "var(--color-text-primary)" : "var(--color-text-muted)",
+                background: isActive ? "var(--color-bg-elevated)" : "transparent",
+                color: isActive ? "var(--color-text-primary)" : "var(--color-text-muted)",
                 borderRadius: "var(--radius-sm)",
-              }}
+                textDecoration: "none",
+              })}
             >
               {tab.label}
-            </button>
+            </NavLink>
           ))}
         </nav>
 
@@ -176,8 +156,18 @@ function AppInner() {
 
       {/* Main content */}
       <main style={{ flex: 1, overflow: "hidden" }}>
-        <ErrorBoundary key={activeTab}>
-          <ActivePage />
+        <ErrorBoundary key={location.pathname}>
+          <Routes>
+            <Route path="/" element={<AnalyzePage />} />
+            <Route path="/scheduler" element={<SchedulerPage />} />
+            <Route path="/config" element={<ConfigPage />} />
+            <Route path="/api-keys" element={<ApiKeysPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/memory" element={<MemoryPage />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/setup" element={<SetupPage />} />
+          </Routes>
         </ErrorBoundary>
       </main>
     </div>
@@ -187,7 +177,9 @@ function AppInner() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppInner />
+      <BrowserRouter>
+        <AppInner />
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
