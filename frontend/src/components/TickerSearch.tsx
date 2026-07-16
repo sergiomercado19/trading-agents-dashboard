@@ -26,8 +26,10 @@ export default function TickerSearch({ value, onChange }: Props) {
         type="text"
         value={query}
         onChange={(e) => {
-          setQuery(e.target.value);
+          const value = e.target.value;
+          setQuery(value);
           setShowDropdown(true);
+          onChange(value); // Call onChange when user types
         }}
         onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
         onFocus={() => query && setShowDropdown(true)}
