@@ -27,8 +27,8 @@ export default function SetupPage() {
   const refresh = () => {
     setLoading(true);
     Promise.all([
-      fetchJson<HealthData>("/api/health/detailed"),
-      fetchJson<DockerInfo>("/api/docker/info").catch(() => ({ is_docker: false, hostname: "", env_path: "" })),
+      fetchJson<HealthData>("/health/detailed"),
+      fetchJson<DockerInfo>("/docker/info").catch(() => ({ is_docker: false, hostname: "", env_path: "" })),
     ])
       .then(([h, d]) => { setHealth(h); setDocker(d); })
       .catch((e) => setError(e.message))
@@ -41,7 +41,7 @@ export default function SetupPage() {
     setInstalling(true);
     setInstallResult(null);
     try {
-      const result = await postJson<{ success: boolean; installed: string[]; errors: string[] }>("/api/install_missing", {});
+      const result = await postJson<{ success: boolean; installed: string[]; errors: string[] }>("/install_missing", {});
       setInstallResult(result);
       refresh();
     } catch (e: unknown) {
