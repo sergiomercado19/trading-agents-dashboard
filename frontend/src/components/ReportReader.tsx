@@ -68,54 +68,112 @@ export default function ReportReader({ content, onExport, fileTree, selectedFile
         <div style={{ fontWeight: 600, marginBottom: 8, color: "var(--text-primary)" }}>
           Contents
         </div>
-        {fileTree?.map((section) => (
-          <div key={section.path} style={{ marginBottom: 12 }}>
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                color: "var(--text-muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                padding: "4px 8px",
-                marginBottom: 4,
-              }}
-            >
-              {section.label}
-            </div>
-            {section.files.map((file) => (
+        {fileTree?.map((section) => {
+          const isCompleteReport = section.label === "Complete Report" && section.files.length === 1;
+          const completeFile = isCompleteReport ? section.files[0] : null;
+          const isActive = completeFile && selectedFile?.path === completeFile.path;
+
+          if (isCompleteReport && completeFile) {
+            return (
+              <div key={section.path} style={{ marginBottom: 12 }}>
+                <button
+                  onClick={() => onSelectFile?.(completeFile)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    width: "100%",
+                    padding: "10px 12px",
+                    borderRadius: "var(--radius-md)",
+                    cursor: "pointer",
+                    border: isActive
+                      ? "1px solid var(--color-accent)"
+                      : "1px solid var(--color-border)",
+                    background: isActive
+                      ? "var(--color-accent)"
+                      : "var(--color-bg-elevated)",
+                    color: isActive ? "#fff" : "var(--color-text-primary)",
+                    fontWeight: "var(--weight-semibold)",
+                    fontSize: "var(--text-sm)",
+                    fontFamily: "var(--font-mono)",
+                    letterSpacing: "0.02em",
+                    transition: "all var(--duration-fast) var(--ease-out)",
+                    boxShadow: isActive
+                      ? "0 0 16px rgba(59, 130, 246, 0.4)"
+                      : "0 1px 2px rgba(0,0,0,0.1)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "var(--color-bg-hover)";
+                      e.currentTarget.style.borderColor = "var(--color-accent)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "var(--color-bg-elevated)";
+                      e.currentTarget.style.borderColor = "var(--color-border)";
+                    }
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 1h8l4 4v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" />
+                    <path d="M10 1v4h4" />
+                  </svg>
+                  Complete Report
+                </button>
+              </div>
+            );
+          }
+
+          return (
+            <div key={section.path} style={{ marginBottom: 12 }}>
               <div
-                key={file.path}
-                onClick={() => onSelectFile?.(file)}
                 style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
                   padding: "4px 8px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                  marginBottom: 2,
-                  background: selectedFile?.path === file.path ? "var(--bg-tertiary)" : "transparent",
-                  border: selectedFile?.path === file.path ? "1px solid var(--accent)" : "1px solid transparent",
-                  color: selectedFile?.path === file.path ? "var(--accent)" : "var(--text-secondary)",
-                  fontWeight: selectedFile?.path === file.path ? 600 : 400,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedFile?.path !== file.path) {
-                    e.currentTarget.style.background = "var(--bg-hover)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedFile?.path !== file.path) {
-                    e.currentTarget.style.background = "transparent";
-                  }
+                  marginBottom: 4,
                 }}
               >
-                {file.name}
+                {section.label}
               </div>
-            ))}
-          </div>
-        ))}
+              {section.files.map((file) => (
+                <div
+                  key={file.path}
+                  onClick={() => onSelectFile?.(file)}
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    marginBottom: 2,
+                    background: selectedFile?.path === file.path ? "var(--bg-tertiary)" : "transparent",
+                    border: selectedFile?.path === file.path ? "1px solid var(--accent)" : "1px solid transparent",
+                    color: selectedFile?.path === file.path ? "var(--accent)" : "var(--text-secondary)",
+                    fontWeight: selectedFile?.path === file.path ? 600 : 400,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedFile?.path !== file.path) {
+                      e.currentTarget.style.background = "var(--bg-hover)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedFile?.path !== file.path) {
+                      e.currentTarget.style.background = "transparent";
+                    }
+                  }}
+                >
+                  {file.name}
+                </div>
+              ))}
+            </div>
+          );
+        })}
         {(!fileTree || fileTree.length === 0) && (
           <div style={{ color: "var(--text-muted)", fontSize: 11 }}>
             No files available
