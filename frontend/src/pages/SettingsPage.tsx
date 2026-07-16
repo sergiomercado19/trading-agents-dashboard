@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { fetchJson, postJson } from "../api/client";
+import { GeneralIcon, ApiKeysIcon, SystemIcon } from "../components/icons";
 
 /*
 |-------------------------------------------------------------------------------
@@ -330,24 +331,9 @@ export default function SettingsPage() {
                   }}
                 />
               )}
-              {section.id === "general" && (
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="8" cy="8" r="3" />
-                  <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" />
-                </svg>
-              )}
-              {section.id === "api-keys" && (
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M8 1a4 4 0 0 0-4 4c0 1.5.8 2.8 2 3.5L5 14h6l-1-5.5c1.2-.7 2-2 2-3.5a4 4 0 0 0-4-4z" />
-                  <circle cx="8" cy="5" r="1.5" />
-                </svg>
-              )}
-              {section.id === "system" && (
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="12" height="12" rx="2" />
-                  <path d="M5 6h6M5 8h4M5 10h5" />
-                </svg>
-              )}
+              {section.id === "general" && <GeneralIcon />}
+              {section.id === "api-keys" && <ApiKeysIcon />}
+              {section.id === "system" && <SystemIcon />}
               {section.label}
               {section.id === "system" && healthOk === false && (
                 <div
