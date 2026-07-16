@@ -1,5 +1,5 @@
 import { ThemeProvider, useTheme, THEME_IDS, THEME_LABELS } from "./components/ThemeProvider";
-import { BrowserRouter, Routes, Route, NavLink, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 import AnalyzePage from "./pages/AnalyzePage";
@@ -26,7 +26,6 @@ const TABS = [
 
 function AppInner() {
   const { theme, setTheme } = useTheme();
-  const location = useLocation();
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-bg-root)" }}>
@@ -156,13 +155,13 @@ function AppInner() {
 
       {/* Main content */}
       <main style={{ flex: 1, overflow: "hidden" }}>
-        <ErrorBoundary key={location.pathname}>
+        <ErrorBoundary>
           <Routes>
             <Route path="/" element={<AnalyzePage />} />
             <Route path="/scheduler" element={<SchedulerPage />} />
             <Route path="/config" element={<ConfigPage />} />
             <Route path="/api-keys" element={<ApiKeysPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/reports/*" element={<ReportsPage />} />
             <Route path="/memory" element={<MemoryPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/history" element={<HistoryPage />} />
