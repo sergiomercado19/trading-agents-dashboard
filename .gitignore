@@ -225,3 +225,4 @@ reports/
 # Private
 .graphify/
 .playwright-mcp/
+logs/
