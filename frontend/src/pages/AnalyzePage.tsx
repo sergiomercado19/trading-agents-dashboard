@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ControlPanel from "../components/ControlPanel";
 import MessageFeed from "../components/MessageFeed";
 import StatsDrawer from "../components/StatsDrawer";
@@ -14,6 +15,7 @@ interface Preset {
 }
 
 export default function AnalyzePage() {
+  const navigate = useNavigate();
   const [ticker, setTicker] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().split("T")[0] ?? new Date().toISOString().slice(0, 10));
   const [analysts, setAnalysts] = useState<string[]>(["market", "social", "news", "fundamentals"]);
@@ -60,6 +62,34 @@ export default function AnalyzePage() {
       setStartTime(null);
     }
   }, [done, error]);
+
+  // Redirect to reports page when analysis completes
+  useEffect(() => {
+    if (!done || !activeRunId) return;
+
+    const redirectToReport = async () => {
+      try {
+        const reports = await fetchJson<{ id: string; ticker: string; modified: number }[]>("/reports");
+        // Find the most recent report for this ticker
+        const tickerReports = reports
+          .filter((r) => r.ticker.toUpperCase() === ticker.toUpperCase())
+          .sort((a, b) => b.modified - a.modified);
+
+        if (tickerReports.length > 0) {
+          const latest = tickerReports[0]!;
+          const timestamp = latest.id.replace(/^[^_]+_/, "");
+          navigate(`/reports/${latest.ticker}/${timestamp}`);
+        } else {
+          // Fallback to reports page if no report found
+          navigate("/reports");
+        }
+      } catch {
+        navigate("/reports");
+      }
+    };
+
+    redirectToReport();
+  }, [done, activeRunId, ticker, navigate]);
 
   const handleStart = async () => {
     if (!ticker) return;
