@@ -4,24 +4,20 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 import AnalyzePage from "./pages/AnalyzePage";
 import SchedulerPage from "./pages/SchedulerPage";
-import ConfigPage from "./pages/ConfigPage";
-import ApiKeysPage from "./pages/ApiKeysPage";
+import SettingsPage from "./pages/SettingsPage";
 import ReportsPage from "./pages/ReportsPage";
 import MemoryPage from "./pages/MemoryPage";
 import ChatPage from "./pages/ChatPage";
 import HistoryPage from "./pages/HistoryPage";
-import SetupPage from "./pages/SetupPage";
 
 const TABS = [
   { path: "/", label: "Analyze" },
   { path: "/scheduler", label: "Scheduler" },
-  { path: "/config", label: "Config" },
-  { path: "/api-keys", label: "API Keys" },
   { path: "/reports", label: "Reports" },
   { path: "/memory", label: "Memory" },
   { path: "/chat", label: "Chat" },
   { path: "/history", label: "History" },
-  { path: "/setup", label: "Setup" },
+  { path: "/settings", label: "Settings" },
 ] as const;
 
 function AppInner() {
@@ -159,13 +155,11 @@ function AppInner() {
           <Routes>
             <Route path="/" element={<AnalyzePage />} />
             <Route path="/scheduler" element={<SchedulerPage />} />
-            <Route path="/config" element={<ConfigPage />} />
-            <Route path="/api-keys" element={<ApiKeysPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/reports/*" element={<ReportsPage />} />
             <Route path="/memory" element={<MemoryPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/history" element={<HistoryPage />} />
-            <Route path="/setup" element={<SetupPage />} />
           </Routes>
         </ErrorBoundary>
       </main>
