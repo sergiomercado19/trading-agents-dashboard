@@ -1,0 +1,222 @@
+.reportReader {
+  display: flex;
+  gap: 0;
+  height: 100%;
+}
+
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-2);
+  overflow-y: auto;
+  font-size: var(--text-xs);
+  background: var(--color-bg-surface);
+}
+
+.sidebarTitle {
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-2);
+  color: var(--color-text-primary);
+  font-size: var(--text-xs);
+}
+
+.section {
+  margin-bottom: var(--space-3);
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fileItem {
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+
+.fileItem:hover {
+  background: var(--color-bg-hover);
+}
+
+.fileItem.active {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  font-weight: var(--weight-semibold);
+}
+
+.completeReport {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  transition: all var(--duration-fast) var(--ease-out);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+}
+
+.completeReport:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-accent);
+}
+
+.completeReport.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.4);
+}
+
+.icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.empty {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.contentArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.exportBar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-surface);
+}
+
+.exportButton {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-primary);
+  padding: 3px 10px;
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: uppercase;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.exportButton:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-accent);
+}
+
+.reportContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+}
+
+.reportContent h1 {
+  margin: 18px 0 8px;
+  font-size: 18px;
+  color: var(--color-text-primary);
+}
+
+.reportContent h2 {
+  margin: 18px 0 8px;
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+
+.reportContent h3 {
+  margin: 18px 0 8px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.reportContent h4 {
+  margin: 18px 0 8px;
+  font-size: 12px;
+  color: var(--color-text-primary);
+}
+
+.reportContent table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+}
+
+.reportContent th,
+.reportContent td {
+  border: 1px solid var(--color-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.reportContent li {
+  margin: 2px 0;
+  padding-left: 4px;
+}
+
+.reportContent blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 12px;
+  margin: 8px 0;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.reportContent p {
+  margin: 6px 0;
+}
+
+.reportContent code {
+  background: var(--color-bg-elevated);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.reportContent pre {
+  background: var(--color-bg-elevated);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.reportContent a {
+  color: var(--color-accent);
+}

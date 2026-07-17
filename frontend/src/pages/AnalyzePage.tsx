@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ControlPanel from "../components/ControlPanel";
-import MessageFeed from "../components/MessageFeed";
+import ControlPanel from "../components/ControlPanel/ControlPanel";
+import MessageFeed from "../components/MessageFeed/MessageFeed";
 import StatsDrawer from "../components/StatsDrawer";
 import { useRunStream } from "../hooks/useRunStream";
 import { useRuns } from "../hooks/useRuns";

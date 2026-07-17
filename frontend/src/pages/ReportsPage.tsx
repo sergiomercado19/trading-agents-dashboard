@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchJson } from "../api/client";
-import ReportReader from "../components/ReportReader";
+import ReportReader from "../components/ReportReader/ReportReader";
 import FactCheckBadge from "../components/FactCheckBadge";
 import type { FactCheckStatus } from "../components/FactCheckBadge";
 
