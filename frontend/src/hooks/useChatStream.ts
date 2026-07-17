@@ -1,5 +1,12 @@
 import { useState, useCallback } from "react";
 
+export interface ChatMessageStream {
+  content: string;
+  provider: string;
+  timestamp: string;
+  role: "user" | "assistant";
+}
+
 export function useChatStream() {
   const [streaming, setStreaming] = useState(false);
   const [streamText, setStreamText] = useState("");

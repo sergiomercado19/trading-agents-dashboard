@@ -25,14 +25,14 @@ export function useRuns() {
 
   const start = useCallback(async (params: Record<string, unknown>) => {
     const run = await postJson<RunSnapshot>("/analyze", params);
-    setRuns((prev) => [run, ...prev]);
-    return run;
+    setRuns((prev) => [run as RunSnapshot, ...prev]);
+    return run as RunSnapshot;
   }, []);
 
   const stop = useCallback(async (runId: string) => {
     const run = await postJson<RunSnapshot>(`/stop/${runId}`, {});
-    setRuns((prev) => prev.map((r) => (r.run_id === runId ? run : r)));
-    return run;
+    setRuns((prev) => prev.map((r) => (r.run_id === runId ? (run as RunSnapshot) : r)));
+    return run as RunSnapshot;
   }, []);
 
   return { runs, loading, start, stop, refresh };

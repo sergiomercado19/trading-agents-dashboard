@@ -42,7 +42,7 @@ export function useChatSessions() {
   useEffect(() => { refresh(); }, []);
 
   const create = async (title?: string, model?: string) => {
-    const data = await postJson<ChatSession>("/chat/sessions", { title: title || "New Chat", model: model || "gpt-4o-mini" });
+    const data = await postJson("/chat/sessions", { title: title || "New Chat", model: model || "gpt-4o-mini" });
     refresh();
     return data;
   };
@@ -84,7 +84,7 @@ export function useChatSession(sessionId: string | null) {
     if (!sessionId) { setSession(null); return; }
     setLoading(true);
     fetchJson<ChatSession>(`/chat/sessions/${sessionId}`)
-      .then(setSession)
+      .then((s: ChatSession | null) => setSession(s))
       .catch(() => setSession(null))
       .finally(() => setLoading(false));
   }, [sessionId]);
@@ -92,7 +92,7 @@ export function useChatSession(sessionId: string | null) {
   const refresh = () => {
     if (!sessionId) return;
     fetchJson<ChatSession>(`/chat/sessions/${sessionId}`)
-      .then(setSession)
+      .then((s: ChatSession | null) => setSession(s))
       .catch(() => setSession(null));
   };
 

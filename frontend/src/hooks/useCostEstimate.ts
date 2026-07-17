@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { postJson } from "../api/client";
+import { useApi } from "./useApi";
+import { routes } from "../api/routes";
 
 export interface CostEstimate {
   estimated_tokens_in: number;
@@ -23,14 +24,18 @@ export function useCostEstimate(formData: {
   const [estimate, setEstimate] = useState<CostEstimate | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [, { execute }] = useApi<CostEstimate>(routes.estimate.estimate.path, {
+    retry: { maxRetries: 2 },
+  });
+
   useEffect(() => {
     if (!formData.ticker || !formData.date) return;
 
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const data = await postJson<CostEstimate>("/estimate", formData);
-        setEstimate(data);
+        const data = await execute({ method: "POST", body: formData });
+        if (data) setEstimate(data);
       } catch {
         // ignore
       } finally {
@@ -47,6 +52,7 @@ export function useCostEstimate(formData: {
     formData.provider,
     formData.quick_model,
     formData.deep_model,
+    execute,
   ]);
 
   return { estimate, loading };

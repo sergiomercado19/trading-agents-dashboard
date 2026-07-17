@@ -48,8 +48,8 @@ export function useSchedulerJobs() {
 
   const addJob = useCallback(async (params: Record<string, unknown>) => {
     const job = await postJson<SchedulerJob>("/scheduler/jobs", params);
-    setJobs((prev) => [...prev, job]);
-    return job;
+    setJobs((prev) => [...prev, job as SchedulerJob]);
+    return job as SchedulerJob;
   }, []);
 
   const removeJob = useCallback(async (jobId: string) => {

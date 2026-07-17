@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { createEventSource } from "../api/client";
+/**
+ * Run Stream Hook
+ * Uses the new service with proper reconnection and error handling
+ */
+
+import { useEffect, useState, useCallback } from "react";
+import { runStreamService } from "../services/runStreamService";
 
 export interface AgentUpdate {
   agent: string;
@@ -32,86 +37,83 @@ export interface RunSnapshot {
   };
 }
 
+export interface RunStreamState {
+  snapshot: RunSnapshot | null;
+  agents: Record<string, string>;
+  messages: { agent: string; content: string }[];
+  stats: RunSnapshot["stats"] | null;
+  done: boolean;
+  error: string | null;
+}
+
+export type UseRunStreamResult = RunStreamState & {
+  disconnect: () => void;
+};
+
 export function useRunStream(runId: string | null) {
-  const [snapshot, setSnapshot] = useState<RunSnapshot | null>(null);
-  const [agents, setAgents] = useState<Record<string, string>>({});
-  const [messages, setMessages] = useState<StreamMessage[]>([]);
-  const [stats, setStats] = useState<RunSnapshot["stats"] | null>(null);
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const esRef = useRef<EventSource | null>(null);
-  const closedRef = useRef(false);
-  const serverErrorRef = useRef(false);
+  const [state, setState] = useState<RunStreamState>({
+    snapshot: null,
+    agents: {},
+    messages: [],
+    stats: null,
+    done: false,
+    error: null,
+  });
 
   useEffect(() => {
-    if (!runId) return;
-
-    closedRef.current = false;
-    serverErrorRef.current = false;
-    const es = createEventSource(`/stream?run_id=${runId}`);
-    esRef.current = es;
-
-    es.addEventListener("snapshot", (e: MessageEvent) => {
-      const raw = JSON.parse(e.data);
-      const data = raw.data ?? raw;
-      setSnapshot(data);
-      if (data.agents) setAgents(data.agents);
-      if (data.stats) setStats(data.stats);
-    });
-
-    es.addEventListener("agent_update", (e: MessageEvent) => {
-      const data = JSON.parse(e.data);
-      setAgents((prev) => ({ ...prev, [data.agent]: data.status }));
-    });
-
-    es.addEventListener("message", (e: MessageEvent) => {
-      const data = JSON.parse(e.data);
-      const content = data.content?.trim() || "";
-      if (!content) return;
-      setMessages((prev) => {
-        const last = prev.length > 0 ? prev[prev.length - 1] : undefined;
-        if (last && last.content === content) return prev;
-        return [...prev, { agent: data.agent, content }];
+    if (!runId) {
+      setState({
+        snapshot: null,
+        agents: {},
+        messages: [],
+        stats: null,
+        done: false,
+        error: null,
       });
-    });
+      return;
+    }
 
-    es.addEventListener("stats", (e: MessageEvent) => {
-      const data = JSON.parse(e.data);
-      if (data.stats) setStats(data.stats);
-      else setStats((prev) => prev ? { ...prev, elapsed_s: data.elapsed || prev.elapsed_s } : prev);
-    });
-
-    es.addEventListener("final_report", (e: MessageEvent) => {
-      const data = JSON.parse(e.data);
-      setSnapshot((prev) => prev ? { ...prev, decision: data.decision } : prev);
-    });
-
-    es.addEventListener("error", (e: MessageEvent) => {
-      try {
-        const data = JSON.parse(e.data);
-        serverErrorRef.current = true;
-        setError(data.error || "Unknown error");
-      } catch {
-        if (!closedRef.current) setError("SSE connection lost");
-      }
-    });
-
-    es.addEventListener("done", () => {
-      closedRef.current = true;
-      setDone(true);
-      es.close();
-    });
-
-    es.onerror = () => {
-      if (!closedRef.current && !serverErrorRef.current) setError("SSE connection lost");
-    };
+    const unsubscribe = runStreamService.subscribe(setState);
+    runStreamService.connect(runId);
 
     return () => {
-      closedRef.current = true;
-      es.close();
-      esRef.current = null;
+      unsubscribe();
+      // Don't disconnect here - let service manage connection lifecycle
     };
   }, [runId]);
 
-  return { snapshot, agents, messages, stats, done, error };
+  const disconnect = useCallback(() => {
+    runStreamService.disconnect();
+  }, []);
+
+  return { ...state, disconnect };
+}
+
+/**
+ * Hook for manual connection control
+ */
+export function useRunStreamControl() {
+  const [state, setState] = useState<RunStreamState>({
+    snapshot: null,
+    agents: {},
+    messages: [],
+    stats: null,
+    done: false,
+    error: null,
+  });
+
+  useEffect(() => {
+    const unsubscribe = runStreamService.subscribe(setState);
+    return () => unsubscribe();
+  }, []);
+
+  const connect = useCallback((runId: string) => {
+    runStreamService.connect(runId);
+  }, []);
+
+  const disconnect = useCallback(() => {
+    runStreamService.disconnect();
+  }, []);
+
+  return { ...state, connect, disconnect };
 }

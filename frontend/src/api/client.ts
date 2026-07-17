@@ -283,7 +283,7 @@ export const api = new ApiClient();
  * Backward-compatible helpers
  */
 export const fetchJson = <T>(path: string, options?: ApiRequestOptions) => api.get<T>(path, undefined, options);
-export const postJson = <TBody = unknown>(path: string, body: TBody, options?: ApiRequestOptions<TBody>) => api.post<unknown, TBody>(path, body, options);
+export const postJson = <T, TBody = unknown>(path: string, body: TBody, options?: ApiRequestOptions<TBody>) => api.post<T, TBody>(path, body, options);
 export const getJson = <T>(path: string, params?: Record<string, string | number | boolean | undefined | null>, options?: Omit<ApiRequestOptions, 'body' | 'method'>) => api.get<T, Record<string, string | number | boolean | undefined | null>>(path, (params ?? undefined) as Record<string, string | number | boolean | undefined | null> | undefined, options);
 export const postForm = (path: string, formData: FormData, options?: ApiRequestOptions<FormData>) => api.request(path, { ...options, method: 'POST', body: formData, headers: {} });
 export const createEventSource = (path: string): EventSource => new EventSource(`${api['baseUrl']}${path}`);
