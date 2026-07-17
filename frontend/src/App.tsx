@@ -2,6 +2,7 @@ import { ThemeProvider, useTheme, THEME_IDS, THEME_LABELS } from "./components/T
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { TerminalIcon, ModernIcon, BloombergIcon } from "./components/icons";
+import { NotificationProvider, NotificationContainer } from "./context/NotificationContext";
 
 import AnalyzePage from "./pages/AnalyzePage";
 import SchedulerPage from "./pages/SchedulerPage";
@@ -150,7 +151,10 @@ export default function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
-        <AppInner />
+        <NotificationProvider>
+          <AppInner />
+          <NotificationContainer />
+        </NotificationProvider>
       </BrowserRouter>
     </ThemeProvider>
   );

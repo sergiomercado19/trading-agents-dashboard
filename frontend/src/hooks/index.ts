@@ -27,6 +27,7 @@ export { useSchedulerJobs, type SchedulerJob } from "./useSchedulerJobs";
 export { useDebateTranscript, type DebateTranscript } from "./useDebateTranscript";
 export { useSummary, type SummaryResult } from "./useSummary";
 export { useTickerSearch, type TickerSuggestion } from "./useTickerSearch";
+export { useReportReader } from "./useReportReader";
 
 // Request deduplication
 export { useDeduplicatedRequest, createQueryKey, type RequestDeduplicator } from "../utils/requestDeduplication";
