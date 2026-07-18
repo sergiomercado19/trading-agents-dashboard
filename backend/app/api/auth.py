@@ -1,7 +1,6 @@
+from datetime import datetime, timedelta, timezone
 from typing import Optional
-from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Response
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel, EmailStr
@@ -13,12 +12,13 @@ from app.core.security import (
     create_refresh_token,
     decode_token,
     verify_token_type,
+    hash_token,
 )
 from app.core.config import settings
 from app.models import User, RefreshToken
 from app.api.dependencies import get_current_user
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(tags=["auth"])
 
 
 class Token(BaseModel):
@@ -39,6 +39,11 @@ class UserCreate(BaseModel):
     full_name: Optional[str] = None
 
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
 class UserResponse(BaseModel):
     id: int
     email: str
@@ -46,7 +51,7 @@ class UserResponse(BaseModel):
     full_name: Optional[str]
     is_active: bool
     is_superuser: bool
-    created_at: str
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -90,19 +95,18 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 async def login(
-    response: Response,
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    login_data: LoginRequest,
     db: AsyncSession = Depends(get_db)
 ):
     # Find user by email or username
     result = await db.execute(
         select(User).where(
-            (User.email == form_data.username) | (User.username == form_data.username)
+            (User.email == login_data.username) | (User.username == login_data.username)
         )
     )
     user = result.scalar_one_or_none()
     
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    if not user or not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email/username or password",
@@ -128,8 +132,7 @@ async def login(
     refresh_token = create_refresh_token(data={"sub": user.id, "email": user.email})
     
     # Store refresh token hash
-    from app.core.security import get_password_hash
-    refresh_token_hash = get_password_hash(refresh_token)
+    refresh_token_hash = hash_token(refresh_token)
     refresh_token_record = RefreshToken(
         user_id=user.id,
         token_hash=refresh_token_hash,
@@ -164,8 +167,7 @@ async def refresh_token(
         )
     
     # Check if refresh token exists and is not revoked
-    from app.core.security import get_password_hash
-    token_hash = get_password_hash(request.refresh_token)
+    token_hash = hash_token(request.refresh_token)
     result = await db.execute(
         select(RefreshToken).where(
             RefreshToken.token_hash == token_hash,
@@ -203,7 +205,7 @@ async def refresh_token(
     new_refresh_token = create_refresh_token(data={"sub": user.id, "email": user.email})
     
     # Store new refresh token
-    new_refresh_token_hash = get_password_hash(new_refresh_token)
+    new_refresh_token_hash = hash_token(new_refresh_token)
     new_refresh_token_record = RefreshToken(
         user_id=user.id,
         token_hash=new_refresh_token_hash,
@@ -223,8 +225,7 @@ async def logout(
     request: RefreshTokenRequest,
     db: AsyncSession = Depends(get_db)
 ):
-    from app.core.security import get_password_hash
-    token_hash = get_password_hash(request.refresh_token)
+    token_hash = hash_token(request.refresh_token)
     result = await db.execute(
         select(RefreshToken).where(RefreshToken.token_hash == token_hash)
     )
@@ -240,6 +241,3 @@ async def logout(
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
-
-
-from datetime import datetime, timezone

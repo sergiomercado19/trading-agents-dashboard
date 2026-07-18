@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     # CORS
     cors_origins: List[str] = Field(
-        default=["http://localhost:5173", "http://localhost:3000"],
+        default=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],
         validation_alias="CORS_ORIGINS"
     )
     cors_allow_credentials: bool = Field(default=True, validation_alias="CORS_ALLOW_CREDENTIALS")
@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     backend_host: str = Field(default="0.0.0.0", validation_alias="BACKEND_HOST")
     backend_port: int = Field(default=8000, validation_alias="BACKEND_PORT")
     backend_reload: bool = Field(default=True, validation_alias="BACKEND_RELOAD")
+    environment: str = Field(default="development", validation_alias="ENVIRONMENT")
 
     # Alpaca
     alpaca_api_key: str = Field(default="", validation_alias="ALPACA_API_KEY")
@@ -91,6 +92,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "ignore"
 
 
 settings = Settings()

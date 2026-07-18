@@ -22,11 +22,12 @@ interface AuthState {
   setTokens: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
+  initialize: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       accessToken: null,
       refreshToken: null,
@@ -52,6 +53,12 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
         }),
       setLoading: (isLoading) => set({ isLoading }),
+      initialize: () => {
+        const { accessToken, refreshToken } = get();
+        if (!accessToken || !refreshToken) {
+          set({ isLoading: false });
+        }
+      },
     }),
     {
       name: "auth-storage",
@@ -61,6 +68,11 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.initialize();
+        }
+      },
     }
   )
 );

@@ -41,6 +41,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    username: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.USER, nullable=False)
@@ -53,6 +54,7 @@ class User(Base):
     # Relationships
     analyses: Mapped[List["Analysis"]] = relationship("Analysis", back_populates="user", cascade="all, delete-orphan")
     api_keys: Mapped[List["APIKey"]] = relationship("APIKey", back_populates="user", cascade="all, delete-orphan")
+    trades: Mapped[List["Trade"]] = relationship("Trade", back_populates="user", cascade="all, delete-orphan")
     alpaca_config: Mapped[Optional["AlpacaConfig"]] = relationship("AlpacaConfig", back_populates="user", uselist=False, cascade="all, delete-orphan")
     ai_config: Mapped[Optional["AIConfig"]] = relationship("AIConfig", back_populates="user", uselist=False, cascade="all, delete-orphan")
 

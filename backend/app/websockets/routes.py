@@ -1,6 +1,7 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from typing import Optional
 from app.core.database import get_db
 from app.core.security import decode_token, verify_token_type
 from app.websockets.manager import ws_manager
