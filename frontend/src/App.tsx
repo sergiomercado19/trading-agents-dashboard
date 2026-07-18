@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/authStore";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { AppLayout } from "@/components/layout/AppLayout";
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 import HomePage from "@/pages/HomePage";
@@ -71,7 +73,9 @@ function AppRoutes() {
         path="/"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <AppLayout>
+              <HomePage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -79,7 +83,9 @@ function AppRoutes() {
         path="/analyze"
         element={
           <ProtectedRoute>
-            <AnalyzePage />
+            <AppLayout>
+              <AnalyzePage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -87,7 +93,9 @@ function AppRoutes() {
         path="/history"
         element={
           <ProtectedRoute>
-            <HistoryPage />
+            <AppLayout>
+              <HistoryPage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -95,7 +103,9 @@ function AppRoutes() {
         path="/portfolio"
         element={
           <ProtectedRoute>
-            <PortfolioPage />
+            <AppLayout>
+              <PortfolioPage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -103,7 +113,9 @@ function AppRoutes() {
         path="/settings"
         element={
           <ProtectedRoute>
-            <SettingsPage />
+            <AppLayout>
+              <SettingsPage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -115,9 +127,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
