@@ -1,295 +1,150 @@
-/**
- * Typed API Client
- * - Centralized error handling
- * - Retry logic with exponential backoff
- * - AbortController support for cancellation
- * - Full TypeScript type safety
- */
+import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
-import { type Route } from './routes';
-import {
-  CancellationError,
-  TimeoutError,
-  isRetriableError,
-  createApiError,
-} from '../lib/errors';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000";
 
-/**
- * Default retry configuration
- */
-export interface RetryConfig {
-  maxRetries: number;
-  baseDelayMs: number;
-  maxDelayMs: number;
-  retriableStatuses: number[];
-  retriableCodes: string[];
-}
+class ApiClient {
+  private client: AxiosInstance;
+  private refreshPromise: Promise<string> | null = null;
 
-export const DEFAULT_RETRY_CONFIG: RetryConfig = {
-  maxRetries: 3,
-  baseDelayMs: 500,
-  maxDelayMs: 8000,
-  retriableStatuses: [429, 500, 502, 503, 504],
-  retriableCodes: ['NETWORK_ERROR', 'TIMEOUT', 'CONNECTION_FAILED', 'SERVICE_UNAVAILABLE', 'GATEWAY_TIMEOUT'],
-};
+  constructor() {
+    this.client = axios.create({
+      baseURL: API_URL,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
 
-/**
- * Request options extending standard fetch options
- */
-export interface ApiRequestOptions<TBody = unknown> extends Omit<RequestInit, 'body' | 'method'> {
-  /** HTTP method */
-  method?: string;
-  /** Request body */
-  body?: TBody;
-  /** Query parameters */
-  params?: Record<string, string | number | boolean | undefined | null>;
-  /** Request timeout in ms */
-  timeout?: number;
-  /** Retry configuration */
-  retry?: Partial<RetryConfig>;
-  /** Abort signal for cancellation */
-  signal?: AbortSignal;
-  /** Skip automatic retry */
-  noRetry?: boolean;
-  /** Custom headers */
-  headers?: Record<string, string>;
-}
-
-/**
- * Request context for logging/debugging
- */
-export interface RequestContext {
-  url: string;
-  method: string;
-  timestamp: Date;
-  attempt: number;
-  retryAfter?: number;
-}
-
-/**
- * Typed API Client
- * Accepts either Route objects or string paths for backward compatibility
- */
-export class ApiClient {
-  private baseUrl: string;
-  private defaultHeaders: Record<string, string>;
-
-  constructor(baseUrl = '/api', defaultHeaders: Record<string, string> = {}) {
-    this.baseUrl = baseUrl;
-    this.defaultHeaders = {
-      'Content-Type': 'application/json',
-      ...defaultHeaders,
-    };
-  }
-
-  /**
-   * Build full URL with path and query parameters
-   */
-  private buildUrl(path: string, params?: Record<string, string | number | boolean | undefined | null>): string {
-    // Handle relative paths properly without using URL constructor with relative base
-    const base = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    let url = `${base}${cleanPath}`;
-    if (params) {
-      const searchParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          searchParams.append(key, String(value));
+    this.client.interceptors.request.use(
+      (config: InternalAxiosRequestConfig) => {
+        const token = localStorage.getItem("access_token");
+        if (token && config.headers) {
+          config.headers.Authorization = `Bearer ${token}`;
         }
-      });
-      const qs = searchParams.toString();
-      if (qs) url += `?${qs}`;
-    }
-    return url;
-  }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
 
-  /**
-   * Calculate exponential backoff delay with jitter
-   */
-  private calculateDelay(attempt: number, config: RetryConfig = DEFAULT_RETRY_CONFIG): number {
-    const exponentialDelay = config.baseDelayMs * Math.pow(2, attempt);
-    const cappedDelay = Math.min(exponentialDelay, config.maxDelayMs);
-    // Add jitter: ±25%
-    const jitter = cappedDelay * 0.25 * (Math.random() * 2 - 1);
-    return Math.floor(cappedDelay + jitter);
-  }
+    this.client.interceptors.response.use(
+      (response) => response,
+      async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-  /**
-   * Sleep utility
-   */
-  private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
 
-  /**
-   * Core request method with retry logic
-   */
-  async request<TResponse, TBody = unknown>(
-    route: Route<any, TResponse> | string,
-    options: ApiRequestOptions<TBody> = {}
-  ): Promise<TResponse> {
-    const isStringRoute = typeof route === 'string';
-
-    const {
-      method = isStringRoute ? 'GET' : route.method,
-      body,
-      params,
-      timeout = 30000,
-      retry,
-      signal,
-      noRetry = false,
-      headers,
-      ...fetchOptions
-    } = options;
-
-    // Prepare body
-    let requestBody: BodyInit | undefined;
-    if (body !== undefined && body !== null) {
-      if (typeof body === 'string' || body instanceof FormData || body instanceof Blob || body instanceof URLSearchParams) {
-        requestBody = body;
-      } else {
-        requestBody = JSON.stringify(body);
-      }
-    }
-
-    // Prepare request
-    const url = this.buildUrl(isStringRoute ? route : route.path, params);
-    const requestHeaders = { ...this.defaultHeaders, ...headers };
-    const retryConfig = { ...DEFAULT_RETRY_CONFIG, ...retry };
-
-    // Create AbortController for timeout
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), timeout);
-
-    // Combine signals
-    const combinedSignal = signal
-      ? AbortSignal.any([signal, abortController.signal])
-      : abortController.signal;
-
-    let attempt = 0;
-
-    while (true) {
-      try {
-        const response = await fetch(url, {
-          method,
-          headers: requestHeaders,
-          body: requestBody,
-          signal: combinedSignal,
-          ...fetchOptions,
-        });
-
-        clearTimeout(timeoutId);
-
-        // Handle non-OK responses
-        if (!response.ok) {
-          const error = await createApiError(response, url, method);
-          throw error;
-        }
-
-        // Handle 204 No Content
-        if (response.status === 204) {
-          return undefined as TResponse;
-        }
-
-        // Parse response
-        const contentType = response.headers.get('content-type');
-        if (contentType?.includes('application/json')) {
-          return (await response.json()) as TResponse;
-        }
-        if (contentType?.includes('text/')) {
-          return (await response.text()) as TResponse;
-        }
-        return (await response.blob()) as TResponse;
-      } catch (error) {
-        clearTimeout(timeoutId);
-        const caughtError = error instanceof Error ? error : new Error(String(error));
-
-        // Handle abort
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          if (signal?.aborted) {
-            throw new CancellationError('Request cancelled');
+          try {
+            const newToken = await this.refreshToken();
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
+            return this.client(originalRequest);
+          } catch {
+            this.clearAuth();
+            window.location.href = "/login";
+            return Promise.reject(error);
           }
-          throw new TimeoutError(`Request timeout after ${timeout}ms`, url, method);
         }
 
-        // Check if we should retry
-        const shouldRetry =
-          !noRetry &&
-          attempt < retryConfig.maxRetries &&
-          isRetriableError(caughtError);
-
-        if (!shouldRetry) {
-          throw caughtError;
-        }
-
-        // Calculate delay and wait
-        const delay = this.calculateDelay(attempt, retryConfig);
-        await this.sleep(delay);
-        attempt++;
+        return Promise.reject(error);
       }
+    );
+  }
+
+  private async refreshToken(): Promise<string> {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (!refreshToken) {
+      throw new Error("No refresh token");
+    }
+
+    this.refreshPromise = (async () => {
+      const response = await axios.post(`${API_URL}/api/auth/refresh`, {
+        refresh_token: refreshToken,
+      });
+      const { access_token, refresh_token: newRefreshToken } = response.data;
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("refresh_token", newRefreshToken);
+      return access_token;
+    })();
+
+    try {
+      return await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
     }
   }
 
-  /**
-   * Convenience methods for common HTTP verbs
-   */
-  get<TResponse, TParams extends Record<string, string | number | boolean | undefined | null> = Record<string, string | number | boolean | undefined | null>>(
-    route: Route<any, TResponse> | string,
-    params?: TParams,
-    options?: Omit<ApiRequestOptions, 'body' | 'method'>
-  ): Promise<TResponse> {
-    return this.request(route, { ...options, method: 'GET', params });
+  private doClearAuth(): void {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
   }
 
-  post<TResponse, TBody = unknown>(
-    route: Route<any, TResponse> | string,
-    body?: TBody,
-    options?: ApiRequestOptions<TBody>
-  ): Promise<TResponse> {
-    return this.request(route, { ...options, method: 'POST', body });
+  setAuth(tokens: { access_token: string; refresh_token: string }): void {
+    localStorage.setItem("access_token", tokens.access_token);
+    localStorage.setItem("refresh_token", tokens.refresh_token);
   }
 
-  patch<TResponse, TBody = unknown>(
-    route: Route<any, TResponse> | string,
-    body?: TBody,
-    options?: ApiRequestOptions<TBody>
-  ): Promise<TResponse> {
-    return this.request(route, { ...options, method: 'PATCH', body });
+  clearAuth(): void {
+    this.doClearAuth();
   }
 
-  put<TResponse, TBody = unknown>(
-    route: Route<any, TResponse> | string,
-    body?: TBody,
-    options?: ApiRequestOptions<TBody>
-  ): Promise<TResponse> {
-    return this.request(route, { ...options, method: 'PUT', body });
+  getAccessToken(): string | null {
+    return localStorage.getItem("access_token");
   }
 
-  delete<TResponse>(
-    route: Route<any, TResponse> | string,
-    options?: ApiRequestOptions
-  ): Promise<TResponse> {
-    return this.request(route, { ...options, method: 'DELETE' });
+  async get<T>(url: string, params?: object) {
+    const response = await this.client.get<T>(url, { params });
+    return response.data;
+  }
+
+  async post<T>(url: string, data?: object) {
+    const response = await this.client.post<T>(url, data);
+    return response.data;
+  }
+
+  async put<T>(url: string, data?: object) {
+    const response = await this.client.put<T>(url, data);
+    return response.data;
+  }
+
+  async patch<T>(url: string, data?: object) {
+    const response = await this.client.patch<T>(url, data);
+    return response.data;
+  }
+
+  async delete<T>(url: string) {
+    const response = await this.client.delete<T>(url);
+    return response.data;
+  }
+
+  getWsUrl(path: string): string {
+    return `${WS_URL}${path}`;
   }
 }
 
-/**
- * Default client instance
- */
 export const api = new ApiClient();
 
-/**
- * Backward-compatible helpers
- */
-export const fetchJson = <T>(path: string, options?: ApiRequestOptions) => api.get<T>(path, undefined, options);
-export const postJson = <T, TBody = unknown>(path: string, body: TBody, options?: ApiRequestOptions<TBody>) => api.post<T, TBody>(path, body, options);
-export const getJson = <T>(path: string, params?: Record<string, string | number | boolean | undefined | null>, options?: Omit<ApiRequestOptions, 'body' | 'method'>) => api.get<T, Record<string, string | number | boolean | undefined | null>>(path, (params ?? undefined) as Record<string, string | number | boolean | undefined | null> | undefined, options);
-export const postForm = (path: string, formData: FormData, options?: ApiRequestOptions<FormData>) => api.request(path, { ...options, method: 'POST', body: formData, headers: {} });
-export const createEventSource = (path: string): EventSource => new EventSource(`${api['baseUrl']}${path}`);
+// Backward compatibility exports
+export const fetchJson = <T>(url: string, _options?: RequestInit): Promise<T> =>
+  api.get<T>(url);
 
-/**
- * Create a client with custom base URL (e.g., for different environments)
- */
-export function createApiClient(baseUrl: string, defaultHeaders?: Record<string, string>): ApiClient {
-  return new ApiClient(baseUrl, defaultHeaders);
-}
+export const postJson = <T>(url: string, data: unknown): Promise<T> =>
+  api.post<T>(url, data as object);
+
+export const getJson = <T>(url: string): Promise<T> =>
+  api.get<T>(url);
+
+export const postForm = <T>(url: string, formData: FormData): Promise<T> =>
+  api.post<T>(url, formData);
+
+export const createEventSource = (url: string): EventSource => {
+  return new EventSource(`${API_URL}${url}`);
+};
+
+export { ApiClient };

@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 import logging
-
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 
-from backend.app.routes import health, stream, runs, config, env, analyze, ticker, estimate, providers, reports, file_reports, scheduler, test_key, memory, chat, history, presets
-
+from app.api import auth, health
+from app.websockets import routes as ws_routes
+from app.core.config import settings
+from app.core.database import init_db, close_db
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, settings.log_level.upper()),
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -18,15 +19,28 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from backend.app.services.scheduler import scheduler as sched
+    logger.info("Starting up...")
     try:
-        sched.start()
-        logger.info("Scheduler started")
+        await init_db()
+        logger.info("Database initialized")
     except Exception as e:
-        logger.warning("Scheduler failed to start: %s", e)
-    yield
+        logger.warning(f"Database initialization failed: {e}")
+    
     try:
-        sched.shutdown()
+        await ws_manager.start_heartbeat()
+        logger.info("WebSocket heartbeat started")
+    except Exception as e:
+        logger.warning(f"WebSocket heartbeat failed to start: {e}")
+    
+    yield
+    
+    logger.info("Shutting down...")
+    try:
+        await ws_manager.stop_heartbeat()
+    except Exception:
+        pass
+    try:
+        await close_db()
     except Exception:
         pass
 
@@ -41,29 +55,18 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
-    allow_credentials=True,
+    allow_origins=settings.cors_origins,
+    allow_credentials=settings.cors_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(health.router)
-app.include_router(stream.router)
-app.include_router(runs.router)
-app.include_router(config.router)
-app.include_router(env.router)
-app.include_router(analyze.router)
-app.include_router(ticker.router)
-app.include_router(estimate.router)
-app.include_router(providers.router)
-app.include_router(reports.router)
-app.include_router(file_reports.router)
-app.include_router(scheduler.router)
-app.include_router(test_key.router)
-app.include_router(memory.router)
-app.include_router(chat.router)
-app.include_router(history.router)
-app.include_router(presets.router)
+# API routes
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(health.router, prefix="/api", tags=["health"])
+
+# WebSocket routes
+app.include_router(ws_routes.router, tags=["websocket"])
 
 
 @app.get("/api")

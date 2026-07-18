@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   tradingagents:
     build: .
@@ -31,6 +33,70 @@ services:
     profiles:
       - ollama
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: trading-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-trading}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trading}
+      POSTGRES_DB: ${POSTGRES_DB:-trading_agents}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trading} -d ${POSTGRES_DB:-trading_agents}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: trading-redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  perplefina:
+    image: ghcr.io/perplefina/perplefina:latest
+    container_name: trading-perplefina
+    environment:
+      PORT: "3000"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-trading}:${POSTGRES_PASSWORD:-trading}@postgres:5432/${POSTGRES_DB:-trading_agents}"
+      REDIS_URL: "redis://redis:6379"
+      NODE_ENV: "development"
+      LOG_LEVEL: "debug"
+      ALPACA_API_KEY: "${ALPACA_API_KEY:-}"
+      ALPACA_API_SECRET: "${ALPACA_API_SECRET:-}"
+      ALPACA_PAPER: "${ALPACA_PAPER:-true}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+    ports:
+      - "${PERPLEFINA_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - perplefina
+
 volumes:
   tradingagents_data:
   ollama_data:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: trading-network

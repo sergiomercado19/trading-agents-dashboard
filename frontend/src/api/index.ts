@@ -10,9 +10,7 @@ export * from './types';
 export * from './routes';
 
 // Client
-export { ApiClient, api, type ApiRequestOptions, type RetryConfig, type RequestContext } from './client';
-
-// Helpers - re-export from client for backward compatibility
+export { ApiClient, api } from './client';
 export { fetchJson, postJson, getJson, postForm, createEventSource } from './client';
 
 // Errors
@@ -31,4 +29,4 @@ export {
   ApiErrorCode,
   HTTP_STATUS,
   statusToCode,
-} from '../lib/errors';
+} from '../utils/errors';

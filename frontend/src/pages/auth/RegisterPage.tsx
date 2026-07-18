@@ -1,0 +1,162 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import { api } from "@/utils/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+
+export default function RegisterPage() {
+  const navigate = useNavigate();
+  const { setAuth } = useAuthStore();
+  const [formData, setFormData] = useState({
+    email: "",
+    username: "",
+    full_name: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data = await api.post<{ access_token: string; refresh_token: string; user: any }>("/api/auth/register", {
+        email: formData.email,
+        username: formData.username,
+        full_name: formData.full_name,
+        password: formData.password,
+      });
+
+      setAuth(data.user, data.access_token, data.refresh_token);
+      navigate("/");
+    } catch (err: any) {
+      setError(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "var(--color-bg-root)", padding: "var(--space-4)" }}>
+      <Card style={{ width: "100%", maxWidth: 400 }}>
+        <CardHeader style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "3rem", marginBottom: "var(--space-3)" }}>🚀</div>
+          <CardTitle>Create Account</CardTitle>
+          <CardDescription>Start your trading journey with AI-powered analysis</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+            {error && (
+              <div style={{ padding: "var(--space-3)", background: "var(--color-error-subtle)", color: "var(--color-error)", borderRadius: "var(--radius-md)", fontSize: "var(--text-sm)" }}>
+                {error}
+              </div>
+            )}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="trader123"
+                required
+                minLength={3}
+                disabled={loading}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              <Label htmlFor="full_name">Full Name (optional)</Label>
+              <Input
+                id="full_name"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleChange}
+                placeholder="John Doe"
+                disabled={loading}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+                minLength={8}
+                disabled={loading}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Creating account..." : "Create Account"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter style={{ textAlign: "center" }}>
+          <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
+            Already have an account?{" "}
+            <Link to="/login" style={{ color: "var(--color-accent)", fontWeight: "var(--weight-medium)" }}>
+              Sign in
+            </Link>
+          </p>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}

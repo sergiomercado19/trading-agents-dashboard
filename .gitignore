@@ -224,5 +224,6 @@ reports/
 
 # Private
 .graphify/
+.opencode/
 .playwright-mcp/
 logs/

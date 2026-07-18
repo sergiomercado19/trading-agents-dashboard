@@ -1,164 +1,123 @@
-import { ThemeProvider, useTheme, THEME_IDS, THEME_LABELS } from "./components/ThemeProvider";
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { TerminalIcon, ModernIcon, BloombergIcon } from "./components/icons";
-import { NotificationProvider, NotificationContainer } from "./context/NotificationContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/authStore";
+import LoginPage from "@/pages/auth/LoginPage";
+import RegisterPage from "@/pages/auth/RegisterPage";
+import HomePage from "@/pages/HomePage";
+import AnalyzePage from "@/pages/AnalyzePage";
+import HistoryPage from "@/pages/HistoryPage";
+import PortfolioPage from "@/pages/PortfolioPage";
+import SettingsPage from "@/pages/SettingsPage";
+import LoadingScreen from "@/components/LoadingScreen";
 
-import AnalyzePage from "./pages/AnalyzePage";
-import SchedulerPage from "./pages/SchedulerPage";
-import SettingsPage from "./pages/SettingsPage";
-import ReportsPage from "./pages/ReportsPage";
-import MemoryPage from "./pages/MemoryPage";
-import ChatPage from "./pages/ChatPage";
-import HistoryPage from "./pages/HistoryPage";
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-const TABS = [
-  { path: "/", label: "Home" },
-  { path: "/analyze", label: "Analyze" },
-  { path: "/scheduler", label: "Scheduler" },
-  { path: "/reports", label: "Reports" },
-  { path: "/memory", label: "Memory" },
-  { path: "/chat", label: "Chat" },
-  { path: "/history", label: "History" },
-  { path: "/settings", label: "Settings" },
-] as const;
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuthStore();
 
-function HomePage() {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-bg-root)" }}>
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ textAlign: "center" }}>
-          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)", marginBottom: "var(--space-4)" }}>
-            TradingAgents Dashboard
-          </h1>
-          <p style={{ fontSize: "var(--text-lg)", color: "var(--color-text-secondary)", maxWidth: 480, margin: "0 auto" }}>
-            Welcome to the TradingAgents Dashboard. Select a tab above to get started.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 }
 
-function AppInner() {
-  const { theme, setTheme } = useTheme();
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuthStore();
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function AppRoutes() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-bg-root)" }}>
-      {/* Header */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          padding: "0 var(--space-4)",
-          height: "var(--header-height)",
-          borderBottom: "1px solid var(--color-border-subtle)",
-          background: "var(--color-bg-surface)",
-          gap: "var(--space-6)",
-          zIndex: "var(--z-sticky)",
-          flexShrink: 0,
-        }}
-      >
-        {/* Logo */}
-        <img
-          src={theme === "modern" ? "/logo_light.svg" : "/logo_dark.svg"}
-          alt="TradingAgents"
-          style={{ height: 30 }}
-        />
-
-        {/* Nav */}
-        <nav style={{ display: "flex", gap: "var(--space-1)", overflow: "auto", flex: 1 }}>
-          {TABS.map((tab) => (
-            <NavLink
-              key={tab.path}
-              to={tab.path}
-              end={tab.path === "/"}
-              className="btn btn-ghost"
-              style={({ isActive }) => ({
-                padding: "var(--space-2) var(--space-3)",
-                fontSize: "var(--text-sm)",
-                fontWeight: "var(--weight-medium)",
-                background: isActive ? "var(--color-bg-elevated)" : "transparent",
-                color: isActive ? "var(--color-text-primary)" : "var(--color-text-muted)",
-                borderRadius: "var(--radius-sm)",
-                textDecoration: "none",
-              })}
-            >
-              {tab.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Theme switcher — segmented icon control */}
-        <div
-          style={{
-            display: "flex",
-            background: "var(--color-bg-elevated)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius-md)",
-            padding: 2,
-            gap: 2,
-          }}
-        >
-          {THEME_IDS.map((t) => {
-            const active = theme === t;
-            return (
-              <button
-                key={t}
-                onClick={() => setTheme(t)}
-                title={THEME_LABELS[t]}
-                style={{
-                  width: 30,
-                  height: 26,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "var(--radius-sm)",
-                  border: "none",
-                  cursor: "pointer",
-                  background: active ? "var(--color-accent)" : "transparent",
-                  color: active ? "#fff" : "var(--color-text-faint)",
-                  transition: "all var(--duration-fast) var(--ease-out)",
-                  padding: 0,
-                }}
-              >
-                {t === "terminal" && <TerminalIcon />}
-                {t === "modern" && <ModernIcon />}
-                {t === "bloomberg" && <BloombergIcon />}
-              </button>
-            );
-          })}
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main style={{ flex: 1, overflow: "hidden" }}>
-        <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/analyze" element={<AnalyzePage />} />
-            <Route path="/scheduler" element={<SchedulerPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/reports/*" element={<ReportsPage />} />
-            <Route path="/memory" element={<MemoryPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-          </Routes>
-        </ErrorBoundary>
-      </main>
-    </div>
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <RegisterPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analyze"
+        element={
+          <ProtectedRoute>
+            <AnalyzePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/history"
+        element={
+          <ProtectedRoute>
+            <HistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/portfolio"
+        element={
+          <ProtectedRoute>
+            <PortfolioPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
 export default function App() {
   return (
-    <ThemeProvider>
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <NotificationProvider>
-          <AppInner />
-          <NotificationContainer />
-        </NotificationProvider>
+        <AppRoutes />
       </BrowserRouter>
-    </ThemeProvider>
+    </QueryClientProvider>
   );
 }
