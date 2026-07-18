@@ -7,5 +7,8 @@ run = "python -m cli.main"
 [tasks.frontend]
 run = "cd frontend && npm run dev"
 
+[tasks.storybook]
+run = "cd frontend && npm run storybook"
+
 [tasks.backend]
 run = "python -m uvicorn backend.app.main:app --reload"

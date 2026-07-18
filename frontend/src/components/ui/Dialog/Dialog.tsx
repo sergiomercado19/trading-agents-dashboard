@@ -226,7 +226,7 @@ function DialogTitle({ as: Component = "h2", className = "", ...props }: DialogT
 
 DialogTitle.displayName = "Dialog.Title";
 
-interface DialogDescriptionProps extends Omit<HTMLAttributes<HTMLParagraphElement>, "id"> {}
+type DialogDescriptionProps = Omit<HTMLAttributes<HTMLParagraphElement>, "id">;
 
 function DialogDescription({ className = "", ...props }: DialogDescriptionProps) {
   return <p id="dialog-description" className={`${styles.description} ${className}`} {...props} />;

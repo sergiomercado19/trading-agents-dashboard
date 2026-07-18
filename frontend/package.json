@@ -12,7 +12,15 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "analyze": "vite-bundle-analyzer build",
+    "analyze:ci": "vite-bundle-analyzer build --json > bundle-analysis.json",
+    "playwright:install": "playwright install --with-deps chromium",
+    "playwright:test": "playwright test",
+    "playwright:test:ui": "playwright test --ui",
+    "playwright:visual": "playwright test --project=chromium --reporter=html",
+    "storybook": "storybook dev -p 6006 --config-dir ./storybook",
+    "build-storybook": "storybook build --config-dir ./storybook"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -20,6 +28,12 @@
     "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.61.1",
+    "@storybook/addon-a11y": "^10.5.2",
+    "@storybook/addon-docs": "^10.5.2",
+    "@storybook/addon-mcp": "^0.7.0",
+    "@storybook/react-vite": "^10.5.2",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
@@ -27,9 +41,15 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^1.6.0",
+    "eslint": "^10.7.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^24.1.0",
+    "storybook": "^10.5.2",
     "typescript": "~5.6.2",
+    "typescript-eslint": "^8.64.0",
     "vite": "^6.0.5",
+    "vite-bundle-analyzer": "^1.3.9",
     "vitest": "^1.6.0"
   }
 }

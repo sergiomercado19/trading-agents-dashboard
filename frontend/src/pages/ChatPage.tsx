@@ -27,7 +27,7 @@ export default function ChatPage() {
   }, [session?.messages, streamText]);
 
   const handleNew = async () => {
-    const s = await create();
+    const s = await create() as { id: string };
     setActiveId(s.id);
   };
 

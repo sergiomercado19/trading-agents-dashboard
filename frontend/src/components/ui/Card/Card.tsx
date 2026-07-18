@@ -46,7 +46,7 @@ export const CardHeader = ({ title, subtitle, action, className = "", children, 
 
 CardHeader.displayName = "CardHeader";
 
-export interface CardBodyProps extends HTMLAttributes<HTMLDivElement> {}
+export type CardBodyProps = HTMLAttributes<HTMLDivElement>;
 
 export const CardBody = ({ className = "", ...props }: CardBodyProps) => {
   const classNames = [styles.body, className].filter(Boolean).join(" ");
@@ -55,7 +55,7 @@ export const CardBody = ({ className = "", ...props }: CardBodyProps) => {
 
 CardBody.displayName = "CardBody";
 
-export interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {}
+export type CardFooterProps = HTMLAttributes<HTMLDivElement>;
 
 export const CardFooter = ({ className = "", ...props }: CardFooterProps) => {
   const classNames = [styles.footer, className].filter(Boolean).join(" ");

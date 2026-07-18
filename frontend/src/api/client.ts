@@ -167,7 +167,6 @@ export class ApiClient {
       : abortController.signal;
 
     let attempt = 0;
-    let lastError: Error | null = null;
 
     while (true) {
       try {
@@ -203,7 +202,7 @@ export class ApiClient {
         return (await response.blob()) as TResponse;
       } catch (error) {
         clearTimeout(timeoutId);
-        lastError = error instanceof Error ? error : new Error(String(error));
+        const caughtError = error instanceof Error ? error : new Error(String(error));
 
         // Handle abort
         if (error instanceof DOMException && error.name === 'AbortError') {
@@ -217,10 +216,10 @@ export class ApiClient {
         const shouldRetry =
           !noRetry &&
           attempt < retryConfig.maxRetries &&
-          isRetriableError(lastError);
+          isRetriableError(caughtError);
 
         if (!shouldRetry) {
-          throw lastError;
+          throw caughtError;
         }
 
         // Calculate delay and wait

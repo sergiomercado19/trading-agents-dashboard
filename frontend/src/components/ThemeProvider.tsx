@@ -76,7 +76,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = (t: ThemeId) => {
     setThemeState(t);
-    try { localStorage.setItem("ta-theme", t); } catch {}
+    try { localStorage.setItem("ta-theme", t); } catch { /* ignore */ }
   };
 
   useEffect(() => {

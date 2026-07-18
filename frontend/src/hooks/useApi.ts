@@ -68,7 +68,6 @@ export function useApi<T = unknown>(
         : controller.signal;
 
       let attempt = 0;
-      let lastError: Error | null = null;
 
       while (true) {
         try {
@@ -104,18 +103,20 @@ export function useApi<T = unknown>(
           return (await response.blob()) as T;
         } catch (error) {
           clearTimeout(timeoutId);
-          lastError = error instanceof Error ? error : new Error(String(error));
+          const isAbortError = error instanceof DOMException && error.name === "AbortError";
+          const abortError = isAbortError ? new Error("Request cancelled", { cause: error }) : null;
+          const caughtError = isAbortError ? abortError : (error instanceof Error ? error : new Error(String(error)));
 
-          if (error instanceof DOMException && error.name === "AbortError") {
-            throw new Error("Request cancelled");
+          if (isAbortError) {
+            throw abortError;
           }
 
           const shouldRetry =
             !noRetry &&
             attempt < retryConfig.maxRetries &&
-            isRetriableError(lastError);
+            isRetriableError(caughtError);
 
-          if (!shouldRetry) throw lastError;
+          if (!shouldRetry) throw caughtError;
 
           const delay = Math.min(
             retryConfig.baseDelayMs * Math.pow(2, attempt),
