@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 60 995 240" width="100%" height="100%">
+  <defs>
+    <!-- Glow Filter for the Electric Cracks -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Circular Faceted Gem Icon -->
+  <g transform="translate(10, 0)">
+    
+    <!-- INNER FACETS -->
+    <polygon points="150,180 150,110 200,130" fill="#1a5b9c"/> 
+    <polygon points="150,180 200,130 200,230" fill="#0e3061"/> 
+    <polygon points="150,180 200,230 100,230" fill="#cc6600"/> 
+    <polygon points="150,180 100,230 100,130" fill="#d48806"/> 
+    <polygon points="150,180 100,130 150,110" fill="#287bc7"/> 
+
+    <!-- OUTER FACETS -->
+    <!-- Top Blue/Dark Blue Section -->
+    <polygon points="150,110 150,60 235,95" fill="#348fe0"/>
+    <polygon points="150,110 235,95 200,130" fill="#1e5494"/>
+    <polygon points="200,130 235,95 270,180" fill="#143d73"/>
+    <polygon points="200,130 270,180 200,230" fill="#082142"/>
+
+    <!-- Bottom Orange/Gold Section -->
+    <polygon points="200,230 270,180 235,265" fill="#8a4400"/>
+    <polygon points="200,230 235,265 150,300" fill="#b55500"/>
+    <polygon points="200,230 150,300 100,230" fill="#e67700"/>
+
+    <!-- Bottom-Left Orange/Gold Section -->
+    <polygon points="100,230 150,300 65,265" fill="#f29511"/>
+    <polygon points="100,230 65,265 30,180" fill="#e38305"/>
+    <polygon points="100,230 30,180 100,130" fill="#ab6b18"/>
+
+    <!-- Top-Left Blue Section -->
+    <polygon points="100,130 30,180 65,95" fill="#366699"/>
+    <polygon points="100,130 65,95 150,60" fill="#489bf2"/>
+    <polygon points="100,130 150,60 150,110" fill="#55a8ff"/>
+
+    <!-- Electric Highlights / Cracks -->
+    <!-- Top Blue Lightning -->
+    <polyline points="100,130 125,120 140,140 160,90 185,110" fill="none" stroke="#88ccff" stroke-width="2" filter="url(#glow)" opacity="0.8"/>
+    <polyline points="160,90 200,115 220,150" fill="none" stroke="#bbddff" stroke-width="1.5" filter="url(#glow)" opacity="0.6"/>
+    
+    <!-- Bottom Orange/Gold Lightning -->
+    <polyline points="100,230 120,260 160,225 180,270 215,240" fill="none" stroke="#ffe066" stroke-width="2" filter="url(#glow)" opacity="0.9"/>
+    <polyline points="160,225 190,195 240,210" fill="none" stroke="#ffcc00" stroke-width="1.5" filter="url(#glow)" opacity="0.7"/>
+
+  </g>
+
+  <!-- Typography -->
+  <g transform="translate(310, 0)">
+    <!-- Main Title -->
+    <text x="0" y="195" font-family="Impact, 'Arial Black', sans-serif" font-size="105" font-style="italic" fill="#1b1d24" textLength="720" lengthAdjust="spacing">TRADING AGENTS</text>
+    
+    <!-- Subtext -->
+    <text x="0" y="270" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="300" fill="#888c96" textLength="720" lengthAdjust="spacing">DASHBOARD</text>
+  </g>
+</svg>

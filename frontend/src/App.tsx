@@ -42,27 +42,11 @@ function AppInner() {
         }}
       >
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-          <div
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              background: "var(--color-accent)",
-              boxShadow: "0 0 8px var(--color-accent)",
-            }}
-          />
-          <span
-            style={{
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-bold)",
-              color: "var(--color-text-primary)",
-              letterSpacing: "0.04em",
-            }}
-          >
-            TRADINGAGENTS
-          </span>
-        </div>
+        <img
+          src={theme === "modern" ? "/logo_light.svg" : "/logo_dark.svg"}
+          alt="TradingAgents"
+          style={{ height: 30 }}
+        />
 
         {/* Nav */}
         <nav style={{ display: "flex", gap: "var(--space-1)", overflow: "auto", flex: 1 }}>
