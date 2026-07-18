@@ -13,7 +13,8 @@ import ChatPage from "./pages/ChatPage";
 import HistoryPage from "./pages/HistoryPage";
 
 const TABS = [
-  { path: "/", label: "Analyze" },
+  { path: "/", label: "Home" },
+  { path: "/analyze", label: "Analyze" },
   { path: "/scheduler", label: "Scheduler" },
   { path: "/reports", label: "Reports" },
   { path: "/memory", label: "Memory" },
@@ -21,6 +22,23 @@ const TABS = [
   { path: "/history", label: "History" },
   { path: "/settings", label: "Settings" },
 ] as const;
+
+function HomePage() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-bg-root)" }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)", marginBottom: "var(--space-4)" }}>
+            TradingAgents Dashboard
+          </h1>
+          <p style={{ fontSize: "var(--text-lg)", color: "var(--color-text-secondary)", maxWidth: 480, margin: "0 auto" }}>
+            Welcome to the TradingAgents Dashboard. Select a tab above to get started.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AppInner() {
   const { theme, setTheme } = useTheme();
@@ -117,7 +135,8 @@ function AppInner() {
       <main style={{ flex: 1, overflow: "hidden" }}>
         <ErrorBoundary>
           <Routes>
-            <Route path="/" element={<AnalyzePage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/analyze" element={<AnalyzePage />} />
             <Route path="/scheduler" element={<SchedulerPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/reports/*" element={<ReportsPage />} />
