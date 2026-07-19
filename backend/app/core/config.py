@@ -52,6 +52,14 @@ class Settings(BaseSettings):
     deepseek_api_key: str = Field(default="", validation_alias="DEEPSEEK_API_KEY")
     deepseek_model: str = Field(default="deepseek-chat", validation_alias="DEEPSEEK_MODEL")
 
+    # NVIDIA NIM
+    nvidia_api_key: str = Field(default="", validation_alias="NVIDIA_API_KEY")
+    nvidia_model: str = Field(default="nvidia/nemotron-3-ultra-550b-a55b", validation_alias="NVIDIA_MODEL")
+
+    # OpenRouter
+    openrouter_api_key: str = Field(default="", validation_alias="OPENROUTER_API_KEY")
+    openrouter_model: str = Field(default="openai/gpt-4o", validation_alias="OPENROUTER_MODEL")
+
     # Default AI Config
     default_ai_provider: str = Field(default="openai", validation_alias="DEFAULT_AI_PROVIDER")
     default_model: str = Field(default="gpt-4o-mini", validation_alias="DEFAULT_MODEL")
