@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/authStore";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { Toaster } from "@/components/Toaster";
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 import HomePage from "@/pages/HomePage";
@@ -12,6 +14,7 @@ import AnalysisDetailPage from "@/pages/AnalysisDetailPage";
 import PortfolioPage from "@/pages/PortfolioPage";
 import TradeHistoryPage from "@/pages/TradeHistoryPage";
 import SettingsPage from "@/pages/SettingsPage";
+import ProfilePage from "@/pages/ProfilePage";
 import LoadingScreen from "@/components/LoadingScreen";
 
 const queryClient = new QueryClient({
@@ -141,6 +144,16 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <ProfilePage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -151,7 +164,10 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
-          <AppRoutes />
+          <ErrorBoundary>
+            <AppRoutes />
+          </ErrorBoundary>
+          <Toaster />
         </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>

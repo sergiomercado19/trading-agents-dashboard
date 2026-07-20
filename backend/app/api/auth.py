@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from pydantic import BaseModel, EmailStr
+import secrets
+import hashlib
+
 from app.core.database import get_db
 from app.core.security import (
     verify_password,
@@ -15,8 +18,8 @@ from app.core.security import (
     hash_token,
 )
 from app.core.config import settings
-from app.models import User, RefreshToken
-from app.api.dependencies import get_current_user
+from app.models import User, RefreshToken, APIKey, Analysis, Trade
+from app.api.dependencies import get_current_user, get_current_active_user
 
 router = APIRouter(tags=["auth"])
 
@@ -25,6 +28,7 @@ class Token(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+    user: Optional["UserResponse"] = None
 
 
 class TokenData(BaseModel):
@@ -59,6 +63,44 @@ class UserResponse(BaseModel):
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+
+class UserProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    username: Optional[str] = None
+
+
+class APIKeyCreate(BaseModel):
+    name: str
+
+
+class APIKeyResponse(BaseModel):
+    id: int
+    name: str
+    key_prefix: str
+    is_active: bool
+    created_at: datetime
+    last_used_at: Optional[datetime]
+    expires_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+
+class APIKeyCreatedResponse(BaseModel):
+    api_key: str
+    key_info: APIKeyResponse
+
+
+class ActivitySummary(BaseModel):
+    total_analyses: int
+    analyses_by_status: dict
+    total_trades: int
+    recent_analyses: list
+    recent_trades: list
+    last_login: Optional[datetime]
+    member_since: datetime
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -143,7 +185,8 @@ async def login(
     
     return Token(
         access_token=access_token,
-        refresh_token=refresh_token
+        refresh_token=refresh_token,
+        user=UserResponse.model_validate(user),
     )
 
 
@@ -246,3 +289,176 @@ async def logout(
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.put("/me", response_model=UserResponse)
+async def update_user_profile(
+    profile_data: UserProfileUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if profile_data.email and profile_data.email != current_user.email:
+        result = await db.execute(select(User).where(User.email == profile_data.email))
+        if result.scalar_one_or_none():
+            raise HTTPException(status_code=400, detail="Email already registered")
+        current_user.email = profile_data.email
+
+    if profile_data.username and profile_data.username != current_user.username:
+        result = await db.execute(select(User).where(User.username == profile_data.username))
+        if result.scalar_one_or_none():
+            raise HTTPException(status_code=400, detail="Username already taken")
+        current_user.username = profile_data.username
+
+    if profile_data.full_name is not None:
+        current_user.full_name = profile_data.full_name
+
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
+
+
+@router.post("/api-keys", response_model=APIKeyCreatedResponse, status_code=status.HTTP_201_CREATED)
+async def create_api_key(
+    key_data: APIKeyCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    raw_key = f"ta_{secrets.token_urlsafe(32)}"
+    key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
+    key_prefix = raw_key[:8]
+
+    api_key = APIKey(
+        user_id=current_user.id,
+        name=key_data.name,
+        key_hash=key_hash,
+        key_prefix=key_prefix,
+    )
+    db.add(api_key)
+    await db.commit()
+    await db.refresh(api_key)
+
+    return APIKeyCreatedResponse(
+        api_key=raw_key,
+        key_info=APIKeyResponse(
+            id=api_key.id,
+            name=api_key.name,
+            key_prefix=api_key.key_prefix,
+            is_active=api_key.is_active,
+            created_at=api_key.created_at,
+            last_used_at=api_key.last_used_at,
+            expires_at=api_key.expires_at,
+        ),
+    )
+
+
+@router.get("/api-keys", response_model=List[APIKeyResponse])
+async def list_api_keys(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(APIKey)
+        .where(APIKey.user_id == current_user.id)
+        .order_by(APIKey.created_at.desc())
+    )
+    return [
+        APIKeyResponse(
+            id=k.id,
+            name=k.name,
+            key_prefix=k.key_prefix,
+            is_active=k.is_active,
+            created_at=k.created_at,
+            last_used_at=k.last_used_at,
+            expires_at=k.expires_at,
+        )
+        for k in result.scalars().all()
+    ]
+
+
+@router.delete("/api-keys/{key_id}")
+async def revoke_api_key(
+    key_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(APIKey).where(APIKey.id == key_id, APIKey.user_id == current_user.id)
+    )
+    api_key = result.scalar_one_or_none()
+    if not api_key:
+        raise HTTPException(status_code=404, detail="API key not found")
+
+    api_key.is_active = False
+    await db.commit()
+    return {"message": "API key revoked"}
+
+
+@router.get("/activity", response_model=ActivitySummary)
+async def get_activity(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    # Analysis counts by status
+    status_counts = {}
+    for s in ["pending", "running", "completed", "failed", "cancelled", "stale"]:
+        result = await db.execute(
+            select(func.count()).select_from(Analysis).where(
+                Analysis.user_id == current_user.id, Analysis.status == s
+            )
+        )
+        status_counts[s] = result.scalar() or 0
+
+    total_analyses = sum(status_counts.values())
+
+    # Total trades
+    result = await db.execute(
+        select(func.count()).select_from(Trade).where(Trade.user_id == current_user.id)
+    )
+    total_trades = result.scalar() or 0
+
+    # Recent analyses
+    result = await db.execute(
+        select(Analysis)
+        .where(Analysis.user_id == current_user.id)
+        .order_by(Analysis.created_at.desc())
+        .limit(10)
+    )
+    recent_analyses = [
+        {
+            "id": a.id,
+            "ticker": a.ticker,
+            "status": a.status,
+            "created_at": a.created_at.isoformat(),
+        }
+        for a in result.scalars().all()
+    ]
+
+    # Recent trades
+    result = await db.execute(
+        select(Trade)
+        .where(Trade.user_id == current_user.id)
+        .order_by(Trade.created_at.desc())
+        .limit(10)
+    )
+    recent_trades = [
+        {
+            "id": t.id,
+            "ticker": t.ticker,
+            "side": t.side,
+            "quantity": t.quantity,
+            "price": t.price,
+            "status": t.status,
+            "created_at": t.created_at.isoformat(),
+        }
+        for t in result.scalars().all()
+    ]
+
+    return ActivitySummary(
+        total_analyses=total_analyses,
+        analyses_by_status=status_counts,
+        total_trades=total_trades,
+        recent_analyses=recent_analyses,
+        recent_trades=recent_trades,
+        last_login=current_user.last_login,
+        member_since=current_user.created_at,
+    )

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogoWithText } from "./Logo";
+import { useAuthStore } from "@/store/authStore";
+import { api } from "@/utils/api";
 
 const THEMES = [
   { id: "terminal" as const, label: "Terminal", icon: "🖥️" },
@@ -107,21 +109,40 @@ function ThemeSwitcher({ themes, currentTheme, onChange }: { themes: typeof THEM
 }
 
 function UserMenu() {
+  const { user, logout, refreshToken } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      if (refreshToken) {
+        await api.post("/api/auth/logout", { refresh_token: refreshToken });
+      }
+    } catch {
+      // Ignore logout API errors
+    }
+    logout();
+    window.location.href = "/login";
+  };
+
+  const initials = user?.full_name
+    ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : user?.username?.slice(0, 2).toUpperCase()
+    ?? "U";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
           <Avatar>
             <AvatarImage src="/avatar.png" alt="User" />
-            <AvatarFallback>JD</AvatarFallback>
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" style={{ minWidth: 200 }}>
-        <DropdownMenuItem>Profile</DropdownMenuItem>
-        <DropdownMenuItem>Settings</DropdownMenuItem>
-        <DropdownMenuItem>API Keys</DropdownMenuItem>
-        <DropdownMenuItem className="text-destructive focus:text-destructive">Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => window.location.href = "/profile"}>Profile</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => window.location.href = "/settings"}>Settings</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => window.location.href = "/settings"}>API Keys</DropdownMenuItem>
+        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={handleLogout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

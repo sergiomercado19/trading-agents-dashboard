@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useTheme, THEME_IDS, THEME_LABELS } from "@/components/ThemeProvider";
 import { api } from "@/utils/api";
+import { useToast } from "@/hooks/useToast";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -50,6 +51,26 @@ interface HealthData {
   env_file: boolean;
 }
 
+interface ApiKeyItem {
+  id: number;
+  name: string;
+  key_prefix: string;
+  is_active: boolean;
+  created_at: string;
+  last_used_at: string | null;
+  expires_at: string | null;
+}
+
+interface ActivityData {
+  total_analyses: number;
+  analyses_by_status: Record<string, number>;
+  total_trades: number;
+  recent_analyses: { id: number; ticker: string; status: string; created_at: string }[];
+  recent_trades: { id: number; ticker: string; side: string; quantity: number; price: number; status: string; created_at: string }[];
+  last_login: string | null;
+  member_since: string;
+}
+
 const AGENTS = [
   { name: "Macro Analyst", phase: "Data Analysis" },
   { name: "Market Analyst", phase: "Data Analysis" },
@@ -79,6 +100,7 @@ const API_KEY_FIELDS = [
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
 
   /* Settings state */
   const [settings, setSettings] = useState<SettingsData | null>(null);
@@ -103,20 +125,33 @@ export default function SettingsPage() {
   /* Health state */
   const [health, setHealth] = useState<HealthData | null>(null);
 
+  /* API Keys state */
+  const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([]);
+  const [newKeyName, setNewKeyName] = useState("");
+  const [createdKey, setCreatedKey] = useState<string | null>(null);
+  const [creatingKey, setCreatingKey] = useState(false);
+
+  /* Activity state */
+  const [activity, setActivity] = useState<ActivityData | null>(null);
+
   /* ---------------------------------------------------------------- */
   /* Data fetching                                                     */
   /* ---------------------------------------------------------------- */
 
   const fetchAll = useCallback(async () => {
     try {
-      const [s, p, h] = await Promise.all([
+      const [s, p, h, keys, act] = await Promise.all([
         api.get<SettingsData>("/api/settings"),
         api.get<Record<string, ProviderInfo>>("/api/providers").catch(() => ({})),
         api.get<HealthData>("/api/settings/health").catch(() => null),
+        api.get<ApiKeyItem[]>("/api/auth/api-keys").catch(() => []),
+        api.get<ActivityData>("/api/auth/activity").catch(() => null),
       ]);
       setSettings(s);
       setProviders(p);
       setHealth(h);
+      setApiKeys(keys);
+      setActivity(act);
 
       /* Load Alpaca config status */
       const ac = await api.get<AlpacaConfigData>("/api/portfolio/config").catch(() => null);
@@ -269,6 +304,40 @@ export default function SettingsPage() {
   };
 
   /* ---------------------------------------------------------------- */
+  /* API Keys                                                          */
+  /* ---------------------------------------------------------------- */
+
+  const handleCreateApiKey = async () => {
+    if (!newKeyName.trim()) return;
+    setCreatingKey(true);
+    try {
+      const result = await api.post<{ api_key: string; key_info: ApiKeyItem }>("/api/auth/api-keys", {
+        name: newKeyName.trim(),
+      });
+      setCreatedKey(result.api_key);
+      setApiKeys((prev) => [result.key_info, ...prev]);
+      setNewKeyName("");
+      toast({ title: "API key created", variant: "success" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to create key";
+      toast({ title: message, variant: "destructive" });
+    } finally {
+      setCreatingKey(false);
+    }
+  };
+
+  const handleRevokeApiKey = async (keyId: number) => {
+    try {
+      await api.delete(`/api/auth/api-keys/${keyId}`);
+      setApiKeys((prev) => prev.map((k) => k.id === keyId ? { ...k, is_active: false } : k));
+      toast({ title: "API key revoked", variant: "success" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to revoke key";
+      toast({ title: message, variant: "destructive" });
+    }
+  };
+
+  /* ---------------------------------------------------------------- */
   /* Render helpers                                                    */
   /* ---------------------------------------------------------------- */
 
@@ -300,6 +369,8 @@ export default function SettingsPage() {
           <TabsTrigger value="ai">AI Providers</TabsTrigger>
           <TabsTrigger value="alpaca">Alpaca</TabsTrigger>
           <TabsTrigger value="perplefina">Perplefina</TabsTrigger>
+          <TabsTrigger value="api-keys">API Keys</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
         {/* ------------------------------------------------------------ */}
@@ -613,6 +684,182 @@ export default function SettingsPage() {
             </CardFooter>
           </Card>
         </TabsContent>
+
+        {/* ------------------------------------------------------------ */}
+        {/* API KEYS TAB                                                  */}
+        {/* ------------------------------------------------------------ */}
+        <TabsContent value="api-keys">
+          <Card>
+            <CardHeader>
+              <CardTitle>API Keys</CardTitle>
+              <CardDescription>Manage API keys for external integrations</CardDescription>
+            </CardHeader>
+            <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+              {/* Create new key */}
+              <div style={{ display: "flex", gap: "var(--space-2)", maxWidth: 400 }}>
+                <Input
+                  value={newKeyName}
+                  onChange={(e) => setNewKeyName(e.target.value)}
+                  placeholder="Key name (e.g. production, staging)"
+                  onKeyDown={(e) => e.key === "Enter" && handleCreateApiKey()}
+                />
+                <Button onClick={handleCreateApiKey} disabled={creatingKey || !newKeyName.trim()}>
+                  {creatingKey ? "Creating..." : "Create Key"}
+                </Button>
+              </div>
+
+              {/* Show created key */}
+              {createdKey && (
+                <div style={{
+                  padding: "var(--space-3)",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-success-subtle)",
+                  border: "1px solid var(--color-success)",
+                  fontSize: "var(--text-sm)",
+                }}>
+                  <div style={{ fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-1)", color: "var(--color-success)" }}>
+                    Key created (copy it now, it won't be shown again):
+                  </div>
+                  <code style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", wordBreak: "break-all" }}>
+                    {createdKey}
+                  </code>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    style={{ marginTop: "var(--space-2)" }}
+                    onClick={() => { navigator.clipboard.writeText(createdKey); toast({ title: "Copied to clipboard", variant: "success" }); }}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              )}
+
+              {/* Key list */}
+              {apiKeys.length === 0 ? (
+                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>No API keys yet.</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                  {apiKeys.map((key) => (
+                    <div key={key.id} style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "var(--space-3)",
+                      background: "var(--color-bg-elevated)",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+                        <span style={{ fontWeight: "var(--weight-medium)", fontSize: "var(--text-sm)" }}>{key.name}</span>
+                        <code style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+                          {key.key_prefix}...
+                        </code>
+                        <span style={{
+                          fontSize: "var(--text-xs)",
+                          padding: "2px 6px",
+                          borderRadius: "var(--radius-sm)",
+                          background: key.is_active ? "var(--color-success-subtle)" : "var(--color-error-subtle)",
+                          color: key.is_active ? "var(--color-success)" : "var(--color-error)",
+                        }}>
+                          {key.is_active ? "Active" : "Revoked"}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+                        <span>Created {new Date(key.created_at).toLocaleDateString()}</span>
+                        {key.is_active && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRevokeApiKey(key.id)}
+                          >
+                            Revoke
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ------------------------------------------------------------ */}
+        {/* ACTIVITY TAB                                                  */}
+        {/* ------------------------------------------------------------ */}
+        <TabsContent value="activity">
+          <Card>
+            <CardHeader>
+              <CardTitle>Activity</CardTitle>
+              <CardDescription>Your account activity and recent events</CardDescription>
+            </CardHeader>
+            <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+              {activity ? (
+                <>
+                  {/* Stats */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-3)" }}>
+                    <ActivityStat label="Total Analyses" value={activity.total_analyses} />
+                    <ActivityStat label="Completed" value={activity.analyses_by_status.completed ?? 0} />
+                    <ActivityStat label="Total Trades" value={activity.total_trades} />
+                  </div>
+
+                  {/* Recent analyses */}
+                  {activity.recent_analyses.length > 0 && (
+                    <div>
+                      <h4 style={sectionStyle}>Recent Analyses</h4>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                        {activity.recent_analyses.map((a) => (
+                          <div key={a.id} style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            padding: "var(--space-2) var(--space-3)",
+                            background: "var(--color-bg-elevated)",
+                            borderRadius: "var(--radius-sm)",
+                            fontSize: "var(--text-sm)",
+                          }}>
+                            <span><strong>{a.ticker}</strong></span>
+                            <span style={{ color: "var(--color-text-muted)" }}>{a.status}</span>
+                            <span style={{ color: "var(--color-text-muted)" }}>{new Date(a.created_at).toLocaleDateString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recent trades */}
+                  {activity.recent_trades.length > 0 && (
+                    <div>
+                      <h4 style={sectionStyle}>Recent Trades</h4>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                        {activity.recent_trades.map((t) => (
+                          <div key={t.id} style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            padding: "var(--space-2) var(--space-3)",
+                            background: "var(--color-bg-elevated)",
+                            borderRadius: "var(--radius-sm)",
+                            fontSize: "var(--text-sm)",
+                          }}>
+                            <span>
+                              <strong>{t.ticker}</strong>{" "}
+                              <span style={{ color: t.side === "buy" ? "var(--color-success)" : "var(--color-error)" }}>
+                                {t.side.toUpperCase()}
+                              </span>
+                            </span>
+                            <span style={{ color: "var(--color-text-muted)" }}>{t.quantity} @ ${t.price.toFixed(2)}</span>
+                            <span style={{ color: "var(--color-text-muted)" }}>{new Date(t.created_at).toLocaleDateString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>Loading activity...</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Health info (footer) */}
@@ -645,3 +892,18 @@ const agentCardStyle: React.CSSProperties = {
   background: "var(--color-bg-elevated)",
   borderRadius: "var(--radius-md)",
 };
+
+function ActivityStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div style={{
+      padding: "var(--space-3)",
+      background: "var(--color-bg-elevated)",
+      borderRadius: "var(--radius-md)",
+      border: "1px solid var(--color-border)",
+      textAlign: "center",
+    }}>
+      <div style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)" }}>{value}</div>
+      <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-1)" }}>{label}</div>
+    </div>
+  );
+}
