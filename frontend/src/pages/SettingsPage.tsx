@@ -1,74 +1,298 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useTheme, THEME_IDS, THEME_LABELS } from "@/components/ThemeProvider";
 import { api } from "@/utils/api";
 
-interface Settings {
-  theme: string;
-  default_ticker: string;
-  default_provider: string;
-  default_model: string;
-  perplefina_url: string;
+/* ------------------------------------------------------------------ */
+/* Types                                                               */
+/* ------------------------------------------------------------------ */
+
+interface AgentConfig {
+  name: string;
+  phase: string;
+  max_tokens: number;
+  temperature: number;
+  provider?: string;
+  model?: string;
 }
 
-export default function SettingsPage() {
-  const [settings, setSettings] = useState<Settings>({
-    theme: "dark",
-    default_ticker: "",
-    default_provider: "openai",
-    default_model: "gpt-4o-mini",
-    perplefina_url: "http://localhost:3000",
-  });
-  const [saving, setSaving] = useState(false);
+interface SettingsData {
+  default_provider: string;
+  default_model: string;
+  default_ticker: string | null;
+  agent_configs: Record<string, AgentConfig>;
+  failover_enabled: boolean;
+  failover_order: string[];
+  perplefina_url: string;
+  perplefina_enabled: boolean;
+  api_keys_configured: Record<string, boolean>;
+}
 
-  useEffect(() => {
-    fetchSettings();
+interface ProviderInfo {
+  name: string;
+  models: { id: string; name: string }[];
+}
+
+interface AlpacaConfigData {
+  is_connected: boolean;
+  paper_trading: boolean;
+  last_sync: string | null;
+}
+
+interface HealthData {
+  status: string;
+  python: string;
+  tradingagents: boolean;
+  env_file: boolean;
+}
+
+const AGENTS = [
+  { name: "Macro Analyst", phase: "Data Analysis" },
+  { name: "Market Analyst", phase: "Data Analysis" },
+  { name: "News Analyst", phase: "Data Analysis" },
+  { name: "Social Analyst", phase: "Data Analysis" },
+  { name: "Fundamentals Analyst", phase: "Data Analysis" },
+  { name: "Bull Researcher", phase: "Research" },
+  { name: "Bear Researcher", phase: "Research" },
+  { name: "Trader", phase: "Trading" },
+  { name: "Risky Analyst", phase: "Risk" },
+  { name: "Safe Analyst", phase: "Risk" },
+  { name: "Neutral Analyst", phase: "Risk" },
+  { name: "Risk Manager", phase: "Risk" },
+  { name: "Portfolio Manager", phase: "Portfolio" },
+];
+
+const API_KEY_FIELDS = [
+  { key: "openai", label: "OpenAI", placeholder: "sk-...", hint: "Required for GPT models" },
+  { key: "anthropic", label: "Anthropic", placeholder: "sk-ant-...", hint: "Required for Claude models" },
+  { key: "google", label: "Google", placeholder: "...", hint: "Required for Gemini models" },
+  { key: "deepseek", label: "DeepSeek", placeholder: "...", hint: "Required for DeepSeek models" },
+] as const;
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
+export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
+
+  /* Settings state */
+  const [settings, setSettings] = useState<SettingsData | null>(null);
+  const [providers, setProviders] = useState<Record<string, ProviderInfo>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  /* API key edits (local until save) */
+  const [keyEdits, setKeyEdits] = useState<Record<string, string>>({});
+  const [keyTestResults, setKeyTestResults] = useState<Record<string, { valid: boolean; message: string }>>({});
+  const [keyTesting, setKeyTesting] = useState<string | null>(null);
+
+  /* Alpaca state */
+  const [alpacaKey, setAlpacaKey] = useState("");
+  const [alpacaSecret, setAlpacaSecret] = useState("");
+  const [alpacaPaper, setAlpacaPaper] = useState(true);
+  const [alpacaStatus, setAlpacaStatus] = useState<AlpacaConfigData | null>(null);
+  const [alpacaTesting, setAlpacaTesting] = useState(false);
+  const [alpacaTestResult, setAlpacaTestResult] = useState<{ connected: boolean } | null>(null);
+
+  /* Health state */
+  const [health, setHealth] = useState<HealthData | null>(null);
+
+  /* ---------------------------------------------------------------- */
+  /* Data fetching                                                     */
+  /* ---------------------------------------------------------------- */
+
+  const fetchAll = useCallback(async () => {
+    try {
+      const [s, p, h] = await Promise.all([
+        api.get<SettingsData>("/api/settings"),
+        api.get<Record<string, ProviderInfo>>("/api/providers").catch(() => ({})),
+        api.get<HealthData>("/api/settings/health").catch(() => null),
+      ]);
+      setSettings(s);
+      setProviders(p);
+      setHealth(h);
+
+      /* Load Alpaca config status */
+      const ac = await api.get<AlpacaConfigData>("/api/portfolio/config").catch(() => null);
+      setAlpacaStatus(ac);
+    } catch (e) {
+      console.error("Failed to load settings:", e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const fetchSettings = async () => {
-    try {
-      const data = await api.get<any>("/api/settings");
-      if (data) setSettings(prev => ({ ...prev, ...data }));
-    } catch (err) {
-      console.error("Failed to fetch settings:", err);
-    }
-  };
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  const handleSave = async (section: string, data: any) => {
+  /* ---------------------------------------------------------------- */
+  /* Save general + AI settings                                        */
+  /* ---------------------------------------------------------------- */
+
+  const handleSaveGeneral = async () => {
+    if (!settings) return;
     setSaving(true);
     try {
-      await api.patch("/api/settings", { [section]: data });
-    } catch (err) {
-      console.error("Failed to save settings:", err);
+      await api.patch("/api/settings", {
+        default_provider: settings.default_provider,
+        default_model: settings.default_model,
+        default_ticker: settings.default_ticker,
+        perplefina_url: settings.perplefina_url,
+        perplefina_enabled: settings.perplefina_enabled,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (e) {
+      console.error("Failed to save:", e);
     } finally {
       setSaving(false);
     }
   };
 
-  const AGENTS = [
-    { name: "Macro Analyst", phase: "Data Analysis" },
-    { name: "Market Analyst", phase: "Data Analysis" },
-    { name: "News Analyst", phase: "Data Analysis" },
-    { name: "Social Analyst", phase: "Data Analysis" },
-    { name: "Fundamentals Analyst", phase: "Data Analysis" },
-    { name: "Bull Researcher", phase: "Research" },
-    { name: "Bear Researcher", phase: "Research" },
-    { name: "Trader", phase: "Trading" },
-    { name: "Risky Analyst", phase: "Risk" },
-    { name: "Safe Analyst", phase: "Risk" },
-    { name: "Neutral Analyst", phase: "Risk" },
-    { name: "Risk Manager", phase: "Risk" },
-    { name: "Portfolio Manager", phase: "Portfolio" },
-  ];
+  const handleSaveAI = async () => {
+    if (!settings) return;
+    setSaving(true);
+    try {
+      const payload: Record<string, unknown> = {
+        default_provider: settings.default_provider,
+        default_model: settings.default_model,
+        agent_configs: settings.agent_configs,
+        failover_enabled: settings.failover_enabled,
+        failover_order: settings.failover_order,
+      };
+
+      /* Include any edited API keys */
+      for (const [k, v] of Object.entries(keyEdits)) {
+        if (v) payload[`${k}_api_key`] = v;
+      }
+
+      await api.patch("/api/settings", payload);
+      setKeyEdits({});
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+
+      /* Refresh to get updated api_keys_configured */
+      const fresh = await api.get<SettingsData>("/api/settings");
+      setSettings(fresh);
+    } catch (e) {
+      console.error("Failed to save:", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Test API key                                                      */
+  /* ---------------------------------------------------------------- */
+
+  const handleTestKey = async (provider: string) => {
+    const key = keyEdits[provider];
+    if (!key) return;
+    setKeyTesting(provider);
+    try {
+      const result = await api.post<{ valid: boolean; message: string }>("/api/settings/test-key", {
+        provider,
+        api_key: key,
+      });
+      setKeyTestResults((prev) => ({ ...prev, [provider]: result }));
+    } catch {
+      setKeyTestResults((prev) => ({ ...prev, [provider]: { valid: false, message: "Request failed" } }));
+    } finally {
+      setKeyTesting(null);
+    }
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Alpaca                                                            */
+  /* ---------------------------------------------------------------- */
+
+  const handleSaveAlpaca = async () => {
+    if (!alpacaKey || !alpacaSecret) return;
+    setSaving(true);
+    try {
+      const result = await api.post<AlpacaConfigData>("/api/portfolio/config", {
+        api_key: alpacaKey,
+        api_secret: alpacaSecret,
+        paper_trading: alpacaPaper,
+      });
+      setAlpacaStatus(result);
+      setAlpacaKey("");
+      setAlpacaSecret("");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (e) {
+      console.error("Failed to save Alpaca config:", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTestAlpaca = async () => {
+    if (!alpacaKey || !alpacaSecret) return;
+    setAlpacaTesting(true);
+    try {
+      const result = await api.post<{ connected: boolean }>("/api/portfolio/test", {
+        api_key: alpacaKey,
+        api_secret: alpacaSecret,
+        paper_trading: alpacaPaper,
+      });
+      setAlpacaTestResult(result);
+    } catch {
+      setAlpacaTestResult({ connected: false });
+    } finally {
+      setAlpacaTesting(false);
+    }
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Agent config helpers                                              */
+  /* ---------------------------------------------------------------- */
+
+  const getAgentConfig = (name: string): AgentConfig => {
+    if (settings?.agent_configs[name]) return settings.agent_configs[name];
+    return { name, phase: "", max_tokens: 4000, temperature: 0.3 };
+  };
+
+  const updateAgentConfig = (name: string, field: keyof AgentConfig, value: unknown) => {
+    if (!settings) return;
+    const current = getAgentConfig(name);
+    const updated = { ...current, [field]: value };
+    setSettings({
+      ...settings,
+      agent_configs: { ...settings.agent_configs, [name]: updated },
+    });
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Render helpers                                                    */
+  /* ---------------------------------------------------------------- */
+
+  const providerList = Object.entries(providers);
+  const currentProviderModels = providers[settings?.default_provider || ""]?.models || [];
+
+  if (loading) {
+    return (
+      <div style={{ padding: "var(--space-6)", maxWidth: 800, margin: "0 auto" }}>
+        <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>Loading settings...</div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: "800px", margin: "0 auto" }}>
-      <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)", marginBottom: "var(--space-6)" }}>
-        Settings
-      </h1>
+    <div style={{ padding: "var(--space-6)", maxWidth: 800, margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-6)" }}>
+        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+          Settings
+        </h1>
+        {saved && (
+          <span style={{ fontSize: "var(--text-sm)", color: "var(--color-success)" }}>Saved!</span>
+        )}
+      </div>
 
       <Tabs defaultValue="general">
         <TabsList style={{ marginBottom: "var(--space-6)" }}>
@@ -78,6 +302,9 @@ export default function SettingsPage() {
           <TabsTrigger value="perplefina">Perplefina</TabsTrigger>
         </TabsList>
 
+        {/* ------------------------------------------------------------ */}
+        {/* GENERAL TAB                                                   */}
+        {/* ------------------------------------------------------------ */}
         <TabsContent value="general">
           <Card>
             <CardHeader>
@@ -90,141 +317,200 @@ export default function SettingsPage() {
                   <Label htmlFor="theme">Theme</Label>
                   <select
                     id="theme"
-                    value={settings.theme}
-                    onChange={(e) => setSettings({ ...settings, theme: e.target.value })}
+                    value={theme}
+                    onChange={(e) => setTheme(e.target.value as "terminal" | "modern" | "bloomberg")}
                     className="input"
                     style={{ marginTop: "var(--space-2)", maxWidth: 200 }}
                   >
-                    <option value="dark">Dark (Default)</option>
-                    <option value="high-contrast">High Contrast</option>
-                    <option value="mono">Monochrome</option>
+                    {THEME_IDS.map((id) => (
+                      <option key={id} value={id}>{THEME_LABELS[id]}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <Label htmlFor="default_ticker">Default Ticker</Label>
                   <Input
                     id="default_ticker"
-                    value={settings.default_ticker}
-                    onChange={(e) => setSettings({ ...settings, default_ticker: e.target.value })}
+                    value={settings?.default_ticker || ""}
+                    onChange={(e) => setSettings((s) => s ? { ...s, default_ticker: e.target.value || null } : s)}
                     placeholder="AAPL"
                     style={{ marginTop: "var(--space-2)", maxWidth: 200 }}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="default_provider">Default Provider</Label>
+                  <select
+                    id="default_provider"
+                    value={settings?.default_provider || "openai"}
+                    onChange={(e) => setSettings((s) => s ? { ...s, default_provider: e.target.value } : s)}
+                    className="input"
+                    style={{ marginTop: "var(--space-2)", maxWidth: 200 }}
+                  >
+                    {providerList.map(([id, p]) => (
+                      <option key={id} value={id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="default_model">Default Model</Label>
+                  <select
+                    id="default_model"
+                    value={settings?.default_model || ""}
+                    onChange={(e) => setSettings((s) => s ? { ...s, default_model: e.target.value } : s)}
+                    className="input"
+                    style={{ marginTop: "var(--space-2)", maxWidth: 300 }}
+                  >
+                    {currentProviderModels.map((m) => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </CardContent>
             <CardFooter>
-              <Button onClick={() => handleSave("general", { theme: settings.theme, default_ticker: settings.default_ticker })} disabled={saving}>
+              <Button onClick={handleSaveGeneral} disabled={saving}>
                 {saving ? "Saving..." : "Save General Settings"}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
 
+        {/* ------------------------------------------------------------ */}
+        {/* AI PROVIDERS TAB                                              */}
+        {/* ------------------------------------------------------------ */}
         <TabsContent value="ai">
           <Card>
             <CardHeader>
               <CardTitle>AI Provider Configuration</CardTitle>
-              <CardDescription>Configure AI providers, models, and per-agent settings</CardDescription>
+              <CardDescription>Configure API keys, per-agent settings, and failover</CardDescription>
             </CardHeader>
             <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-              <div>
-                <h4 style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", marginBottom: "var(--space-3)", textTransform: "uppercase" }}>
-                  Default Provider
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
-                  <div>
-                    <Label htmlFor="default_provider">Provider</Label>
-                    <select
-                      id="default_provider"
-                      value={settings.default_provider}
-                      onChange={(e) => setSettings({ ...settings, default_provider: e.target.value })}
-                      className="input"
-                      style={{ marginTop: "var(--space-2)" }}
-                    >
-                      <option value="openai">OpenAI</option>
-                      <option value="anthropic">Anthropic</option>
-                      <option value="google">Google</option>
-                      <option value="deepseek">DeepSeek</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="default_model">Model</Label>
-                    <Input id="default_model" value={settings.default_model} onChange={(e) => setSettings({ ...settings, default_model: e.target.value })} style={{ marginTop: "var(--space-2)" }} />
-                  </div>
-                </div>
-              </div>
 
+              {/* API Keys */}
               <div>
-                <h4 style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", marginBottom: "var(--space-3)", textTransform: "uppercase" }}>
-                  API Keys (stored encrypted)
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "var(--space-4)" }}>
-                  <div>
-                    <Label>OpenAI API Key</Label>
-                    <Input type="password" placeholder="sk-..." style={{ marginTop: "var(--space-2)" }} />
-                    <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-1)" }}>Required for GPT models</p>
-                  </div>
-                  <div>
-                    <Label>Anthropic API Key</Label>
-                    <Input type="password" placeholder="sk-ant-..." style={{ marginTop: "var(--space-2)" }} />
-                    <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-1)" }}>Required for Claude models</p>
-                  </div>
-                  <div>
-                    <Label>Google API Key</Label>
-                    <Input type="password" placeholder="..." style={{ marginTop: "var(--space-2)" }} />
-                    <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-1)" }}>Required for Gemini models</p>
-                  </div>
-                  <div>
-                    <Label>DeepSeek API Key</Label>
-                    <Input type="password" placeholder="..." style={{ marginTop: "var(--space-2)" }} />
-                    <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-1)" }}>Required for DeepSeek models</p>
-                  </div>
-                </div>
-              </div>
+                <h4 style={sectionStyle}>API Keys</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+                  {API_KEY_FIELDS.map((field) => {
+                    const isConfigured = settings?.api_keys_configured?.[field.key] && !keyEdits[field.key];
+                    const testResult = keyTestResults[field.key];
+                    const isTesting = keyTesting === field.key;
 
-              <div>
-                <h4 style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", marginBottom: "var(--space-3)", textTransform: "uppercase" }}>
-                  Per-Agent Configuration
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-3)" }}>
-                  {AGENTS.map((agent) => (
-                    <div key={agent.name} style={{ padding: "var(--space-3)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)" }}>
-                      <div style={{ fontWeight: "var(--weight-medium)", marginBottom: "var(--space-2)" }}>{agent.name} <span style={{ color: "var(--color-text-muted)", fontWeight: "normal", fontSize: "var(--text-xs)" }}>({agent.phase})</span></div>
-                      <div style={{ display: "flex", gap: "var(--space-2)" }}>
-                        <Input placeholder="Max tokens" style={{ width: 100 }} />
-                        <select className="input" style={{ width: 150 }}>
-                          <option value="openai">OpenAI</option>
-                          <option value="anthropic">Anthropic</option>
-                          <option value="google">Google</option>
-                          <option value="deepseek">DeepSeek</option>
-                        </select>
+                    return (
+                      <div key={field.key} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                        <span style={{ fontSize: "var(--text-sm)", width: 100, flexShrink: 0, color: "var(--color-text-secondary)" }}>
+                          {field.label}
+                        </span>
+                        <Input
+                          type="password"
+                          value={keyEdits[field.key] || ""}
+                          onChange={(e) => setKeyEdits((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                          placeholder={isConfigured ? "Set (enter new to change)" : field.placeholder}
+                          style={{ flex: 1 }}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTestKey(field.key)}
+                          disabled={isTesting || !keyEdits[field.key]}
+                          style={{ minWidth: 60 }}
+                        >
+                          {isTesting ? "..." : testResult?.valid ? "Valid" : testResult ? "Fail" : "Test"}
+                        </Button>
+                        {testResult && (
+                          <span style={{
+                            fontSize: "var(--text-xs)",
+                            color: testResult.valid ? "var(--color-success)" : "var(--color-error)",
+                            maxWidth: 140,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}>
+                            {testResult.message}
+                          </span>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
+              {/* Per-Agent Configuration */}
               <div>
-                <h4 style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", marginBottom: "var(--space-3)", textTransform: "uppercase" }}>
-                  Provider Failover
-                </h4>
+                <h4 style={sectionStyle}>Per-Agent Configuration</h4>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-3)" }}>
+                  {AGENTS.map((agent) => {
+                    const cfg = getAgentConfig(agent.name);
+                    return (
+                      <div key={agent.name} style={agentCardStyle}>
+                        <div style={{ fontWeight: "var(--weight-medium)", marginBottom: "var(--space-2)", fontSize: "var(--text-sm)" }}>
+                          {agent.name}
+                          <span style={{ color: "var(--color-text-muted)", fontWeight: "normal", fontSize: "var(--text-xs)", marginLeft: "var(--space-1)" }}>
+                            ({agent.phase})
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                          <Input
+                            type="number"
+                            value={cfg.max_tokens}
+                            onChange={(e) => updateAgentConfig(agent.name, "max_tokens", parseInt(e.target.value) || 4000)}
+                            placeholder="Tokens"
+                            style={{ width: 90 }}
+                          />
+                          <Input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="2"
+                            value={cfg.temperature}
+                            onChange={(e) => updateAgentConfig(agent.name, "temperature", parseFloat(e.target.value) || 0.3)}
+                            placeholder="Temp"
+                            style={{ width: 70 }}
+                          />
+                          <select
+                            value={cfg.provider || settings?.default_provider || "openai"}
+                            onChange={(e) => updateAgentConfig(agent.name, "provider", e.target.value)}
+                            className="input"
+                            style={{ flex: 1, fontSize: "var(--text-xs)" }}
+                          >
+                            {providerList.map(([id, p]) => (
+                              <option key={id} value={id}>{p.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Provider Failover */}
+              <div>
+                <h4 style={sectionStyle}>Provider Failover</h4>
                 <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", cursor: "pointer" }}>
-                  <input type="checkbox" defaultChecked />
+                  <input
+                    type="checkbox"
+                    checked={settings?.failover_enabled ?? true}
+                    onChange={(e) => setSettings((s) => s ? { ...s, failover_enabled: e.target.checked } : s)}
+                  />
                   <span style={{ fontSize: "var(--text-sm)" }}>Enable automatic failover between providers</span>
                 </label>
                 <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-2)" }}>
                   If primary provider fails, automatically retry with next available provider
                 </p>
               </div>
+
             </CardContent>
             <CardFooter>
-              <Button onClick={() => handleSave("ai", { default_provider: settings.default_provider, default_model: settings.default_model })} disabled={saving}>
+              <Button onClick={handleSaveAI} disabled={saving}>
                 {saving ? "Saving..." : "Save AI Settings"}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
 
+        {/* ------------------------------------------------------------ */}
+        {/* ALPACA TAB                                                    */}
+        {/* ------------------------------------------------------------ */}
         <TabsContent value="alpaca">
           <Card>
             <CardHeader>
@@ -232,30 +518,65 @@ export default function SettingsPage() {
               <CardDescription>Configure your Alpaca API credentials for paper trading</CardDescription>
             </CardHeader>
             <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", maxWidth: 500 }}>
+              {alpacaStatus?.is_connected && (
+                <div style={{ padding: "var(--space-3)", borderRadius: "var(--radius-md)", background: "var(--color-success-subtle, oklch(0.95 0.02 155))", border: "1px solid var(--color-success)", fontSize: "var(--text-sm)", color: "var(--color-success)" }}>
+                  Connected to Alpaca ({alpacaStatus.paper_trading ? "Paper" : "Live"})
+                  {alpacaStatus.last_sync && <span style={{ marginLeft: "var(--space-2)", opacity: 0.7 }}>Last sync: {new Date(alpacaStatus.last_sync).toLocaleString()}</span>}
+                </div>
+              )}
               <div>
                 <Label htmlFor="alpaca_api_key">API Key</Label>
-                <Input id="alpaca_api_key" type="password" placeholder="PK..." style={{ marginTop: "var(--space-2)" }} />
+                <Input
+                  id="alpaca_api_key"
+                  type="password"
+                  value={alpacaKey}
+                  onChange={(e) => setAlpacaKey(e.target.value)}
+                  placeholder="PK..."
+                  style={{ marginTop: "var(--space-2)" }}
+                />
               </div>
               <div>
                 <Label htmlFor="alpaca_api_secret">API Secret</Label>
-                <Input id="alpaca_api_secret" type="password" placeholder="..." style={{ marginTop: "var(--space-2)" }} />
+                <Input
+                  id="alpaca_api_secret"
+                  type="password"
+                  value={alpacaSecret}
+                  onChange={(e) => setAlpacaSecret(e.target.value)}
+                  placeholder="..."
+                  style={{ marginTop: "var(--space-2)" }}
+                />
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", cursor: "pointer" }}>
-                <input type="checkbox" defaultChecked />
+                <input
+                  type="checkbox"
+                  checked={alpacaPaper}
+                  onChange={(e) => setAlpacaPaper(e.target.checked)}
+                />
                 <span style={{ fontSize: "var(--text-sm)" }}>Paper Trading Mode</span>
               </label>
+              {alpacaTestResult && (
+                <div style={{ fontSize: "var(--text-sm)", color: alpacaTestResult.connected ? "var(--color-success)" : "var(--color-error)" }}>
+                  {alpacaTestResult.connected ? "Connection successful" : "Connection failed"}
+                </div>
+              )}
               <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
                 Get your API keys from <a href="https://alpaca.markets" target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-accent)" }}>alpaca.markets</a>
               </p>
             </CardContent>
-            <CardFooter>
-              <Button onClick={() => handleSave("alpaca", {})} disabled={saving}>
+            <CardFooter style={{ gap: "var(--space-2)" }}>
+              <Button onClick={handleSaveAlpaca} disabled={saving || !alpacaKey || !alpacaSecret}>
                 {saving ? "Saving..." : "Save Alpaca Settings"}
+              </Button>
+              <Button variant="outline" onClick={handleTestAlpaca} disabled={alpacaTesting || !alpacaKey || !alpacaSecret}>
+                {alpacaTesting ? "Testing..." : "Test Connection"}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
 
+        {/* ------------------------------------------------------------ */}
+        {/* PERPLEFINA TAB                                                */}
+        {/* ------------------------------------------------------------ */}
         <TabsContent value="perplefina">
           <Card>
             <CardHeader>
@@ -267,14 +588,18 @@ export default function SettingsPage() {
                 <Label htmlFor="perplefina_url">Perplefina URL</Label>
                 <Input
                   id="perplefina_url"
-                  value={settings.perplefina_url}
-                  onChange={(e) => setSettings({ ...settings, perplefina_url: e.target.value })}
+                  value={settings?.perplefina_url || ""}
+                  onChange={(e) => setSettings((s) => s ? { ...s, perplefina_url: e.target.value } : s)}
                   placeholder="http://localhost:3000"
                   style={{ marginTop: "var(--space-2)" }}
                 />
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", cursor: "pointer" }}>
-                <input type="checkbox" defaultChecked />
+                <input
+                  type="checkbox"
+                  checked={settings?.perplefina_enabled ?? true}
+                  onChange={(e) => setSettings((s) => s ? { ...s, perplefina_enabled: e.target.checked } : s)}
+                />
                 <span style={{ fontSize: "var(--text-sm)" }}>Enable Perplefina Integration</span>
               </label>
               <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
@@ -282,13 +607,41 @@ export default function SettingsPage() {
               </p>
             </CardContent>
             <CardFooter>
-              <Button onClick={() => handleSave("perplefina", { perplefina_url: settings.perplefina_url })} disabled={saving}>
+              <Button onClick={handleSaveGeneral} disabled={saving}>
                 {saving ? "Saving..." : "Save Perplefina Settings"}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Health info (footer) */}
+      {health && (
+        <div style={{ marginTop: "var(--space-6)", padding: "var(--space-3)", borderRadius: "var(--radius-md)", background: "var(--color-bg-surface)", border: "1px solid var(--color-border)", display: "flex", gap: "var(--space-4)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+          <span>Python {health.python}</span>
+          <span>TradingAgents: {health.tradingagents ? "Installed" : "Missing"}</span>
+          <span>.env: {health.env_file ? "Present" : "Missing"}</span>
+          <span>Status: {health.status}</span>
+        </div>
+      )}
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Inline styles                                                       */
+/* ------------------------------------------------------------------ */
+
+const sectionStyle: React.CSSProperties = {
+  fontSize: "var(--text-sm)",
+  fontWeight: "var(--weight-semibold)",
+  color: "var(--color-text-secondary)",
+  marginBottom: "var(--space-3)",
+  textTransform: "uppercase",
+};
+
+const agentCardStyle: React.CSSProperties = {
+  padding: "var(--space-3)",
+  background: "var(--color-bg-elevated)",
+  borderRadius: "var(--radius-md)",
+};

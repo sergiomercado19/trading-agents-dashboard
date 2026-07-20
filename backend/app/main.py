@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import auth, health, analysis, providers, tickers, portfolio
+from app.api import settings as settings_router
 from app.websockets import routes as ws_routes
 from app.websockets.manager import ws_manager
 from app.core.config import settings
@@ -75,6 +76,7 @@ app.include_router(analysis.router, prefix="/api", tags=["analysis"])
 app.include_router(providers.router, prefix="/api", tags=["providers"])
 app.include_router(tickers.router, prefix="/api", tags=["tickers"])
 app.include_router(portfolio.router, prefix="/api", tags=["portfolio"])
+app.include_router(settings_router.router, prefix="/api", tags=["settings"])
 
 # WebSocket routes
 app.include_router(ws_routes.router, tags=["websocket"])

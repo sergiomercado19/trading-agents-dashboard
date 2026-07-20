@@ -213,6 +213,13 @@ class AIConfig(Base):
     failover_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     failover_order: Mapped[List[str]] = mapped_column(JSON, default=list, nullable=False)
 
+    # General preferences
+    default_ticker: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+
+    # Perplefina
+    perplefina_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    perplefina_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
