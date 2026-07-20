@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, health, analysis, providers, tickers
+from app.api import auth, health, analysis, providers, tickers, portfolio
 from app.websockets import routes as ws_routes
 from app.websockets.manager import ws_manager
 from app.core.config import settings
@@ -74,6 +74,7 @@ app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(analysis.router, prefix="/api", tags=["analysis"])
 app.include_router(providers.router, prefix="/api", tags=["providers"])
 app.include_router(tickers.router, prefix="/api", tags=["tickers"])
+app.include_router(portfolio.router, prefix="/api", tags=["portfolio"])
 
 # WebSocket routes
 app.include_router(ws_routes.router, tags=["websocket"])

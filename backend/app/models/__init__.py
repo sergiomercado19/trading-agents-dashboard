@@ -55,6 +55,7 @@ class User(Base):
     analyses: Mapped[List["Analysis"]] = relationship("Analysis", back_populates="user", cascade="all, delete-orphan")
     api_keys: Mapped[List["APIKey"]] = relationship("APIKey", back_populates="user", cascade="all, delete-orphan")
     trades: Mapped[List["Trade"]] = relationship("Trade", back_populates="user", cascade="all, delete-orphan")
+    positions: Mapped[List["Position"]] = relationship("Position", back_populates="user", cascade="all, delete-orphan")
     alpaca_config: Mapped[Optional["AlpacaConfig"]] = relationship("AlpacaConfig", back_populates="user", uselist=False, cascade="all, delete-orphan")
     ai_config: Mapped[Optional["AIConfig"]] = relationship("AIConfig", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
@@ -168,6 +169,8 @@ class Position(Base):
     side: Mapped[str] = mapped_column(String(10), nullable=False)  # long, short
     asset_class: Mapped[str] = mapped_column(String(20), default="us_equity", nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    user: Mapped["User"] = relationship("User", back_populates="positions")
 
     __table_args__ = (Index("ix_positions_user_ticker", "user_id", "ticker", unique=True),)
 
