@@ -8,6 +8,7 @@ import RegisterPage from "@/pages/auth/RegisterPage";
 import HomePage from "@/pages/HomePage";
 import AnalyzePage from "@/pages/AnalyzePage";
 import HistoryPage from "@/pages/HistoryPage";
+import AnalysisDetailPage from "@/pages/AnalysisDetailPage";
 import PortfolioPage from "@/pages/PortfolioPage";
 import SettingsPage from "@/pages/SettingsPage";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -95,6 +96,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <HistoryPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analysis/:id"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <AnalysisDetailPage />
             </AppLayout>
           </ProtectedRoute>
         }

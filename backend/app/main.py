@@ -32,6 +32,12 @@ async def lifespan(app: FastAPI):
         logger.info("WebSocket heartbeat started")
     except Exception as e:
         logger.warning(f"WebSocket heartbeat failed to start: {e}")
+
+    try:
+        from app.api.analysis import mark_stale_analyses
+        await mark_stale_analyses()
+    except Exception as e:
+        logger.warning(f"Stale analysis check failed: {e}")
     
     yield
     

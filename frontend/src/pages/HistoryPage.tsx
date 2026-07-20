@@ -1,50 +1,105 @@
-import { useEffect, useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
 import { api } from "@/utils/api";
+import type { AnalysisListItem, PaginatedResponse } from "@/types/analysis";
 
-const statusColors: Record<string, "default" | "destructive" | "outline" | "secondary" | "success" | "warning"> = {
+const STATUS_COLORS: Record<string, "default" | "destructive" | "outline" | "secondary" | "success" | "warning"> = {
   completed: "success",
   running: "default",
   failed: "destructive",
   cancelled: "secondary",
   pending: "warning",
+  stale: "outline",
 };
 
 export default function HistoryPage() {
-  const [analyses, setAnalyses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ status: "", ticker: "", page: 1 });
-  const [pagination, setPagination] = useState({ total: 0, page: 1, pageSize: 20 });
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [tickerFilter, setTickerFilter] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [searchInput, setSearchInput] = useState("");
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // Debounced ticker search
   useEffect(() => {
-    fetchAnalyses();
-  }, [filters]);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      setTickerFilter(searchInput);
+      setPage(1);
+    }, 300);
+    return () => { if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current); };
+  }, [searchInput]);
 
-  const fetchAnalyses = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: filters.page.toString(),
-        limit: pagination.pageSize.toString(),
-        ...(filters.status && { status: filters.status }),
-        ...(filters.ticker && { ticker: filters.ticker }),
-      });
-      const data = await api.get<any>(`/api/analyses?${params}`);
-      setAnalyses(data.items || []);
-      setPagination(prev => ({ ...prev, total: data.total || 0 }));
-    } catch (err) {
-      console.error("Failed to fetch analyses:", err);
-    } finally {
-      setLoading(false);
+  const { data, isLoading } = useQuery({
+    queryKey: ["analyses", page, statusFilter, tickerFilter],
+    queryFn: () => {
+      const params = new URLSearchParams({ page: page.toString(), limit: "20" });
+      if (statusFilter) params.set("status", statusFilter);
+      if (tickerFilter) params.set("ticker", tickerFilter);
+      return api.get<PaginatedResponse<AnalysisListItem>>(`/api/analysis?${params}`);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`/api/analysis/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["analyses"] });
+      setSelectedIds((prev) => { const next = new Set(prev); next.delete(selectedIds.values().next().value!); return next; });
+    },
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: (ids: number[]) => api.post<{ deleted: number }>("/api/analysis/bulk-delete", { ids }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["analyses"] });
+      setSelectedIds(new Set());
+    },
+  });
+
+  const retryMutation = useMutation({
+    mutationFn: (id: number) => api.post<{ analysis_id: number }>(`/api/analysis/${id}/retry`),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["analyses"] });
+      navigate(`/analysis/${data.analysis_id}`);
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: (id: number) => api.post(`/api/analysis/${id}/cancel`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["analyses"] }),
+  });
+
+  const items = data?.items || [];
+  const total = data?.total || 0;
+  const totalPages = data?.pages || 1;
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === items.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(items.map((a) => a.id)));
     }
   };
 
-  const getRecommendationBadge = (rec: string) => {
+  const getRecommendationBadge = (rec: string | null) => {
     switch (rec?.toLowerCase()) {
       case "buy": return "success";
       case "sell": return "destructive";
@@ -67,50 +122,72 @@ export default function HistoryPage() {
 
       <Card>
         <CardContent style={{ padding: 0 }}>
-          <div style={{ display: "flex", gap: "var(--space-4)", padding: "var(--space-4)", borderBottom: "1px solid var(--color-border)", flexWrap: "wrap" }}>
-            <div style={{ minWidth: 200 }}>
-              <Label htmlFor="ticker-filter" style={{ display: "block", marginBottom: "var(--space-1)" }}>Filter by Ticker</Label>
+          {/* Filters */}
+          <div style={{ display: "flex", gap: "var(--space-4)", padding: "var(--space-4)", borderBottom: "1px solid var(--color-border)", flexWrap: "wrap", alignItems: "flex-end" }}>
+            <div style={{ minWidth: 200, flex: 1 }}>
+              <Label htmlFor="ticker-search" style={{ display: "block", marginBottom: "var(--space-1)", fontSize: "var(--text-xs)" }}>Ticker</Label>
               <Input
-                id="ticker-filter"
+                id="ticker-search"
                 placeholder="AAPL, TSLA..."
-                value={filters.ticker}
-                onChange={(e) => setFilters({ ...filters, ticker: e.target.value.toUpperCase(), page: 1 })}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value.toUpperCase())}
                 style={{ width: "100%" }}
               />
             </div>
             <div style={{ minWidth: 180 }}>
-              <Label htmlFor="status-filter" style={{ display: "block", marginBottom: "var(--space-1)" }}>Status</Label>
+              <Label htmlFor="status-filter" style={{ display: "block", marginBottom: "var(--space-1)", fontSize: "var(--text-xs)" }}>Status</Label>
               <select
                 id="status-filter"
-                value={filters.status}
-                onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
-                className="input"
-                style={{ width: "100%" }}
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                style={{
+                  width: "100%",
+                  padding: "var(--space-2) var(--space-3)",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--color-border)",
+                  background: "var(--color-bg-elevated)",
+                  color: "var(--color-text-primary)",
+                  fontSize: "var(--text-sm)",
+                }}
               >
                 <option value="">All Statuses</option>
                 <option value="completed">Completed</option>
                 <option value="running">Running</option>
+                <option value="pending">Pending</option>
                 <option value="failed">Failed</option>
                 <option value="cancelled">Cancelled</option>
-                <option value="pending">Pending</option>
+                <option value="stale">Stale</option>
               </select>
             </div>
+            {selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (confirm(`Delete ${selectedIds.size} analysis(es)?`)) {
+                    bulkDeleteMutation.mutate(Array.from(selectedIds));
+                  }
+                }}
+                disabled={bulkDeleteMutation.isPending}
+              >
+                Delete {selectedIds.size}
+              </Button>
+            )}
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div style={{ padding: "var(--space-8)", textAlign: "center", color: "var(--color-text-muted)" }}>
               Loading analyses...
             </div>
-          ) : analyses.length === 0 ? (
+          ) : items.length === 0 ? (
             <div style={{ padding: "var(--space-12)", textAlign: "center" }}>
-              <div style={{ fontSize: "3rem", marginBottom: "var(--space-4)" }}>📊</div>
+              <div style={{ fontSize: "3rem", marginBottom: "var(--space-4)" }}>&#x1F4CA;</div>
               <h3 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)" }}>
                 No analyses found
               </h3>
               <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-4)" }}>
                 Run your first analysis to see it here
               </p>
-              <Button onClick={() => window.location.href = "/analyze"}>Run Analysis</Button>
+              <Button onClick={() => navigate("/analyze")}>Run Analysis</Button>
             </div>
           ) : (
             <>
@@ -118,54 +195,80 @@ export default function HistoryPage() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-surface)" }}>
+                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left" }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.size === items.length && items.length > 0}
+                          onChange={toggleSelectAll}
+                          style={{ cursor: "pointer" }}
+                        />
+                      </th>
                       <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Ticker</th>
                       <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Status</th>
                       <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Recommendation</th>
                       <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Confidence</th>
                       <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Risk</th>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Duration</th>
                       <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Date</th>
                       <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {analyses.map((analysis) => (
+                    {items.map((analysis) => (
                       <tr key={analysis.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+                        <td style={{ padding: "var(--space-3) var(--space-4)" }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(analysis.id)}
+                            onChange={() => toggleSelect(analysis.id)}
+                            style={{ cursor: "pointer" }}
+                          />
+                        </td>
                         <td style={{ padding: "var(--space-3) var(--space-4)", fontWeight: "var(--weight-medium)", fontFamily: "var(--font-mono)" }}>
                           {analysis.ticker}
                         </td>
                         <td style={{ padding: "var(--space-3) var(--space-4)" }}>
-                          <Badge variant={statusColors[analysis.status] || "secondary"}>
+                          <Badge variant={STATUS_COLORS[analysis.status] || "secondary"}>
                             {analysis.status}
                           </Badge>
                         </td>
                         <td style={{ padding: "var(--space-3) var(--space-4)" }}>
-                          <Badge variant={getRecommendationBadge(analysis.final_recommendation)}>
-                            {analysis.final_recommendation || "—"}
-                          </Badge>
+                          {analysis.final_recommendation ? (
+                            <Badge variant={getRecommendationBadge(analysis.final_recommendation)}>
+                              {analysis.final_recommendation}
+                            </Badge>
+                          ) : (
+                            <span style={{ color: "var(--color-text-muted)" }}>&#x2014;</span>
+                          )}
                         </td>
                         <td style={{ padding: "var(--space-3) var(--space-4)" }}>
-                          {analysis.confidence_score ? `${(analysis.confidence_score * 100).toFixed(0)}%` : "—"}
+                          {analysis.confidence_score ? `${(analysis.confidence_score * 100).toFixed(0)}%` : <span style={{ color: "var(--color-text-muted)" }}>&#x2014;</span>}
                         </td>
                         <td style={{ padding: "var(--space-3) var(--space-4)" }}>
-                          {analysis.risk_score ? `${(analysis.risk_score * 100).toFixed(0)}%` : "—"}
-                        </td>
-                        <td style={{ padding: "var(--space-3) var(--space-4)", fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)" }}>
-                          {analysis.duration_seconds ? `${analysis.duration_seconds.toFixed(1)}s` : "—"}
+                          {analysis.risk_score ? `${(analysis.risk_score * 100).toFixed(0)}%` : <span style={{ color: "var(--color-text-muted)" }}>&#x2014;</span>}
                         </td>
                         <td style={{ padding: "var(--space-3) var(--space-4)", color: "var(--color-text-secondary)", fontSize: "var(--text-sm)" }}>
-                          {format(new Date(analysis.created_at), "MMM d, yyyy HH:mm")}
+                          {analysis.created_at ? new Date(analysis.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "\u2014"}
                         </td>
                         <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right" }}>
                           <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}>
-                            <Button className="btn-ghost btn-sm" onClick={() => window.location.href = `/analysis/${analysis.id}`}>
+                            <Button className="btn-ghost btn-sm" onClick={() => navigate(`/analysis/${analysis.id}`)}>
                               View
                             </Button>
-                            {analysis.status === "failed" && (
-                              <Button className="btn-ghost btn-sm" onClick={() => retryAnalysis(analysis.id)}>
+                            {["failed", "cancelled", "stale"].includes(analysis.status) && (
+                              <Button className="btn-ghost btn-sm" onClick={() => retryMutation.mutate(analysis.id)} disabled={retryMutation.isPending}>
                                 Retry
                               </Button>
                             )}
+                            {["running", "pending"].includes(analysis.status) && (
+                              <Button className="btn-ghost btn-sm" onClick={() => cancelMutation.mutate(analysis.id)} disabled={cancelMutation.isPending}>
+                                Cancel
+                              </Button>
+                            )}
+                            <Button className="btn-ghost btn-sm" style={{ color: "var(--color-error)" }} onClick={() => {
+                              if (confirm("Delete this analysis?")) deleteMutation.mutate(analysis.id);
+                            }} disabled={deleteMutation.isPending}>
+                              Delete
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -174,22 +277,23 @@ export default function HistoryPage() {
                 </table>
               </div>
 
-              {pagination.total > pagination.pageSize && (
-                <div style={{ display: "flex", justifyContent: "center", gap: "var(--space-2)", padding: "var(--space-4)", borderTop: "1px solid var(--color-border)" }}>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-4)", borderTop: "1px solid var(--color-border)" }}>
                   <Button
                     className="btn-ghost btn-sm"
-                    onClick={() => setFilters({ ...filters, page: filters.page - 1 })}
-                    disabled={filters.page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
                   >
                     Previous
                   </Button>
-                  <span style={{ display: "flex", alignItems: "center", color: "var(--color-text-secondary)", fontSize: "var(--text-sm)" }}>
-                    Page {filters.page} of {Math.ceil(pagination.total / pagination.pageSize)}
+                  <span style={{ color: "var(--color-text-secondary)", fontSize: "var(--text-sm)" }}>
+                    Page {page} of {totalPages} ({total} total)
                   </span>
                   <Button
                     className="btn-ghost btn-sm"
-                    onClick={() => setFilters({ ...filters, page: filters.page + 1 })}
-                    disabled={filters.page >= Math.ceil(pagination.total / pagination.pageSize)}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
                   >
                     Next
                   </Button>
@@ -201,10 +305,4 @@ export default function HistoryPage() {
       </Card>
     </div>
   );
-}
-
-function retryAnalysis(id: number) {
-  if (confirm("Retry this analysis?")) {
-    api.post(`/api/analyses/${id}/retry`).then(() => window.location.reload());
-  }
 }

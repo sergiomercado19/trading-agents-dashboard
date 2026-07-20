@@ -26,6 +26,35 @@ class AnalysisStartResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# List / Pagination
+# ---------------------------------------------------------------------------
+
+class AnalysisListItem(BaseModel):
+    id: int
+    ticker: str
+    status: str
+    final_recommendation: Optional[str] = None
+    confidence_score: Optional[float] = None
+    risk_score: Optional[float] = None
+    current_phase: Optional[str] = None
+    progress: int = 0
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+class AnalysisListResponse(BaseModel):
+    items: list[AnalysisListItem]
+    total: int
+    page: int
+    limit: int
+    pages: int
+
+
+class BulkDeleteRequest(BaseModel):
+    ids: list[int] = Field(..., min_length=1, max_length=100)
+
+
+# ---------------------------------------------------------------------------
 # SSE events
 # ---------------------------------------------------------------------------
 
