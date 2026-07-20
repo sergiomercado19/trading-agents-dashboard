@@ -94,8 +94,12 @@ async def stream_analysis(
         payload = decode_token(token)
         if not payload or not verify_token_type(payload, "access"):
             raise HTTPException(status_code=401, detail="Invalid token")
-        user_id = payload.get("sub")
-        if not user_id:
+        sub = payload.get("sub")
+        if not sub:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        try:
+            user_id = int(sub)
+        except (TypeError, ValueError):
             raise HTTPException(status_code=401, detail="Invalid token")
         result = await db.execute(select(User).where(User.id == user_id))
         current_user = result.scalar_one_or_none()

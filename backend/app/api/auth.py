@@ -165,8 +165,13 @@ async def refresh_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token payload"
         )
-    
-    # Check if refresh token exists and is not revoked
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload"
+        )
     token_hash = hash_token(request.refresh_token)
     result = await db.execute(
         select(RefreshToken).where(

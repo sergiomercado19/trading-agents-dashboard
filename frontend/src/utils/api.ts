@@ -5,15 +5,42 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 class ApiClient {
   private baseUrl: string;
   private getAccessToken: () => string | null;
+  private getRefreshToken: () => string | null;
+  private refreshing: Promise<string | null> | null = null;
 
-  constructor(baseUrl: string, getAccessToken: () => string | null) {
+  constructor(
+    baseUrl: string,
+    getAccessToken: () => string | null,
+    getRefreshToken: () => string | null,
+  ) {
     this.baseUrl = baseUrl;
     this.getAccessToken = getAccessToken;
+    this.getRefreshToken = getRefreshToken;
+  }
+
+  private async tryRefresh(): Promise<string | null> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) return null;
+
+    try {
+      const resp = await fetch(`${this.baseUrl}/api/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      useAuthStore.getState().setTokens(data.access_token, data.refresh_token);
+      return data.access_token;
+    } catch {
+      return null;
+    }
   }
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    isRetry = false,
   ): Promise<T> {
     const token = this.getAccessToken();
     const headers: HeadersInit = {
@@ -30,11 +57,23 @@ class ApiClient {
       headers,
     });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        useAuthStore.getState().logout();
-        window.location.href = "/login";
+    if (response.status === 401 && !isRetry) {
+      // Deduplicate concurrent refresh attempts
+      if (!this.refreshing) {
+        this.refreshing = this.tryRefresh().finally(() => {
+          this.refreshing = null;
+        });
       }
+      const newToken = await this.refreshing;
+      if (newToken) {
+        return this.request<T>(endpoint, options, true);
+      }
+      useAuthStore.getState().logout();
+      window.location.href = "/login";
+      throw new Error("Session expired");
+    }
+
+    if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: "Request failed" }));
       throw new Error(error.detail || "Request failed");
     }
@@ -76,4 +115,8 @@ class ApiClient {
   }
 }
 
-export const api = new ApiClient(API_BASE, () => useAuthStore.getState().accessToken);
+export const api = new ApiClient(
+  API_BASE,
+  () => useAuthStore.getState().accessToken,
+  () => useAuthStore.getState().refreshToken,
+);

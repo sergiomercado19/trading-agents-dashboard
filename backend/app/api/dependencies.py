@@ -30,8 +30,13 @@ async def get_current_user(
     if not verify_token_type(payload, "access"):
         raise credentials_exception
     
-    user_id: Optional[int] = payload.get("sub")
-    if user_id is None:
+    sub = payload.get("sub")
+    if sub is None:
+        raise credentials_exception
+
+    try:
+        user_id = int(sub)
+    except (TypeError, ValueError):
         raise credentials_exception
     
     result = await db.execute(select(User).where(User.id == user_id))
@@ -86,7 +91,9 @@ async def get_optional_current_user(
         user_id = payload.get("sub")
         if not user_id:
             return None
-        
+
+        user_id = int(user_id)
+
         result = await db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
         

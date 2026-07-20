@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthState>()(
         if (!accessToken || !refreshToken) {
           set({ isLoading: false, isAuthenticated: false });
         } else {
-          set({ isLoading: false });
+          set({ isLoading: false, isAuthenticated: true });
         }
       },
     }),
