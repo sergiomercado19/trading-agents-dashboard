@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { path: "/analyze", label: "Analyze", icon: "🔍" },
   { path: "/history", label: "History", icon: "📜" },
   { path: "/portfolio", label: "Portfolio", icon: "💼" },
+  { path: "/trades", label: "Trades", icon: "💱" },
   { path: "/settings", label: "Settings", icon: "⚙️" },
 ];
 

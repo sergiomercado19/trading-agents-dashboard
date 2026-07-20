@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from app.core.database import get_db
 from app.api.dependencies import get_current_user
@@ -20,6 +20,8 @@ from app.schemas.portfolio import (
     TradeResponse,
     AlpacaConfigRequest,
     AlpacaConfigResponse,
+    TradeHistoryItem,
+    TradeHistoryResponse,
 )
 from app.services.alpaca_client import AlpacaClient, AlpacaClientError, ALPACA_PAPER_BASE
 
@@ -201,6 +203,73 @@ async def submit_trade(
         status=order["status"],
         filled_avg_price=order.get("filled_avg_price"),
         submitted_at=order.get("submitted_at", ""),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Trade history
+# ---------------------------------------------------------------------------
+
+@router.get("/trades", response_model=TradeHistoryResponse)
+async def list_trades(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    ticker: str | None = Query(None, max_length=20),
+    side: str | None = Query(None),
+    status: str | None = Query(None),
+    from_date: str | None = Query(None),
+    to_date: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    stmt = select(Trade).where(Trade.user_id == current_user.id)
+
+    if ticker:
+        stmt = stmt.where(Trade.ticker.ilike(f"%{ticker}%"))
+    if side:
+        stmt = stmt.where(Trade.side == side)
+    if status:
+        stmt = stmt.where(Trade.status == status)
+    if from_date:
+        from_dt = datetime.fromisoformat(from_date)
+        stmt = stmt.where(Trade.created_at >= from_dt)
+    if to_date:
+        to_dt = datetime.fromisoformat(to_date)
+        stmt = stmt.where(Trade.created_at <= to_dt)
+
+    count_stmt = select(func.count()).select_from(stmt.subquery())
+    total = (await db.execute(count_stmt)).scalar_one() or 0
+
+    stmt = stmt.order_by(Trade.created_at.desc())
+    stmt = stmt.offset((page - 1) * limit).limit(limit)
+    result = await db.execute(stmt)
+    trades = result.scalars().all()
+
+    items = [
+        TradeHistoryItem(
+            id=t.id,
+            ticker=t.ticker,
+            side=t.side,
+            quantity=t.quantity,
+            price=t.price,
+            order_type=t.order_type,
+            status=t.status,
+            filled_at=t.filled_at.isoformat() if t.filled_at else None,
+            filled_price=t.filled_price,
+            filled_quantity=t.filled_quantity,
+            commission=t.commission,
+            notes=t.notes,
+            created_at=t.created_at.isoformat(),
+        )
+        for t in trades
+    ]
+
+    return TradeHistoryResponse(
+        items=items,
+        total=total,
+        page=page,
+        limit=limit,
+        pages=(total + limit - 1) // limit,
     )
 
 

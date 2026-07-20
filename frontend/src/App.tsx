@@ -10,6 +10,7 @@ import AnalyzePage from "@/pages/AnalyzePage";
 import HistoryPage from "@/pages/HistoryPage";
 import AnalysisDetailPage from "@/pages/AnalysisDetailPage";
 import PortfolioPage from "@/pages/PortfolioPage";
+import TradeHistoryPage from "@/pages/TradeHistoryPage";
 import SettingsPage from "@/pages/SettingsPage";
 import LoadingScreen from "@/components/LoadingScreen";
 
@@ -116,6 +117,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <PortfolioPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/trades"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <TradeHistoryPage />
             </AppLayout>
           </ProtectedRoute>
         }

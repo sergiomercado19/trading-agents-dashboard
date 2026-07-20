@@ -60,3 +60,31 @@ class AlpacaConfigResponse(BaseModel):
     is_connected: bool
     paper_trading: bool
     last_sync: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
+# Trade History
+# ---------------------------------------------------------------------------
+
+class TradeHistoryItem(BaseModel):
+    id: int
+    ticker: str
+    side: str
+    quantity: float
+    price: float
+    order_type: str
+    status: str
+    filled_at: Optional[str] = None
+    filled_price: Optional[float] = None
+    filled_quantity: Optional[float] = None
+    commission: float = 0.0
+    notes: Optional[str] = None
+    created_at: str
+
+
+class TradeHistoryResponse(BaseModel):
+    items: list[TradeHistoryItem]
+    total: int
+    page: int
+    limit: int
+    pages: int
