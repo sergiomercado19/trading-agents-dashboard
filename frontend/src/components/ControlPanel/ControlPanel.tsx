@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Button, Badge } from "../ui";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import TickerSearch from "../TickerSearch";
 import ProviderSelector from "../ProviderSelector";
 import ModelSelect from "../ModelSelect";

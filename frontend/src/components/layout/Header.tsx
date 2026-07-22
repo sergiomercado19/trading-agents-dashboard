@@ -2,17 +2,18 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Terminal, Sun, BarChart3, Menu } from "lucide-react";
 import { LogoWithText } from "./Logo";
 import { useAuthStore } from "@/store/authStore";
 import { api } from "@/utils/api";
 
 const THEMES = [
-  { id: "terminal" as const, label: "Terminal", icon: "🖥️" },
-  { id: "modern" as const, label: "Modern", icon: "☀️" },
-  { id: "bloomberg" as const, label: "Bloomberg", icon: "📊" },
+  { id: "terminal" as const, label: "Terminal", icon: Terminal },
+  { id: "modern" as const, label: "Modern", icon: Sun },
+  { id: "bloomberg" as const, label: "Bloomberg", icon: BarChart3 },
 ];
 
-export function Header() {
+export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const { theme, setTheme } = useTheme();
 
   return (
@@ -31,14 +32,17 @@ export function Header() {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
+        {onToggleSidebar && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-8 w-8"
+            onClick={onToggleSidebar}
+          >
+            <Menu size={18} />
+          </Button>
+        )}
         <LogoWithText size={28} />
-        <nav style={{ display: "flex", gap: "var(--space-1)" }}>
-          <NavLink to="/" exact>Dashboard</NavLink>
-          <NavLink to="/analyze">Analyze</NavLink>
-          <NavLink to="/history">History</NavLink>
-          <NavLink to="/portfolio">Portfolio</NavLink>
-          <NavLink to="/settings">Settings</NavLink>
-        </nav>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
@@ -46,35 +50,6 @@ export function Header() {
         <UserMenu />
       </div>
     </header>
-  );
-}
-
-function NavLink({ to, exact, children }: { to: string; exact?: boolean; children: React.ReactNode }) {
-  const location = window.location.pathname;
-  const isActive = exact ? location === to : location.startsWith(to);
-  
-  return (
-    <a
-      href={to}
-      style={{
-        padding: "var(--space-2) var(--space-3)",
-        borderRadius: "var(--radius-sm)",
-        fontSize: "var(--text-sm)",
-        fontWeight: "var(--weight-medium)",
-        color: isActive ? "var(--color-text-primary)" : "var(--color-text-muted)",
-        background: isActive ? "var(--color-bg-elevated)" : "transparent",
-        textDecoration: "none",
-        transition: "all var(--duration-fast) var(--ease-out)",
-      }}
-      onMouseEnter={(e) => {
-        if (!isActive) e.currentTarget.style.background = "var(--color-bg-hover)";
-      }}
-      onMouseLeave={(e) => {
-        if (!isActive) e.currentTarget.style.background = "transparent";
-      }}
-    >
-      {children}
-    </a>
   );
 }
 
@@ -96,12 +71,11 @@ function ThemeSwitcher({ themes, currentTheme, onChange }: { themes: typeof THEM
             cursor: "pointer",
             background: currentTheme === t.id ? "var(--color-accent)" : "transparent",
             color: currentTheme === t.id ? "#fff" : "var(--color-text-faint)",
-            fontSize: "14px",
             transition: "all var(--duration-fast) var(--ease-out)",
           }}
           title={t.label}
         >
-          {t.icon}
+          <t.icon size={14} />
         </button>
       ))}
     </div>

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useTheme, THEME_IDS, THEME_LABELS } from "@/components/ThemeProvider";
 import { api } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import { toast } from "sonner";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -100,8 +100,6 @@ const API_KEY_FIELDS = [
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const { toast } = useToast();
-
   /* Settings state */
   const [settings, setSettings] = useState<SettingsData | null>(null);
   const [providers, setProviders] = useState<Record<string, ProviderInfo>>({});
@@ -317,10 +315,10 @@ export default function SettingsPage() {
       setCreatedKey(result.api_key);
       setApiKeys((prev) => [result.key_info, ...prev]);
       setNewKeyName("");
-      toast({ title: "API key created", variant: "success" });
+      toast.success("API key created");
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Failed to create key";
-      toast({ title: message, variant: "destructive" });
+      toast.error(message);
     } finally {
       setCreatingKey(false);
     }
@@ -330,10 +328,10 @@ export default function SettingsPage() {
     try {
       await api.delete(`/api/auth/api-keys/${keyId}`);
       setApiKeys((prev) => prev.map((k) => k.id === keyId ? { ...k, is_active: false } : k));
-      toast({ title: "API key revoked", variant: "success" });
+      toast.success("API key revoked");
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Failed to revoke key";
-      toast({ title: message, variant: "destructive" });
+      toast.error(message);
     }
   };
 
@@ -727,7 +725,7 @@ export default function SettingsPage() {
                     variant="outline"
                     size="sm"
                     style={{ marginTop: "var(--space-2)" }}
-                    onClick={() => { navigator.clipboard.writeText(createdKey); toast({ title: "Copied to clipboard", variant: "success" }); }}
+                    onClick={() => { navigator.clipboard.writeText(createdKey); toast.success("Copied to clipboard"); }}
                   >
                     Copy
                   </Button>

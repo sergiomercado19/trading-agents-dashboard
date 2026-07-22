@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/utils/api";
 import type { Position, Account, TradeForm, AlpacaConfig } from "@/types/portfolio";
+import { LinkIcon } from "lucide-react";
 
 export default function PortfolioPage() {
   const [positions, setPositions] = useState<Position[]>([]);
@@ -102,7 +103,7 @@ export default function PortfolioPage() {
         <Card>
           <CardContent style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400, textAlign: "center" }}>
             <div>
-              <div style={{ fontSize: "4rem", marginBottom: "var(--space-4)" }}>🔗</div>
+              <div style={{ fontSize: "4rem", marginBottom: "var(--space-4)", color: "var(--color-text-muted)" }}><LinkIcon size={48} /></div>
               <h3 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)", color: "var(--color-text-primary)" }}>
                 Alpaca Not Configured
               </h3>

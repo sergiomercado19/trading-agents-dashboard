@@ -1,6 +1,6 @@
 import { useReportReader } from "../../hooks/useReportReader";
 import { DocumentIcon } from "../icons";
-import { Button } from "../ui";
+import { Button } from "../ui/button";
 import styles from "./ReportReader.module.css";
 
 interface ReportFile {

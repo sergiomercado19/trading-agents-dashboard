@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/store/authStore";
 import { api } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import { toast } from "sonner";
 
 interface ActivityData {
   total_analyses: number;
@@ -27,8 +27,6 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
-  const { toast } = useToast();
-
   const [fullName, setFullName] = useState(user?.full_name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [username, setUsername] = useState(user?.username ?? "");
@@ -57,10 +55,10 @@ export default function ProfilePage() {
         username: username || undefined,
       });
       setUser(updated as never);
-      toast({ title: "Profile updated", variant: "success" });
+      toast.success("Profile updated");
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Failed to update profile";
-      toast({ title: message, variant: "destructive" });
+      toast.error(message);
     } finally {
       setSaving(false);
     }

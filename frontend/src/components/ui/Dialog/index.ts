@@ -1,1 +1,0 @@
-export { Dialog, type DialogRootProps, type DialogTriggerProps, type DialogContentProps, type DialogCloseProps, type DialogTitleProps, type DialogDescriptionProps } from "./Dialog";

@@ -7,6 +7,7 @@ import { api } from "@/utils/api";
 import { useAuthStore } from "@/store/authStore";
 import { TickerAutocomplete } from "@/components/TickerAutocomplete";
 import { AnalysisDetailModal } from "@/components/analysis/AnalysisDetailModal";
+import { BarChart3 } from "lucide-react";
 
 /* ─── Types ─── */
 interface AgentState {
@@ -351,7 +352,7 @@ export default function AnalyzePage() {
             <Card>
               <CardContent style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400, textAlign: "center" }}>
                 <div>
-                  <div style={{ fontSize: "4rem", marginBottom: "var(--space-4)" }}>📊</div>
+                  <div style={{ fontSize: "4rem", marginBottom: "var(--space-4)", color: "var(--color-text-muted)" }}><BarChart3 size={48} /></div>
                   <h3 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)", color: "var(--color-text-primary)" }}>
                     Ready to Analyze
                   </h3>

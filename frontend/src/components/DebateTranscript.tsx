@@ -1,3 +1,5 @@
+import { TrendingUp, TrendingDown, AlertTriangle, Scale, type LucideIcon } from "lucide-react";
+
 interface Transcript {
   bull: Array<{ speaker: string; text: string }>;
   bear: Array<{ speaker: string; text: string }>;
@@ -11,11 +13,11 @@ interface Props {
   transcript: Transcript | null;
 }
 
-const SECTION_CONFIG: Record<TranscriptKey, { emoji: string; color: string; label: string }> = {
-  bull: { emoji: "\ud83d\udcc8", color: "var(--success)", label: "Bull Case" },
-  bear: { emoji: "\ud83d\udcc9", color: "var(--error)", label: "Bear Case" },
-  risk: { emoji: "\u26a0\ufe0f", color: "var(--warning)", label: "Risk Assessment" },
-  neutral: { emoji: "\u2696\ufe0f", color: "var(--accent)", label: "Final Decision" },
+const SECTION_CONFIG: Record<TranscriptKey, { icon: LucideIcon; color: string; label: string }> = {
+  bull: { icon: TrendingUp, color: "var(--success)", label: "Bull Case" },
+  bear: { icon: TrendingDown, color: "var(--error)", label: "Bear Case" },
+  risk: { icon: AlertTriangle, color: "var(--warning)", label: "Risk Assessment" },
+  neutral: { icon: Scale, color: "var(--accent)", label: "Final Decision" },
 };
 
 export default function DebateTranscript({ transcript }: Props) {
@@ -43,10 +45,11 @@ export default function DebateTranscript({ transcript }: Props) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {sections.map((key) => {
         const config = SECTION_CONFIG[key];
+        const Icon = config.icon;
         return (
           <div key={key}>
-            <h4 style={{ fontSize: 14, color: config.color, marginBottom: 8 }}>
-              {config.emoji} {config.label}
+            <h4 style={{ fontSize: 14, color: config.color, marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+              <Icon size={14} /> {config.label}
             </h4>
             {transcript[key].map((entry: { speaker: string; text: string }, i: number) => (
               <div

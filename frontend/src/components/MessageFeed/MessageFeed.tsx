@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Badge } from "../ui";
+import { Badge } from "../ui/badge";
 import type { StreamMessage } from "../../hooks/useRunStream";
 import styles from "./MessageFeed.module.css";
 
