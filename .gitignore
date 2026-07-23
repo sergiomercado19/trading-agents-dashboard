@@ -223,6 +223,7 @@ __marimo__/
 reports/
 
 # Private
+.agents/
 .graphify/
 .opencode/
 .playwright-mcp/
