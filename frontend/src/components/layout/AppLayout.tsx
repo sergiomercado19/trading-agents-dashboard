@@ -51,10 +51,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         />
         <main
           className={cn(
-            "flex-1 overflow-auto transition-all duration-200 ease-out",
+            "flex-1 overflow-auto transition-all duration-200 ease-out p-6",
             sidebarCollapsed ? "lg:ml-16" : "lg:ml-72"
           )}
-          style={{ padding: "var(--space-6)" }}
         >
           {children}
         </main>

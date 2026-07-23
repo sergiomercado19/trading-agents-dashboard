@@ -71,36 +71,36 @@ export default function ProfilePage() {
   });
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 720, margin: "0 auto" }}>
-      <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", marginBottom: "var(--space-6)" }}>
+    <div className="p-6 max-w-[720px] mx-auto">
+      <h1 className="text-2xl font-bold mb-6">
         Profile
       </h1>
 
       {/* Edit profile */}
-      <Card style={{ marginBottom: "var(--space-6)" }}>
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle>Account</CardTitle>
           <CardDescription>Update your personal information</CardDescription>
         </CardHeader>
         <CardContent>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="username">Username</Label>
-                <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} style={{ marginTop: "var(--space-1)" }} />
+                <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="mt-1" />
               </div>
               <div>
                 <Label htmlFor="fullName">Full name</Label>
-                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Optional" style={{ marginTop: "var(--space-1)" }} />
+                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Optional" className="mt-1" />
               </div>
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ marginTop: "var(--space-1)" }} />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" />
             </div>
           </div>
         </CardContent>
-        <div style={{ padding: "0 var(--space-6) var(--space-6)", display: "flex", justifyContent: "flex-end" }}>
+        <div className="px-6 pb-6 flex justify-end">
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save changes"}
           </Button>
@@ -108,27 +108,27 @@ export default function ProfilePage() {
       </Card>
 
       {/* Account info */}
-      <Card style={{ marginBottom: "var(--space-6)" }}>
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle>Account Details</CardTitle>
         </CardHeader>
         <CardContent>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)", fontSize: "var(--text-sm)" }}>
+          <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span style={{ color: "var(--color-text-muted)" }}>Status</span>
-              <div style={{ marginTop: "var(--space-1)" }}>{user?.is_active ? "Active" : "Inactive"}</div>
+              <span className="text-[var(--color-text-muted)]">Status</span>
+              <div className="mt-1">{user?.is_active ? "Active" : "Inactive"}</div>
             </div>
             <div>
-              <span style={{ color: "var(--color-text-muted)" }}>Account type</span>
-              <div style={{ marginTop: "var(--space-1)" }}>{user?.is_superuser ? "Admin" : "User"}</div>
+              <span className="text-[var(--color-text-muted)]">Account type</span>
+              <div className="mt-1">{user?.is_superuser ? "Admin" : "User"}</div>
             </div>
             <div>
-              <span style={{ color: "var(--color-text-muted)" }}>Member since</span>
-              <div style={{ marginTop: "var(--space-1)" }}>{user?.created_at ? formatDate(user.created_at) : "—"}</div>
+              <span className="text-[var(--color-text-muted)]">Member since</span>
+              <div className="mt-1">{user?.created_at ? formatDate(user.created_at) : "—"}</div>
             </div>
             <div>
-              <span style={{ color: "var(--color-text-muted)" }}>Last login</span>
-              <div style={{ marginTop: "var(--space-1)" }}>{activity?.last_login ? formatDate(activity.last_login) : "—"}</div>
+              <span className="text-[var(--color-text-muted)]">Last login</span>
+              <div className="mt-1">{activity?.last_login ? formatDate(activity.last_login) : "—"}</div>
             </div>
           </div>
         </CardContent>
@@ -155,14 +155,9 @@ export default function ProfilePage() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div style={{
-      padding: "var(--space-4)",
-      background: "var(--color-bg-elevated)",
-      borderRadius: "var(--radius-md)",
-      border: "1px solid var(--color-border)",
-    }}>
-      <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>{value}</div>
-      <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)", marginTop: "var(--space-1)" }}>{label}</div>
+    <div className="p-4 bg-[var(--color-bg-elevated)] rounded-md border border-[var(--color-border)]">
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="text-sm text-[var(--color-text-muted)] mt-1">{label}</div>
     </div>
   );
 }

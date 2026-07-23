@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/utils/api";
+import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
 import type {
   TradeHistoryItem,
@@ -496,15 +497,14 @@ function StatCard({
     <div className="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl p-4">
       <div className="text-xs text-[var(--color-text-secondary)] mb-1">{label}</div>
       <div
-        className="text-xl font-bold"
-        style={{
-          color:
-            positive === undefined
-              ? "var(--color-text-primary)"
-              : positive
-                ? "#10b981"
-                : "#f43f5e",
-        }}
+        className={cn(
+          "text-xl font-bold",
+          positive === undefined
+            ? "text-[var(--color-text-primary)]"
+            : positive
+              ? "text-emerald-500"
+              : "text-rose-500"
+        )}
       >
         {value}
       </div>
@@ -603,8 +603,4 @@ function StatusBadge({ status }: { status: string }) {
       {status}
     </span>
   );
-}
-
-function cn(...classes: (string | false | null | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
 }

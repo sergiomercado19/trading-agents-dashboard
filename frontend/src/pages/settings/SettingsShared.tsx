@@ -43,8 +43,7 @@ export function Card({ children, style }: { children: ReactNode; style?: CSSProp
 export function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
   return (
     <span
-      className={`badge ${ok ? "badge-success" : "badge-error"}`}
-      style={{ fontSize: "var(--text-xs)" }}
+      className={`badge ${ok ? "badge-success" : "badge-error"} text-xs`}
     >
       {label}
     </span>

@@ -220,7 +220,7 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="panel-header">
           <span className="panel-title">Reports</span>
-          <span className="badge" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-muted)" }}>
+          <span className="badge bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)]">
             {reports.length}
           </span>
         </div>
@@ -272,7 +272,7 @@ export default function ReportsPage() {
                     <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>
                       {ticker}
                     </span>
-                    <span className="badge" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-faint)", fontSize: "var(--text-xs)" }}>
+                    <span className="badge bg-[var(--color-bg-elevated)] text-[var(--color-text-faint)] text-xs">
                       {reports_for_ticker.length}
                     </span>
                   </div>

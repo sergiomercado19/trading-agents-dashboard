@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useTheme, THEME_IDS, THEME_LABELS } from "@/components/ThemeProvider";
 import { api } from "@/utils/api";
+import { cn } from "@/utils/cn";
 import { toast } from "sonner";
 
 /* ------------------------------------------------------------------ */
@@ -344,25 +345,25 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: "var(--space-6)", maxWidth: 800, margin: "0 auto" }}>
-        <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>Loading settings...</div>
+      <div className="p-6 max-w-[800px] mx-auto">
+        <div className="text-[var(--color-text-muted)] text-sm">Loading settings...</div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 800, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-6)" }}>
-        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+    <div className="p-6 max-w-[800px] mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
           Settings
         </h1>
         {saved && (
-          <span style={{ fontSize: "var(--text-sm)", color: "var(--color-success)" }}>Saved!</span>
+          <span className="text-sm text-[var(--color-success)]">Saved!</span>
         )}
       </div>
 
       <Tabs defaultValue="general">
-        <TabsList className="flex overflow-x-auto flex-nowrap" style={{ marginBottom: "var(--space-6)" }}>
+        <TabsList className="flex overflow-x-auto flex-nowrap mb-6">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="ai">AI Providers</TabsTrigger>
           <TabsTrigger value="alpaca">Alpaca</TabsTrigger>
@@ -381,15 +382,14 @@ export default function SettingsPage() {
               <CardDescription>Configure your dashboard preferences</CardDescription>
             </CardHeader>
             <CardContent>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+              <div className="flex flex-col gap-4">
                 <div>
                   <Label htmlFor="theme">Theme</Label>
                   <select
                     id="theme"
                     value={theme}
                     onChange={(e) => setTheme(e.target.value as "terminal" | "modern" | "bloomberg")}
-                    className="input"
-                    style={{ marginTop: "var(--space-2)", maxWidth: 200 }}
+                    className="input mt-2 max-w-[200px]"
                   >
                     {THEME_IDS.map((id) => (
                       <option key={id} value={id}>{THEME_LABELS[id]}</option>
@@ -403,7 +403,7 @@ export default function SettingsPage() {
                     value={settings?.default_ticker || ""}
                     onChange={(e) => setSettings((s) => s ? { ...s, default_ticker: e.target.value || null } : s)}
                     placeholder="AAPL"
-                    style={{ marginTop: "var(--space-2)", maxWidth: 200 }}
+                    className="mt-2 max-w-[200px]"
                   />
                 </div>
                 <div>
@@ -412,8 +412,7 @@ export default function SettingsPage() {
                     id="default_provider"
                     value={settings?.default_provider || "openai"}
                     onChange={(e) => setSettings((s) => s ? { ...s, default_provider: e.target.value } : s)}
-                    className="input"
-                    style={{ marginTop: "var(--space-2)", maxWidth: 200 }}
+                    className="input mt-2 max-w-[200px]"
                   >
                     {providerList.map(([id, p]) => (
                       <option key={id} value={id}>{p.name}</option>
@@ -426,8 +425,7 @@ export default function SettingsPage() {
                     id="default_model"
                     value={settings?.default_model || ""}
                     onChange={(e) => setSettings((s) => s ? { ...s, default_model: e.target.value } : s)}
-                    className="input"
-                    style={{ marginTop: "var(--space-2)", maxWidth: 300 }}
+                    className="input mt-2 max-w-[300px]"
                   >
                     {currentProviderModels.map((m) => (
                       <option key={m.id} value={m.id}>{m.name}</option>
@@ -453,12 +451,12 @@ export default function SettingsPage() {
               <CardTitle>AI Provider Configuration</CardTitle>
               <CardDescription>Configure API keys, per-agent settings, and failover</CardDescription>
             </CardHeader>
-            <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+            <CardContent className="flex flex-col gap-6">
 
               {/* API Keys */}
               <div>
-                <h4 style={sectionStyle}>API Keys</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+                <h4 className={sectionClassName}>API Keys</h4>
+                <div className="flex flex-col gap-3">
                   {API_KEY_FIELDS.map((field) => {
                     const isConfigured = settings?.api_keys_configured?.[field.key] && !keyEdits[field.key];
                     const testResult = keyTestResults[field.key];
@@ -466,7 +464,7 @@ export default function SettingsPage() {
 
                     return (
                       <div key={field.key} className="flex flex-col sm:flex-row sm:items-center gap-2">
-                        <span style={{ fontSize: "var(--text-sm)", width: 100, flexShrink: 0, color: "var(--color-text-secondary)" }}>
+                        <span className="text-sm w-[100px] shrink-0 text-[var(--color-text-secondary)]">
                           {field.label}
                         </span>
                         <Input
@@ -474,26 +472,22 @@ export default function SettingsPage() {
                           value={keyEdits[field.key] || ""}
                           onChange={(e) => setKeyEdits((prev) => ({ ...prev, [field.key]: e.target.value }))}
                           placeholder={isConfigured ? "Set (enter new to change)" : field.placeholder}
-                          style={{ flex: 1 }}
+                          className="flex-1"
                         />
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleTestKey(field.key)}
                           disabled={isTesting || !keyEdits[field.key]}
-                          style={{ minWidth: 60 }}
+                          className="min-w-[60px]"
                         >
                           {isTesting ? "..." : testResult?.valid ? "Valid" : testResult ? "Fail" : "Test"}
                         </Button>
                         {testResult && (
-                          <span style={{
-                            fontSize: "var(--text-xs)",
-                            color: testResult.valid ? "var(--color-success)" : "var(--color-error)",
-                            maxWidth: 140,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}>
+                          <span className={cn(
+                            "text-xs max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap",
+                            testResult.valid ? "text-[var(--color-success)]" : "text-[var(--color-error)]"
+                          )}>
                             {testResult.message}
                           </span>
                         )}
@@ -505,25 +499,25 @@ export default function SettingsPage() {
 
               {/* Per-Agent Configuration */}
               <div>
-                <h4 style={sectionStyle}>Per-Agent Configuration</h4>
+                <h4 className={sectionClassName}>Per-Agent Configuration</h4>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {AGENTS.map((agent) => {
                     const cfg = getAgentConfig(agent.name);
                     return (
-                      <div key={agent.name} style={agentCardStyle}>
-                        <div style={{ fontWeight: "var(--weight-medium)", marginBottom: "var(--space-2)", fontSize: "var(--text-sm)" }}>
+                      <div key={agent.name} className="p-3 bg-[var(--color-bg-elevated)] rounded-md">
+                        <div className="font-medium mb-2 text-sm">
                           {agent.name}
-                          <span style={{ color: "var(--color-text-muted)", fontWeight: "normal", fontSize: "var(--text-xs)", marginLeft: "var(--space-1)" }}>
+                          <span className="text-[var(--color-text-muted)] font-normal text-xs ml-1">
                             ({agent.phase})
                           </span>
                         </div>
-                        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                        <div className="flex gap-2">
                           <Input
                             type="number"
                             value={cfg.max_tokens}
                             onChange={(e) => updateAgentConfig(agent.name, "max_tokens", parseInt(e.target.value) || 4000)}
                             placeholder="Tokens"
-                            style={{ width: 90 }}
+                            className="w-[90px]"
                           />
                           <Input
                             type="number"
@@ -533,13 +527,12 @@ export default function SettingsPage() {
                             value={cfg.temperature}
                             onChange={(e) => updateAgentConfig(agent.name, "temperature", parseFloat(e.target.value) || 0.3)}
                             placeholder="Temp"
-                            style={{ width: 70 }}
+                            className="w-[70px]"
                           />
                           <select
                             value={cfg.provider || settings?.default_provider || "openai"}
                             onChange={(e) => updateAgentConfig(agent.name, "provider", e.target.value)}
-                            className="input"
-                            style={{ flex: 1, fontSize: "var(--text-xs)" }}
+                            className="input flex-1 text-xs"
                           >
                             {providerList.map(([id, p]) => (
                               <option key={id} value={id}>{p.name}</option>
@@ -554,16 +547,16 @@ export default function SettingsPage() {
 
               {/* Provider Failover */}
               <div>
-                <h4 style={sectionStyle}>Provider Failover</h4>
-                <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", cursor: "pointer" }}>
+                <h4 className={sectionClassName}>Provider Failover</h4>
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={settings?.failover_enabled ?? true}
                     onChange={(e) => setSettings((s) => s ? { ...s, failover_enabled: e.target.checked } : s)}
                   />
-                  <span style={{ fontSize: "var(--text-sm)" }}>Enable automatic failover between providers</span>
+                  <span className="text-sm">Enable automatic failover between providers</span>
                 </label>
-                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-2)" }}>
+                <p className="text-xs text-[var(--color-text-muted)] mt-2">
                   If primary provider fails, automatically retry with next available provider
                 </p>
               </div>
@@ -586,11 +579,11 @@ export default function SettingsPage() {
               <CardTitle>Alpaca Paper Trading</CardTitle>
               <CardDescription>Configure your Alpaca API credentials for paper trading</CardDescription>
             </CardHeader>
-            <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", maxWidth: 500 }}>
+            <CardContent className="flex flex-col gap-4 max-w-[500px]">
               {alpacaStatus?.is_connected && (
-                <div style={{ padding: "var(--space-3)", borderRadius: "var(--radius-md)", background: "var(--color-success-subtle, oklch(0.95 0.02 155))", border: "1px solid var(--color-success)", fontSize: "var(--text-sm)", color: "var(--color-success)" }}>
+                <div className="p-3 rounded-md text-sm text-[var(--color-success)]" style={{ background: "var(--color-success-subtle, oklch(0.95 0.02 155))", border: "1px solid var(--color-success)" }}>
                   Connected to Alpaca ({alpacaStatus.paper_trading ? "Paper" : "Live"})
-                  {alpacaStatus.last_sync && <span style={{ marginLeft: "var(--space-2)", opacity: 0.7 }}>Last sync: {new Date(alpacaStatus.last_sync).toLocaleString()}</span>}
+                  {alpacaStatus.last_sync && <span className="ml-2 opacity-70">Last sync: {new Date(alpacaStatus.last_sync).toLocaleString()}</span>}
                 </div>
               )}
               <div>
@@ -601,7 +594,7 @@ export default function SettingsPage() {
                   value={alpacaKey}
                   onChange={(e) => setAlpacaKey(e.target.value)}
                   placeholder="PK..."
-                  style={{ marginTop: "var(--space-2)" }}
+                  className="mt-2"
                 />
               </div>
               <div>
@@ -612,27 +605,27 @@ export default function SettingsPage() {
                   value={alpacaSecret}
                   onChange={(e) => setAlpacaSecret(e.target.value)}
                   placeholder="..."
-                  style={{ marginTop: "var(--space-2)" }}
+                  className="mt-2"
                 />
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", cursor: "pointer" }}>
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={alpacaPaper}
                   onChange={(e) => setAlpacaPaper(e.target.checked)}
                 />
-                <span style={{ fontSize: "var(--text-sm)" }}>Paper Trading Mode</span>
+                <span className="text-sm">Paper Trading Mode</span>
               </label>
               {alpacaTestResult && (
-                <div style={{ fontSize: "var(--text-sm)", color: alpacaTestResult.connected ? "var(--color-success)" : "var(--color-error)" }}>
+                <div className={cn("text-sm", alpacaTestResult.connected ? "text-[var(--color-success)]" : "text-[var(--color-error)]")}>
                   {alpacaTestResult.connected ? "Connection successful" : "Connection failed"}
                 </div>
               )}
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
-                Get your API keys from <a href="https://alpaca.markets" target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-accent)" }}>alpaca.markets</a>
+              <p className="text-xs text-[var(--color-text-muted)]">
+                Get your API keys from <a href="https://alpaca.markets" target="_blank" rel="noopener noreferrer" className="text-[var(--color-accent)]">alpaca.markets</a>
               </p>
             </CardContent>
-            <CardFooter style={{ gap: "var(--space-2)" }}>
+            <CardFooter className="gap-2">
               <Button onClick={handleSaveAlpaca} disabled={saving || !alpacaKey || !alpacaSecret}>
                 {saving ? "Saving..." : "Save Alpaca Settings"}
               </Button>
@@ -652,7 +645,7 @@ export default function SettingsPage() {
               <CardTitle>Perplefina Configuration</CardTitle>
               <CardDescription>Configure local Perplefina service for news and social analysis</CardDescription>
             </CardHeader>
-            <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", maxWidth: 500 }}>
+            <CardContent className="flex flex-col gap-4 max-w-[500px]">
               <div>
                 <Label htmlFor="perplefina_url">Perplefina URL</Label>
                 <Input
@@ -660,18 +653,18 @@ export default function SettingsPage() {
                   value={settings?.perplefina_url || ""}
                   onChange={(e) => setSettings((s) => s ? { ...s, perplefina_url: e.target.value } : s)}
                   placeholder="http://localhost:3000"
-                  style={{ marginTop: "var(--space-2)" }}
+                  className="mt-2"
                 />
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", cursor: "pointer" }}>
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={settings?.perplefina_enabled ?? true}
                   onChange={(e) => setSettings((s) => s ? { ...s, perplefina_enabled: e.target.checked } : s)}
                 />
-                <span style={{ fontSize: "var(--text-sm)" }}>Enable Perplefina Integration</span>
+                <span className="text-sm">Enable Perplefina Integration</span>
               </label>
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+              <p className="text-xs text-[var(--color-text-muted)]">
                 Perplefina provides news sentiment and social media analysis for trading agents
               </p>
             </CardContent>
@@ -692,9 +685,9 @@ export default function SettingsPage() {
               <CardTitle>API Keys</CardTitle>
               <CardDescription>Manage API keys for external integrations</CardDescription>
             </CardHeader>
-            <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+            <CardContent className="flex flex-col gap-4">
               {/* Create new key */}
-              <div style={{ display: "flex", gap: "var(--space-2)", maxWidth: 400 }}>
+              <div className="flex gap-2 max-w-[400px]">
                 <Input
                   value={newKeyName}
                   onChange={(e) => setNewKeyName(e.target.value)}
@@ -708,23 +701,17 @@ export default function SettingsPage() {
 
               {/* Show created key */}
               {createdKey && (
-                <div style={{
-                  padding: "var(--space-3)",
-                  borderRadius: "var(--radius-md)",
-                  background: "var(--color-success-subtle)",
-                  border: "1px solid var(--color-success)",
-                  fontSize: "var(--text-sm)",
-                }}>
-                  <div style={{ fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-1)", color: "var(--color-success)" }}>
+                <div className="p-3 rounded-md text-sm" style={{ background: "var(--color-success-subtle)", border: "1px solid var(--color-success)" }}>
+                  <div className="font-semibold mb-1 text-[var(--color-success)]">
                     Key created (copy it now, it won't be shown again):
                   </div>
-                  <code style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", wordBreak: "break-all" }}>
+                  <code className="font-mono text-xs break-all">
                     {createdKey}
                   </code>
                   <Button
                     variant="outline"
                     size="sm"
-                    style={{ marginTop: "var(--space-2)" }}
+                    className="mt-2"
                     onClick={() => { navigator.clipboard.writeText(createdKey); toast.success("Copied to clipboard"); }}
                   >
                     Copy
@@ -734,35 +721,24 @@ export default function SettingsPage() {
 
               {/* Key list */}
               {apiKeys.length === 0 ? (
-                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>No API keys yet.</p>
+                <p className="text-sm text-[var(--color-text-muted)]">No API keys yet.</p>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                <div className="flex flex-col gap-2">
                   {apiKeys.map((key) => (
-                    <div key={key.id} style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "var(--space-3)",
-                      background: "var(--color-bg-elevated)",
-                      borderRadius: "var(--radius-md)",
-                      border: "1px solid var(--color-border)",
-                    }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                        <span style={{ fontWeight: "var(--weight-medium)", fontSize: "var(--text-sm)" }}>{key.name}</span>
-                        <code style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+                    <div key={key.id} className="flex items-center justify-between p-3 bg-[var(--color-bg-elevated)] rounded-md border border-[var(--color-border)]">
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium text-sm">{key.name}</span>
+                        <code className="font-mono text-xs text-[var(--color-text-muted)]">
                           {key.key_prefix}...
                         </code>
-                        <span style={{
-                          fontSize: "var(--text-xs)",
-                          padding: "2px 6px",
-                          borderRadius: "var(--radius-sm)",
-                          background: key.is_active ? "var(--color-success-subtle)" : "var(--color-error-subtle)",
-                          color: key.is_active ? "var(--color-success)" : "var(--color-error)",
-                        }}>
+                        <span className={cn(
+                          "text-xs px-1.5 py-0.5 rounded-sm",
+                          key.is_active ? "bg-[var(--color-success-subtle)] text-[var(--color-success)]" : "bg-[var(--color-error-subtle)] text-[var(--color-error)]"
+                        )}>
                           {key.is_active ? "Active" : "Revoked"}
                         </span>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+                      <div className="flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
                         <span>Created {new Date(key.created_at).toLocaleDateString()}</span>
                         {key.is_active && (
                           <Button
@@ -791,7 +767,7 @@ export default function SettingsPage() {
               <CardTitle>Activity</CardTitle>
               <CardDescription>Your account activity and recent events</CardDescription>
             </CardHeader>
-            <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+            <CardContent className="flex flex-col gap-6">
               {activity ? (
                 <>
                   {/* Stats */}
@@ -804,20 +780,13 @@ export default function SettingsPage() {
                   {/* Recent analyses */}
                   {activity.recent_analyses.length > 0 && (
                     <div>
-                      <h4 style={sectionStyle}>Recent Analyses</h4>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                      <h4 className={sectionClassName}>Recent Analyses</h4>
+                      <div className="flex flex-col gap-2">
                         {activity.recent_analyses.map((a) => (
-                          <div key={a.id} style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            padding: "var(--space-2) var(--space-3)",
-                            background: "var(--color-bg-elevated)",
-                            borderRadius: "var(--radius-sm)",
-                            fontSize: "var(--text-sm)",
-                          }}>
+                          <div key={a.id} className="flex justify-between p-2 px-3 bg-[var(--color-bg-elevated)] rounded-sm text-sm">
                             <span><strong>{a.ticker}</strong></span>
-                            <span style={{ color: "var(--color-text-muted)" }}>{a.status}</span>
-                            <span style={{ color: "var(--color-text-muted)" }}>{new Date(a.created_at).toLocaleDateString()}</span>
+                            <span className="text-[var(--color-text-muted)]">{a.status}</span>
+                            <span className="text-[var(--color-text-muted)]">{new Date(a.created_at).toLocaleDateString()}</span>
                           </div>
                         ))}
                       </div>
@@ -827,25 +796,18 @@ export default function SettingsPage() {
                   {/* Recent trades */}
                   {activity.recent_trades.length > 0 && (
                     <div>
-                      <h4 style={sectionStyle}>Recent Trades</h4>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                      <h4 className={sectionClassName}>Recent Trades</h4>
+                      <div className="flex flex-col gap-2">
                         {activity.recent_trades.map((t) => (
-                          <div key={t.id} style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            padding: "var(--space-2) var(--space-3)",
-                            background: "var(--color-bg-elevated)",
-                            borderRadius: "var(--radius-sm)",
-                            fontSize: "var(--text-sm)",
-                          }}>
+                          <div key={t.id} className="flex justify-between p-2 px-3 bg-[var(--color-bg-elevated)] rounded-sm text-sm">
                             <span>
                               <strong>{t.ticker}</strong>{" "}
-                              <span style={{ color: t.side === "buy" ? "var(--color-success)" : "var(--color-error)" }}>
+                              <span className={t.side === "buy" ? "text-[var(--color-success)]" : "text-[var(--color-error)]"}>
                                 {t.side.toUpperCase()}
                               </span>
                             </span>
-                            <span style={{ color: "var(--color-text-muted)" }}>{t.quantity} @ ${t.price.toFixed(2)}</span>
-                            <span style={{ color: "var(--color-text-muted)" }}>{new Date(t.created_at).toLocaleDateString()}</span>
+                            <span className="text-[var(--color-text-muted)]">{t.quantity} @ ${t.price.toFixed(2)}</span>
+                            <span className="text-[var(--color-text-muted)]">{new Date(t.created_at).toLocaleDateString()}</span>
                           </div>
                         ))}
                       </div>
@@ -853,7 +815,7 @@ export default function SettingsPage() {
                   )}
                 </>
               ) : (
-                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>Loading activity...</p>
+                <p className="text-sm text-[var(--color-text-muted)]">Loading activity...</p>
               )}
             </CardContent>
           </Card>
@@ -862,7 +824,7 @@ export default function SettingsPage() {
 
       {/* Health info (footer) */}
       {health && (
-        <div style={{ marginTop: "var(--space-6)", padding: "var(--space-3)", borderRadius: "var(--radius-md)", background: "var(--color-bg-surface)", border: "1px solid var(--color-border)", display: "flex", gap: "var(--space-4)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+        <div className="mt-6 p-3 rounded-md bg-[var(--color-bg-surface)] border border-[var(--color-border)] flex gap-4 text-xs text-[var(--color-text-muted)]">
           <span>Python {health.python}</span>
           <span>TradingAgents: {health.tradingagents ? "Installed" : "Missing"}</span>
           <span>.env: {health.env_file ? "Present" : "Missing"}</span>
@@ -877,31 +839,13 @@ export default function SettingsPage() {
 /* Inline styles                                                       */
 /* ------------------------------------------------------------------ */
 
-const sectionStyle: React.CSSProperties = {
-  fontSize: "var(--text-sm)",
-  fontWeight: "var(--weight-semibold)",
-  color: "var(--color-text-secondary)",
-  marginBottom: "var(--space-3)",
-  textTransform: "uppercase",
-};
-
-const agentCardStyle: React.CSSProperties = {
-  padding: "var(--space-3)",
-  background: "var(--color-bg-elevated)",
-  borderRadius: "var(--radius-md)",
-};
+const sectionClassName = "text-sm font-semibold text-[var(--color-text-secondary)] mb-3 uppercase";
 
 function ActivityStat({ label, value }: { label: string; value: number }) {
   return (
-    <div style={{
-      padding: "var(--space-3)",
-      background: "var(--color-bg-elevated)",
-      borderRadius: "var(--radius-md)",
-      border: "1px solid var(--color-border)",
-      textAlign: "center",
-    }}>
-      <div style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)" }}>{value}</div>
-      <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-1)" }}>{label}</div>
+    <div className="p-3 bg-[var(--color-bg-elevated)] rounded-md border border-[var(--color-border)] text-center">
+      <div className="text-xl font-bold">{value}</div>
+      <div className="text-xs text-[var(--color-text-muted)] mt-1">{label}</div>
     </div>
   );
 }

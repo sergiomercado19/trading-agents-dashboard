@@ -60,24 +60,24 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "var(--color-bg-root)", padding: "var(--space-4)" }}>
-      <Card style={{ width: "100%", maxWidth: 400 }}>
-        <CardHeader style={{ textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "var(--space-3)" }}>
+    <div className="flex items-center justify-center min-h-screen bg-[var(--color-bg-root)] p-4">
+      <Card className="w-full max-w-[400px]">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-3">
             <Logo size={48} />
           </div>
           <CardTitle>Create Account</CardTitle>
           <CardDescription>Start your trading journey with AI-powered analysis</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {error && (
-              <div style={{ padding: "var(--space-3)", background: "var(--color-error-subtle)", color: "var(--color-error)", borderRadius: "var(--radius-md)", fontSize: "var(--text-sm)" }}>
+              <div className="p-3 bg-[var(--color-error-subtle)] text-[var(--color-error)] rounded-md text-sm">
                 {error}
               </div>
             )}
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -91,7 +91,7 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
@@ -105,7 +105,7 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="full_name">Full Name (optional)</Label>
               <Input
                 id="full_name"
@@ -117,7 +117,7 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -132,7 +132,7 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
                 id="confirmPassword"
@@ -151,10 +151,10 @@ export default function RegisterPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter style={{ textAlign: "center" }}>
-          <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
+        <CardFooter className="text-center">
+          <p className="text-[var(--color-text-muted)] text-sm">
             Already have an account?{" "}
-            <Link to="/login" style={{ color: "var(--color-accent)", fontWeight: "var(--weight-medium)" }}>
+            <Link to="/login" className="text-[var(--color-accent)] font-medium">
               Sign in
             </Link>
           </p>

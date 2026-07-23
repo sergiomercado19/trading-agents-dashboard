@@ -7,7 +7,7 @@ import ModelSelect from "../ModelSelect";
 import PipelineVisualization from "../PipelineVisualization";
 import type { RunSnapshot } from "../../hooks/useRunStream";
 import type { CostEstimate } from "../../hooks/useCostEstimate";
-import styles from "./ControlPanel.module.css";
+import { cn } from "@/utils/cn";
 
 interface Preset {
   id: string;
@@ -111,32 +111,31 @@ export default function ControlPanel({
   };
 
   return (
-    <div className={styles.controlPanel}>
+    <div className="flex flex-col h-full relative overflow-hidden">
       {/* Form layer */}
       <div
-        className={`${styles.layer} ${styles.formLayer} ${showForm ? styles.visible : ""}`}
-        style={{
-          opacity: showForm ? 1 : 0,
-          transform: showForm ? "translateX(0)" : "translateX(-20px)",
-          transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
-          pointerEvents: showForm ? "auto" : "none",
-        }}
+        className={cn(
+          "absolute inset-0 flex flex-col overflow-auto transition-all duration-200 ease-out",
+          showForm
+            ? "opacity-100 translate-x-0 pointer-events-auto"
+            : "opacity-0 -translate-x-5 pointer-events-none"
+        )}
       >
-        <div className={styles.header}>
-          <span className={styles.title}>Configure</span>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)] min-h-[40px]">
+          <span className="text-sm font-semibold text-[var(--color-text-secondary)] tracking-[0.02em] uppercase">Configure</span>
           {estimate && !estimateLoading && (
             <Badge variant="accent">~${estimate.estimated_cost_usd.toFixed(4)}</Badge>
           )}
         </div>
 
-        <div className={styles.body}>
+        <div className="flex flex-col gap-3 p-4 flex-1 overflow-auto">
           {/* Presets */}
-          <div className={styles.row}>
+          <div className="flex gap-1">
             <input
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
               placeholder="Preset name..."
-              className={`input ${styles.presetInput}`}
+              className="input flex-1 px-2 py-1 text-xs"
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
             <Button variant="default" size="sm" onClick={handleSave} disabled={!presetName.trim()}>
@@ -145,12 +144,12 @@ export default function ControlPanel({
           </div>
 
           {presets.length > 0 && (
-            <div className={styles.presetList}>
+            <div className="flex flex-wrap gap-1">
               {presets.map((p) => (
                 <span
                   key={p.id}
                   onClick={() => onLoadPreset(p)}
-                  className={styles.presetItem}
+                  className="flex items-center gap-1 px-2 py-0.5 text-xs bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-sm cursor-pointer text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"
                 >
                   {p.name}
                   <span
@@ -158,7 +157,7 @@ export default function ControlPanel({
                       e.stopPropagation();
                       onDeletePreset(p.id);
                     }}
-                    className={styles.presetDelete}
+                    className="opacity-40 cursor-pointer hover:opacity-100"
                   >
                     ×
                   </span>
@@ -171,27 +170,27 @@ export default function ControlPanel({
           <TickerSearch value={ticker} onChange={onTickerChange} />
 
           {/* Date */}
-          <div className={styles.section}>
-            <label className={styles.label}>Date</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-[var(--color-text-muted)] mb-1 block">Date</label>
             <input
               type="date"
               value={date}
               onChange={(e) => onDateChange(e.target.value)}
-              className={`input ${styles.dateInput}`}
+              className="input"
             />
           </div>
 
           {/* Analysts */}
-          <div className={styles.section}>
-            <label className={styles.label}>Analysts</label>
-            <div className={styles.row}>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-[var(--color-text-muted)] mb-1 block">Analysts</label>
+            <div className="flex gap-1">
               {ANALYSTS.map((a) => (
                 <Button
                   key={a.id}
                   variant={analysts.includes(a.id) ? "default" : "secondary"}
                   size="sm"
                   onClick={() => toggleAnalyst(a.id)}
-                  className={styles.buttonFlex}
+                  className="flex-1 text-xs"
                 >
                   {a.label}
                 </Button>
@@ -200,16 +199,16 @@ export default function ControlPanel({
           </div>
 
           {/* Depth */}
-          <div className={styles.section}>
-            <label className={styles.label}>Depth</label>
-            <div className={styles.row}>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-[var(--color-text-muted)] mb-1 block">Depth</label>
+            <div className="flex gap-1">
               {DEPTH_OPTIONS.map((opt) => (
                 <Button
                   key={opt.value}
                   variant={depth === opt.value ? "default" : "secondary"}
                   size="sm"
                   onClick={() => onDepthChange(opt.value)}
-                  className={styles.buttonFlex}
+                  className="flex-1 text-xs"
                 >
                   {opt.label}
                 </Button>
@@ -221,18 +220,18 @@ export default function ControlPanel({
           <ProviderSelector value={provider} onChange={onProviderChange} />
 
           {/* Models */}
-          <div className={styles.grid}>
+          <div className="grid grid-cols-2 gap-2">
             <ModelSelect provider={provider} value={quickModel} onChange={onQuickModelChange} type="quick" />
             <ModelSelect provider={provider} value={deepModel} onChange={onDeepModelChange} type="deep" />
           </div>
 
           {/* Cost estimate */}
           {estimate && (
-            <div className={styles.costEstimate}>
-              <div className={styles.costRow}>
+            <div className="px-3 py-2 bg-[var(--color-bg-elevated)] rounded-md border border-[var(--color-border-subtle)] text-xs">
+              <div className="flex justify-between text-[var(--color-text-muted)]">
                 <span>{estimate.estimated_tokens_in.toLocaleString()} in</span>
                 <span>{estimate.estimated_tokens_out.toLocaleString()} out</span>
-                <span className={styles.costTotal}>${estimate.estimated_cost_usd.toFixed(4)}</span>
+                <span className="text-[var(--color-accent)] font-semibold">${estimate.estimated_cost_usd.toFixed(4)}</span>
               </div>
             </div>
           )}
@@ -240,7 +239,7 @@ export default function ControlPanel({
           {/* Start button */}
           <Button
             variant="default"
-            className={styles.startButton}
+            className="w-full px-4 py-2 mt-2"
             onClick={onStart}
             disabled={!ticker}
           >
@@ -251,33 +250,38 @@ export default function ControlPanel({
 
       {/* Pipeline layer (morphs in when running) */}
       <div
-        className={`${styles.layer} ${styles.pipelineLayer} ${running ? styles.visible : ""}`}
+        className={cn(
+          "absolute inset-0 flex flex-col overflow-auto transition-all duration-200 ease-out",
+          running
+            ? "opacity-100 translate-x-0 pointer-events-auto delay-150"
+            : "opacity-0 translate-x-5 pointer-events-none"
+        )}
       >
-        <div className={styles.header}>
-          <span className={styles.title}>Pipeline</span>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)] min-h-[40px]">
+          <span className="text-sm font-semibold text-[var(--color-text-secondary)] tracking-[0.02em] uppercase">Pipeline</span>
           {stats && (
-            <div className={styles.stats}>
+            <div className="flex gap-2">
               <Badge variant="accent">${stats.cost_usd?.toFixed(4) || "0.00"}</Badge>
               <Badge variant="neutral">{elapsedSeconds}s</Badge>
             </div>
           )}
         </div>
 
-        <div className={styles.pipelineBody}>
+        <div className="p-2 flex-1">
           <PipelineVisualization agents={agents} />
         </div>
 
         {/* Run info footer */}
         {snapshot && (
-          <div className={styles.runInfo}>
+          <div className="flex justify-between px-4 py-2 border-t border-[var(--color-border-subtle)] text-xs text-[var(--color-text-faint)]">
             <span>{snapshot.ticker}</span>
             <span>{snapshot.run_id?.slice(0, 8)}</span>
           </div>
         )}
 
         {/* Stop button */}
-        <div className={styles.footer}>
-          <Button variant="danger" className={styles.stopButton} onClick={onStop}>
+        <div className="px-4 py-3 border-t border-[var(--color-border-subtle)]">
+          <Button variant="danger" className="w-full px-4 py-3" onClick={onStop}>
             Stop
           </Button>
         </div>

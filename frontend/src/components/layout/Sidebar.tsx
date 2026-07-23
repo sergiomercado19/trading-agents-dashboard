@@ -33,11 +33,10 @@ export function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse }: Sideba
       )}
       <aside
         className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50 bg-[var(--color-bg-surface)] border-r border-[var(--color-border)] transform transition-all duration-200 ease-out lg:translate-x-0",
+          "fixed lg:static inset-y-0 left-0 z-50 bg-[var(--color-bg-surface)] border-r border-[var(--color-border)] transform transition-all duration-200 ease-out lg:translate-x-0 h-[calc(100vh-var(--header-height))] mt-[var(--header-height)]",
           isOpen ? "translate-x-0" : "-translate-x-full",
           collapsed ? "lg:w-16" : "lg:w-72"
         )}
-        style={{ height: "calc(100vh - var(--header-height))", marginTop: "var(--header-height)" }}
       >
         <TooltipProvider delayDuration={0}>
           <nav style={{ padding: collapsed ? "var(--space-3) var(--space-2)" : "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>

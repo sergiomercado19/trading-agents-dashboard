@@ -102,7 +102,7 @@ export default function MemoryPage() {
                       {String(r.metadata.source || r.id)}
                     </span>
                     {r.distance !== null && (
-                      <span className="badge" style={{ background: "var(--color-bg-overlay)", color: "var(--color-text-muted)" }}>
+                      <span className="badge bg-[var(--color-bg-overlay)] text-[var(--color-text-muted)]">
                         {r.distance.toFixed(3)}
                       </span>
                     )}

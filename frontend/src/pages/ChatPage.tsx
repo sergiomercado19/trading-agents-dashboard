@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useChatSessions, useChatSession } from "../hooks/useChatSessions";
 import { useChatStream } from "../hooks/useChatStream";
+import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
 
 const CHAT_MODELS = [
@@ -59,90 +60,71 @@ export default function ChatPage() {
   const selectedSession = sessions.find((s) => s.id === activeId);
 
   return (
-    <div style={{ display: "flex", height: "100%", position: "relative" }}>
+    <div className="flex h-full relative">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="lg:hidden"
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 40 }}
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-50 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
-        style={{
-          width: 260,
-          minWidth: 260,
-          borderRight: "1px solid var(--color-border-subtle)",
-          display: "flex",
-          flexDirection: "column",
-          background: "var(--color-bg-surface)",
-          transition: "transform 0.2s ease",
-        }}
+        className={cn(
+          "fixed lg:static inset-y-0 left-0 z-50 w-[260px] min-w-[260px] border-r border-[var(--color-border-subtle)] flex flex-col bg-[var(--color-bg-surface)] transition-transform duration-200 ease-out",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
       >
-        <div style={{ padding: "var(--space-3)" }}>
+        <div className="p-3">
           <Button onClick={handleNew} className="w-full">+ New Chat</Button>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "0 var(--space-2) var(--space-2)" }}>
+        <div className="flex-1 overflow-y-auto px-2 pb-2">
           {sessions.map((s) => (
             <div
               key={s.id}
               onClick={() => { setActiveId(s.id); reset(); setSidebarOpen(false); }}
-              style={{
-                padding: "var(--space-2) var(--space-3)",
-                borderRadius: "var(--radius-md)",
-                cursor: "pointer",
-                marginBottom: "var(--space-1)",
-                background: activeId === s.id ? "var(--color-bg-elevated)" : "transparent",
-                border: activeId === s.id ? "1px solid var(--color-border-accent)" : "1px solid transparent",
-                transition: "all var(--duration-fast) var(--ease-out)",
-              }}
+              className={cn(
+                "px-3 py-2 rounded-md cursor-pointer mb-1 transition-all duration-[120ms] ease-out",
+                activeId === s.id
+                  ? "bg-[var(--color-bg-elevated)] border border-[var(--color-border-accent)]"
+                  : "bg-transparent border border-transparent"
+              )}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, color: "var(--color-text-primary)" }}>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-sm overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-[var(--color-text-primary)]">
                   {s.title}
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={(e) => { e.stopPropagation(); handleDelete(s.id); }}
-                  style={{ padding: 0, width: 16, height: 16, fontSize: "var(--text-sm)", lineHeight: 1, color: "var(--color-text-faint)" }}
+                  className="p-0 w-4 h-4 text-sm leading-none text-[var(--color-text-faint)]"
                 >
                   ×
                 </Button>
               </div>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginTop: "var(--space-1)" }}>
+              <div className="text-xs text-[var(--color-text-faint)] mt-1">
                 {s.message_count} msgs · {s.model}
               </div>
             </div>
           ))}
           {sessions.length === 0 && (
-            <div style={{ color: "var(--color-text-faint)", fontSize: "var(--text-sm)", padding: "var(--space-3)" }}>No chats yet.</div>
+            <div className="text-[var(--color-text-faint)] text-sm p-3">No chats yet.</div>
           )}
         </div>
       </div>
 
       {/* Main area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div className="flex-1 flex flex-col overflow-hidden">
         {!activeId ? (
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-faint)", fontSize: "var(--text-sm)" }}>
+          <div className="flex-1 flex items-center justify-center text-[var(--color-text-faint)] text-sm">
             Select or create a chat
           </div>
         ) : (
           <>
             {/* Header */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-2)",
-                padding: "var(--space-2) var(--space-4)",
-                borderBottom: "1px solid var(--color-border-subtle)",
-                background: "var(--color-bg-surface)",
-              }}
-            >
+            <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
               <Button
                 variant="ghost"
                 size="icon"
@@ -158,27 +140,26 @@ export default function ChatPage() {
                   onKeyDown={(e) => e.key === "Enter" && handleRename()}
                   onBlur={handleRename}
                   autoFocus
-                  className="input"
-                  style={{ width: 200, padding: "var(--space-1) var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}
+                  className="input w-[200px] px-2 py-1 text-sm font-semibold"
                 />
               ) : (
                 <span
                   onClick={() => { setEditingTitle(true); setTitleInput(selectedSession?.title || ""); }}
-                  style={{ cursor: "pointer", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)" }}
+                  className="cursor-pointer font-semibold text-base text-[var(--color-text-primary)]"
                   title="Click to rename"
                 >
                   {selectedSession?.title || "Chat"}
                 </span>
               )}
-              <div style={{ flex: 1 }} />
+              <div className="flex-1" />
               {selectedSession?.pinned_reports && selectedSession.pinned_reports.length > 0 && (
-                <div style={{ display: "flex", gap: "var(--space-1)", marginRight: "var(--space-3)" }}>
+                <div className="flex gap-1 mr-3">
                   {selectedSession.pinned_reports.map((r) => (
                     <span key={r} className="badge badge-accent">
                       {r.split("/").pop()?.split("_")[0] || r}
                       <span
                         onClick={() => togglePin(activeId, r, selectedSession.pinned_reports)}
-                        style={{ cursor: "pointer", marginLeft: "var(--space-1)", opacity: 0.6 }}
+                        className="cursor-pointer ml-1 opacity-60"
                       >
                         ×
                       </span>
@@ -196,8 +177,7 @@ export default function ChatPage() {
                   });
                   refreshSessions();
                 }}
-                className="input"
-                style={{ width: "auto", padding: "var(--space-1) var(--space-2)", fontSize: "var(--text-xs)" }}
+                className="input w-auto px-2 py-1 text-xs"
               >
                 {CHAT_MODELS.map((m) => (
                   <option key={m.id} value={m.id}>{m.name}</option>
@@ -206,22 +186,25 @@ export default function ChatPage() {
             </div>
 
             {/* Messages */}
-            <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-4) var(--space-6)" }}>
+            <div className="flex-1 overflow-y-auto px-6 py-4">
               {(session?.messages || []).map((msg, i) => (
-                <div key={i} style={{ marginBottom: "var(--space-4)" }}>
-                  <div style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-xs)", color: msg.role === "user" ? "var(--color-accent)" : "var(--color-text-muted)", marginBottom: "var(--space-1)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                <div key={i} className="mb-4">
+                  <div className={cn(
+                    "font-semibold text-xs uppercase tracking-wide mb-1",
+                    msg.role === "user" ? "text-[var(--color-accent)]" : "text-[var(--color-text-muted)]"
+                  )}>
                     {msg.role === "user" ? "You" : "Assistant"}
                   </div>
-                  <div style={{ fontSize: "var(--text-sm)", lineHeight: "var(--leading-relaxed)", color: "var(--color-text-primary)", whiteSpace: "pre-wrap" }}>
+                  <div className="text-sm leading-relaxed text-[var(--color-text-primary)] whitespace-pre-wrap">
                     {msg.content}
                   </div>
                 </div>
               ))}
               {streaming && (
-                <div style={{ marginBottom: "var(--space-4)" }}>
-                  <div style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", textTransform: "uppercase", letterSpacing: "0.04em" }}>Assistant</div>
-                  <div style={{ fontSize: "var(--text-sm)", lineHeight: "var(--leading-relaxed)", color: "var(--color-text-primary)", whiteSpace: "pre-wrap" }}>
-                    {streamText || <span style={{ animation: "pulse 1s infinite", opacity: 0.5 }}>Thinking...</span>}
+                <div className="mb-4">
+                  <div className="font-semibold text-xs text-[var(--color-text-muted)] mb-1 uppercase tracking-wide">Assistant</div>
+                  <div className="text-sm leading-relaxed text-[var(--color-text-primary)] whitespace-pre-wrap">
+                    {streamText || <span className="animate-pulse opacity-50">Thinking...</span>}
                   </div>
                 </div>
               )}
@@ -229,16 +212,7 @@ export default function ChatPage() {
             </div>
 
             {/* Input */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                gap: "var(--space-2)",
-                padding: "var(--space-3) var(--space-4)",
-                borderTop: "1px solid var(--color-border-subtle)",
-                background: "var(--color-bg-surface)",
-              }}
-            >
+            <div className="flex items-end gap-2 px-4 py-3 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -250,14 +224,12 @@ export default function ChatPage() {
                 }}
                 placeholder="Ask about your reports..."
                 rows={1}
-                className="input"
-                style={{ resize: "none", minHeight: 42, maxHeight: 120, fontFamily: "inherit", fontSize: "var(--text-sm)" }}
+                className="input resize-none min-h-[42px] max-h-[120px] font-[inherit] text-sm"
               />
               <Button
                 onClick={handleSend}
                 disabled={!input.trim() || streaming}
-                className="w-[42px] h-[42px] p-0 text-lg opacity-100"
-                style={{ opacity: !input.trim() || streaming ? 0.4 : 1 }}
+                className={cn("w-[42px] h-[42px] p-0 text-lg", !input.trim() || streaming ? "opacity-40" : "opacity-100")}
               >
                 →
               </Button>

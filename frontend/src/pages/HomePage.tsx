@@ -88,74 +88,74 @@ export default function HomePage() {
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-      <section style={{ marginBottom: "var(--space-8)" }}>
-        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)", marginBottom: "var(--space-2)" }}>
+    <div className="max-w-[1200px] mx-auto">
+      <section className="mb-8">
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
           Welcome back, {user?.full_name?.split(" ")[0] || user?.username || "Trader"}
         </h1>
-        <p style={{ fontSize: "var(--text-lg)", color: "var(--color-text-secondary)" }}>
+        <p className="text-lg text-[var(--color-text-secondary)]">
           Here's an overview of your trading dashboard
         </p>
       </section>
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <Card>
-          <CardContent style={{ padding: "var(--space-5)" }}>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--space-1)" }}>
+          <CardContent className="p-5">
+            <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-[0.05em] mb-1">
               Total Analyses
             </p>
-            <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+            <p className="text-2xl font-bold text-[var(--color-text-primary)]">
               {stats.totalAnalyses}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent style={{ padding: "var(--space-5)" }}>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--space-1)" }}>
+          <CardContent className="p-5">
+            <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-[0.05em] mb-1">
               Total Trades
             </p>
-            <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+            <p className="text-2xl font-bold text-[var(--color-text-primary)]">
               {stats.totalTrades}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent style={{ padding: "var(--space-5)" }}>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--space-1)" }}>
+          <CardContent className="p-5">
+            <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-[0.05em] mb-1">
               Portfolio Value
             </p>
-            <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+            <p className="text-2xl font-bold text-[var(--color-text-primary)]">
               ${(stats.portfolioValue / 1000).toFixed(1)}K
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent style={{ padding: "var(--space-5)" }}>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--space-1)" }}>
+          <CardContent className="p-5">
+            <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-[0.05em] mb-1">
               Win Rate
             </p>
-            <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+            <p className="text-2xl font-bold text-[var(--color-text-primary)]">
               {stats.winRate}%
             </p>
           </CardContent>
         </Card>
       </section>
 
-      <section style={{ marginBottom: "var(--space-8)" }}>
-        <h2 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)", marginBottom: "var(--space-4)" }}>
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {features.map((feature) => (
-            <Link key={feature.link} to={feature.link} style={{ textDecoration: "none" }}>
-              <Card style={{ padding: "var(--space-5)", transition: "all var(--duration-fast) var(--ease-out)", cursor: "pointer" }}>
-                <div style={{ marginBottom: "var(--space-3)", color: "var(--color-text-muted)" }}>
+            <Link key={feature.link} to={feature.link} className="no-underline">
+              <Card className="p-5 transition-all duration-[120ms] ease-out cursor-pointer">
+                <div className="mb-3 text-[var(--color-text-muted)]">
                   <feature.icon size={28} />
                 </div>
-                <h3 style={{ fontSize: "var(--text-md)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)", marginBottom: "var(--space-2)" }}>
+                <h3 className="text-base font-semibold text-[var(--color-text-primary)] mb-2">
                   {feature.title}
                 </h3>
-                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: "var(--leading-relaxed)" }}>
+                <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
                   {feature.description}
                 </p>
               </Card>
@@ -165,53 +165,53 @@ export default function HomePage() {
       </section>
 
       <section>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
-          <h2 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)" }}>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
             Recent Analyses
           </h2>
           <Link to="/history"><Button variant="ghost" size="sm">View All</Button></Link>
         </div>
 
         {loadingAnalyses ? (
-          <Card style={{ padding: "var(--space-6)", textAlign: "center" }}>
-            <div style={{ width: 24, height: 24, border: "2px solid var(--color-border)", borderTopColor: "var(--color-accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto" }} />
+          <Card className="p-6 text-center">
+            <div className="w-6 h-6 border-2 border-[var(--color-border)] border-t-[var(--color-accent)] rounded-full animate-spin mx-auto" />
           </Card>
         ) : analyses.length === 0 ? (
-          <Card style={{ padding: "var(--space-8)", textAlign: "center" }}>
-            <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-4)" }}>No analyses yet</p>
+          <Card className="p-8 text-center">
+            <p className="text-[var(--color-text-muted)] mb-4">No analyses yet</p>
             <Link to="/analyze"><Button>Run Your First Analysis</Button></Link>
           </Card>
         ) : (
-          <Card style={{ overflow: "hidden" }}>
-            <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
               <thead>
-                <tr style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                  <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-muted)", textTransform: "uppercase" }}>Ticker</th>
-                  <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-muted)", textTransform: "uppercase" }}>Status</th>
-                  <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-muted)", textTransform: "uppercase" }}>Recommendation</th>
-                  <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-muted)", textTransform: "uppercase" }}>Date</th>
-                  <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-muted)", textTransform: "uppercase" }}></th>
+                <tr className="border-b border-[var(--color-border-subtle)]">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase">Ticker</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase">Recommendation</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase">Date</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-muted)] uppercase"></th>
                 </tr>
               </thead>
               <tbody>
                 {analyses.map((analysis) => (
-                  <tr key={analysis.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                    <td style={{ padding: "var(--space-3) var(--space-4)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)", fontFamily: "var(--font-mono)", color: "var(--color-text-primary)" }}>
+                  <tr key={analysis.id} className="border-b border-[var(--color-border-subtle)]">
+                    <td className="px-4 py-3 text-sm font-medium font-mono text-[var(--color-text-primary)]">
                       {analysis.ticker}
                     </td>
-                    <td style={{ padding: "var(--space-3) var(--space-4)" }}>
+                    <td className="px-4 py-3">
                       <Badge variant={getStatusBadge(analysis.status)}>
                         {analysis.status}
                       </Badge>
                     </td>
-                    <td style={{ padding: "var(--space-3) var(--space-4)", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+                    <td className="px-4 py-3 text-sm text-[var(--color-text-secondary)]">
                       {analysis.final_recommendation || "—"}
                     </td>
-                    <td style={{ padding: "var(--space-3) var(--space-4)", fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
+                    <td className="px-4 py-3 text-sm text-[var(--color-text-muted)]">
                       {new Date(analysis.created_at).toLocaleDateString()}
                     </td>
-                    <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right" }}>
+                    <td className="px-4 py-3 text-right">
                       <Link to={`/history/${analysis.id}`}><Button variant="ghost" size="sm">View</Button></Link>
                     </td>
                   </tr>

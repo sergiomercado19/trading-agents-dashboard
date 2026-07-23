@@ -25,7 +25,7 @@ export default function SchedulerPage() {
       </div>
 
       {showForm && (
-        <div className="panel" style={{ marginBottom: "var(--space-5)" }}>
+        <div className="panel mb-5">
           <div className="panel-body">
             <SchedulerForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
           </div>

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Badge } from "../ui/badge";
 import type { StreamMessage } from "../../hooks/useRunStream";
-import styles from "./MessageFeed.module.css";
 
 interface Props {
   messages: StreamMessage[];
@@ -37,25 +36,25 @@ export default function MessageFeed({ messages }: Props) {
   }, [messages.length]);
 
   return (
-    <div className={styles.messageFeed}>
-      <div className={styles.header}>
-        <span className={styles.title}>Messages</span>
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)] min-h-[40px]">
+        <span className="text-sm font-semibold text-[var(--color-text-secondary)] tracking-[0.02em] uppercase">Messages</span>
         {messages.length > 0 && (
           <Badge variant="neutral">{messages.length}</Badge>
         )}
       </div>
 
-      <div ref={feedRef} className={styles.body}>
+      <div ref={feedRef} className="font-mono text-xs leading-relaxed p-3 overflow-auto flex-1">
         {messages.length === 0 ? (
-          <div className={styles.empty}>Waiting for messages...</div>
+          <div className="flex items-center justify-center h-full text-[var(--color-text-faint)] text-sm">Waiting for messages...</div>
         ) : (
-          <div className={styles.messages}>
+          <div className="flex flex-col gap-2">
             {messages.map((msg, i) => (
-              <div key={i} className={styles.message} style={{ animationDelay: `${Math.min(i * 20, 200)}ms` }}>
-                <span className={styles.agentName} style={{ color: getAgentColor(msg.agent) }}>
+              <div key={i} className="animate-slide-in-left" style={{ animationDelay: `${Math.min(i * 20, 200)}ms` }}>
+                <span className="font-semibold mr-2" style={{ color: getAgentColor(msg.agent) }}>
                   {formatAgentName(msg.agent)}
                 </span>
-                <span className={styles.content}>
+                <span className="text-[var(--color-text-secondary)]">
                   {msg.content.length > 400 ? msg.content.slice(0, 400) + "..." : msg.content}
                 </span>
               </div>

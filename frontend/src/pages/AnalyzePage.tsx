@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/utils/api";
 import { useAuthStore } from "@/store/authStore";
+import { cn } from "@/utils/cn";
 import { TickerAutocomplete } from "@/components/TickerAutocomplete";
 import { AnalysisDetailModal } from "@/components/analysis/AnalysisDetailModal";
 import { BarChart3 } from "lucide-react";
@@ -191,12 +192,12 @@ export default function AnalyzePage() {
   const isRunning = loading;
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: "1400px", margin: "0 auto" }}>
-      <div style={{ marginBottom: "var(--space-6)" }}>
-        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)", marginBottom: "var(--space-2)" }}>
+    <div className="p-6 max-w-[1400px] mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
           AI Stock Analysis
         </h1>
-        <p style={{ color: "var(--color-text-secondary)" }}>
+        <p className="text-[var(--color-text-secondary)]">
           Run multi-agent analysis on any stock using 13 specialized AI agents
         </p>
       </div>
@@ -210,10 +211,10 @@ export default function AnalyzePage() {
               <CardDescription>Configure your analysis</CardDescription>
             </CardHeader>
             <CardContent>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+              <div className="flex flex-col gap-4">
                 <div>
                   <Label htmlFor="ticker">Ticker Symbol</Label>
-                  <div style={{ marginTop: "var(--space-1)" }}>
+                  <div className="mt-1">
                     <TickerAutocomplete
                       value={ticker}
                       onChange={(v) => setTicker(v)}
@@ -225,7 +226,7 @@ export default function AnalyzePage() {
 
                 <div>
                   <Label>Analysts</Label>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1)", marginTop: "var(--space-2)" }}>
+                  <div className="flex flex-wrap gap-1 mt-2">
                     {ANALYST_OPTIONS.map((opt) => {
                       const isSelected = selectedAnalysts.includes(opt.value);
                       return (
@@ -244,15 +245,15 @@ export default function AnalyzePage() {
                           onMouseLeave={(e) => {
                             e.currentTarget.style.background = isSelected ? "var(--color-accent-subtle)" : "transparent";
                           }}
+                          className={cn(
+                            "px-3 py-1 rounded-md text-sm transition-all",
+                            isRunning ? "cursor-not-allowed" : "cursor-pointer",
+                            isSelected
+                              ? "border border-[var(--color-accent)] text-[var(--color-accent)]"
+                              : "border border-[var(--color-border)] text-[var(--color-text-muted)]"
+                          )}
                           style={{
-                            padding: "var(--space-1) var(--space-3)",
-                            borderRadius: "var(--radius-md)",
-                            border: `1px solid ${isSelected ? "var(--color-accent)" : "var(--color-border)"}`,
                             background: isSelected ? "var(--color-accent-subtle)" : "transparent",
-                            color: isSelected ? "var(--color-accent)" : "var(--color-text-muted)",
-                            fontSize: "var(--text-sm)",
-                            cursor: isRunning ? "not-allowed" : "pointer",
-                            transition: "all var(--duration-fast) var(--ease-out)",
                           }}
                         >
                           {opt.label}
@@ -269,16 +270,7 @@ export default function AnalyzePage() {
                     value={provider}
                     onChange={(e) => handleProviderChange(e.target.value)}
                     disabled={isRunning}
-                    style={{
-                      marginTop: "var(--space-1)",
-                      width: "100%",
-                      padding: "var(--space-2) var(--space-3)",
-                      borderRadius: "var(--radius-md)",
-                      border: "1px solid var(--color-border)",
-                      background: "var(--color-bg-elevated)",
-                      color: "var(--color-text-primary)",
-                      fontSize: "var(--text-sm)",
-                    }}
+                    className="mt-1 w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] text-sm"
                   >
                     <option value="openai">OpenAI</option>
                     <option value="anthropic">Anthropic</option>
@@ -295,16 +287,7 @@ export default function AnalyzePage() {
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     disabled={isRunning || providerModels.length === 0}
-                    style={{
-                      marginTop: "var(--space-1)",
-                      width: "100%",
-                      padding: "var(--space-2) var(--space-3)",
-                      borderRadius: "var(--radius-md)",
-                      border: "1px solid var(--color-border)",
-                      background: "var(--color-bg-elevated)",
-                      color: "var(--color-text-primary)",
-                      fontSize: "var(--text-sm)",
-                    }}
+                    className="mt-1 w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] text-sm"
                   >
                     {providerModels.length === 0 && <option value="">No models available</option>}
                     {providerModels.map((m) => (
@@ -319,8 +302,8 @@ export default function AnalyzePage() {
                   className="w-full"
                 >
                   {isRunning ? (
-                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-                      <span style={{ animation: "spin 1s linear infinite" }}>⟳</span>
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin inline-block">⟳</span>
                       Analyzing...
                     </span>
                   ) : (
@@ -329,13 +312,7 @@ export default function AnalyzePage() {
                 </Button>
 
                 {error && (
-                  <div style={{
-                    padding: "var(--space-3)",
-                    background: "var(--color-error-subtle)",
-                    color: "var(--color-error)",
-                    borderRadius: "var(--radius-md)",
-                    fontSize: "var(--text-sm)",
-                  }}>
+                  <div className="p-3 bg-[var(--color-error-subtle)] text-[var(--color-error)] rounded-md text-sm">
                     {error}
                   </div>
                 )}
@@ -345,9 +322,9 @@ export default function AnalyzePage() {
 
           {/* ─── Agent Phases ─── */}
           {(isRunning || agentList.length > 0) && (
-            <Card style={{ marginTop: "var(--space-4)" }}>
+            <Card className="mt-4">
               <CardHeader>
-                <CardTitle style={{ fontSize: "var(--text-md)" }}>Agent Pipeline</CardTitle>
+                <CardTitle className="text-md">Agent Pipeline</CardTitle>
               </CardHeader>
               <CardContent>
                 <WorkflowPipeline agents={agents} currentPhase={currentPhase} progress={progress} />
@@ -364,13 +341,13 @@ export default function AnalyzePage() {
             <RunningView agents={agents} progress={progress} currentPhase={currentPhase} />
           ) : (
             <Card>
-              <CardContent style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400, textAlign: "center" }}>
+              <CardContent className="flex items-center justify-center min-h-[400px] text-center">
                 <div>
-                  <div style={{ fontSize: "4rem", marginBottom: "var(--space-4)", color: "var(--color-text-muted)" }}><BarChart3 size={48} /></div>
-                  <h3 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)", color: "var(--color-text-primary)" }}>
+                  <div className="text-[4rem] mb-4 text-[var(--color-text-muted)]"><BarChart3 size={48} /></div>
+                  <h3 className="text-lg font-semibold mb-2 text-[var(--color-text-primary)]">
                     Ready to Analyze
                   </h3>
-                  <p style={{ color: "var(--color-text-muted)", maxWidth: 400, margin: "0 auto" }}>
+                  <p className="text-[var(--color-text-muted)] max-w-[400px] mx-auto">
                     Enter a ticker symbol, select analysts, and click "Run Analysis" to get started with multi-agent AI analysis
                   </p>
                 </div>
@@ -393,46 +370,29 @@ export default function AnalyzePage() {
 /* ─── Workflow Pipeline Visualization ─── */
 function WorkflowPipeline({ agents, currentPhase, progress }: { agents: Record<string, AgentState>; currentPhase: string; progress: number }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+    <div className="flex flex-col gap-3">
       {PHASES.map((phase, phaseIdx) => {
         const isActive = currentPhase === phase.key;
         const isPast = PHASES.findIndex((p) => p.key === currentPhase) > phaseIdx;
 
         return (
           <div key={phase.key}>
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-2)",
-              marginBottom: "var(--space-1)",
-            }}>
-              <span style={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "var(--text-xs)",
-                fontWeight: "var(--weight-semibold)",
-                background: isPast ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                color: isPast || isActive ? "white" : "var(--color-text-muted)",
-                transition: "all var(--duration-normal) var(--ease-out)",
-              }}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={cn(
+                "w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold transition-all",
+                isPast ? "bg-[var(--color-success)] text-white" : isActive ? "bg-[var(--color-accent)] text-white" : "bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)]"
+              )}>
                 {isPast ? "✓" : phaseIdx + 1}
               </span>
-              <span style={{
-                fontSize: "var(--text-xs)",
-                fontWeight: "var(--weight-medium)",
-                color: isActive ? "var(--color-text-primary)" : "var(--color-text-muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}>
+              <span className={cn(
+                "text-xs font-medium uppercase tracking-widest",
+                isActive ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-muted)]"
+              )}>
                 {phase.label}
               </span>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", marginLeft: "10px", paddingLeft: "var(--space-3)", borderLeft: "1px solid var(--color-border)" }}>
+            <div className="flex flex-col gap-1 ml-[10px] pl-3 border-l border-[var(--color-border)]">
               {phase.agents.map((agentName) => {
                 const state = agents[agentName];
                 const status = state?.status || "pending";
@@ -441,33 +401,24 @@ function WorkflowPipeline({ agents, currentPhase, progress }: { agents: Record<s
                 return (
                   <div
                     key={agentName}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "var(--space-2)",
-                      padding: "var(--space-1) var(--space-2)",
-                      borderRadius: "var(--radius-sm)",
-                      background: config.bg,
-                      transition: "all var(--duration-fast) var(--ease-out)",
-                    }}
+                    className="flex items-center gap-2 py-1 px-2 rounded-sm transition-all"
+                    style={{ background: config.bg }}
                   >
-                    <span style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: config.color,
-                      flexShrink: 0,
-                      animation: status === "running" ? "pulse 1.5s ease-in-out infinite" : "none",
-                    }} />
-                    <span style={{
-                      fontSize: "var(--text-xs)",
-                      color: status === "running" ? "var(--color-text-primary)" : "var(--color-text-muted)",
-                      fontWeight: status === "running" ? "var(--weight-medium)" : "var(--weight-regular)",
-                    }}>
+                    <span
+                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{
+                        background: config.color,
+                        animation: status === "running" ? "pulse 1.5s ease-in-out infinite" : "none",
+                      }}
+                    />
+                    <span className={cn(
+                      "text-xs",
+                      status === "running" ? "text-[var(--color-text-primary)] font-medium" : "text-[var(--color-text-muted)] font-normal"
+                    )}>
                       {formatAgentName(agentName)}
                     </span>
                     {state?.duration_ms && (
-                      <span style={{ fontSize: "10px", color: "var(--color-text-faint)", marginLeft: "auto" }}>
+                      <span className="text-[10px] text-[var(--color-text-faint)] ml-auto">
                         {(state.duration_ms / 1000).toFixed(1)}s
                       </span>
                     )}
@@ -480,19 +431,16 @@ function WorkflowPipeline({ agents, currentPhase, progress }: { agents: Record<s
       })}
 
       {/* Progress bar */}
-      <div style={{ marginTop: "var(--space-2)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "var(--space-1)" }}>
-          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>Progress</span>
-          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>{progress}%</span>
+      <div className="mt-2">
+        <div className="flex justify-between mb-1">
+          <span className="text-xs text-[var(--color-text-muted)]">Progress</span>
+          <span className="text-xs text-[var(--color-text-muted)]">{progress}%</span>
         </div>
-        <div style={{ height: 4, background: "var(--color-bg-elevated)", borderRadius: 2, overflow: "hidden" }}>
-          <div style={{
-            height: "100%",
-            width: `${progress}%`,
-            background: "var(--color-accent)",
-            borderRadius: 2,
-            transition: "width 0.3s var(--ease-out)",
-          }} />
+        <div className="h-1 bg-[var(--color-bg-elevated)] rounded-sm overflow-hidden">
+          <div
+            className="h-full bg-[var(--color-accent)] rounded-sm transition-[width] duration-300"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
     </div>
@@ -506,10 +454,10 @@ function RunningView({ agents, progress, currentPhase }: { agents: Record<string
   return (
     <Card>
       <CardHeader>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="flex justify-between items-center">
           <div>
-            <CardTitle style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-              <span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⟳</span>
+            <CardTitle className="flex items-center gap-2">
+              <span className="animate-spin inline-block">⟳</span>
               Analysis in Progress
             </CardTitle>
             <CardDescription>{progress}% complete • {currentPhase?.replace(/_/g, " ")}</CardDescription>
@@ -518,26 +466,23 @@ function RunningView({ agents, progress, currentPhase }: { agents: Record<string
       </CardHeader>
       <CardContent>
         {/* Live feed */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", maxHeight: 400, overflowY: "auto" }}>
+        <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
           {agentList.length === 0 ? (
-            <div style={{ padding: "var(--space-6)", textAlign: "center", color: "var(--color-text-muted)" }}>
+            <div className="p-6 text-center text-[var(--color-text-muted)]">
               Waiting for agents to start...
             </div>
           ) : (
             agentList.map((agent, i) => (
               <div
                 key={agent.name + i}
+                className="p-3 bg-[var(--color-bg-elevated)] rounded-md animate-[slideInUp_0.3s_var(--ease-out)_both]"
                 style={{
-                  padding: "var(--space-3)",
-                  background: "var(--color-bg-elevated)",
-                  borderRadius: "var(--radius-md)",
                   borderLeft: `3px solid ${getStatusConfig(agent.status).color}`,
-                  animation: "slideInUp 0.3s var(--ease-out) both",
                   animationDelay: `${i * 50}ms`,
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-1)" }}>
-                  <span style={{ fontWeight: "var(--weight-medium)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-medium text-sm text-[var(--color-text-primary)]">
                     {formatAgentName(agent.name)}
                   </span>
                   <Badge variant={agent.status === "completed" ? "success" : agent.status === "failed" ? "destructive" : agent.status === "running" ? "default" : "secondary"}>
@@ -545,7 +490,7 @@ function RunningView({ agents, progress, currentPhase }: { agents: Record<string
                   </Badge>
                 </div>
                 {agent.message && (
-                  <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: "var(--space-1)" }}>
+                  <p className="text-xs text-[var(--color-text-muted)] mt-1">
                     {agent.message.slice(0, 150)}{agent.message.length > 150 ? "..." : ""}
                   </p>
                 )}
@@ -565,11 +510,11 @@ function AnalysisResultView({ result, onSelectAgent }: { result: AnalysisResult;
   return (
     <Card>
       <CardHeader>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="flex justify-between items-center">
           <div>
-            <CardTitle style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+            <CardTitle className="flex items-center gap-2">
               {result.ticker} Analysis
-              <span style={{ color: recColor, fontSize: "var(--text-lg)" }}>{result.recommendation}</span>
+              <span className="text-lg" style={{ color: recColor }}>{result.recommendation}</span>
             </CardTitle>
             <CardDescription>Analysis complete</CardDescription>
           </div>
@@ -577,7 +522,7 @@ function AnalysisResultView({ result, onSelectAgent }: { result: AnalysisResult;
       </CardHeader>
       <CardContent>
         {/* Summary stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-3)", marginBottom: "var(--space-6)" }}>
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <StatCard label="Confidence" value={`${(result.confidence * 100).toFixed(0)}%`} color="var(--color-accent)" />
           <StatCard label="Risk Score" value={`${(result.risk_score * 100).toFixed(0)}%`} color="var(--color-warning)" />
           <StatCard label="Agents" value={`${result.agents.length}`} color="var(--color-success)" />
@@ -585,11 +530,11 @@ function AnalysisResultView({ result, onSelectAgent }: { result: AnalysisResult;
 
         {/* Summary */}
         {result.summary && (
-          <div style={{ marginBottom: "var(--space-6)" }}>
-            <h4 style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", marginBottom: "var(--space-2)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <div className="mb-6">
+            <h4 className="text-sm font-semibold text-[var(--color-text-secondary)] mb-2 uppercase tracking-widest">
               Summary
             </h4>
-            <p style={{ color: "var(--color-text-secondary)", lineHeight: "var(--leading-relaxed)", fontSize: "var(--text-sm)" }}>
+            <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
               {result.summary}
             </p>
           </div>
@@ -597,34 +542,28 @@ function AnalysisResultView({ result, onSelectAgent }: { result: AnalysisResult;
 
         {/* Agent results */}
         <div>
-          <h4 style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", marginBottom: "var(--space-3)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <h4 className="text-sm font-semibold text-[var(--color-text-secondary)] mb-3 uppercase tracking-widest">
             Agent Results
           </h4>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "var(--space-2)" }}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2">
             {result.agents.map((agent) => (
               <div
                 key={agent.name}
                 onClick={() => onSelectAgent(agent)}
-                style={{
-                  padding: "var(--space-3)",
-                  background: "var(--color-bg-elevated)",
-                  borderRadius: "var(--radius-md)",
-                  borderLeft: `3px solid ${getStatusConfig(agent.status).color}`,
-                  cursor: "pointer",
-                  transition: "background var(--duration-fast) var(--ease-out)",
-                }}
+                className="p-3 bg-[var(--color-bg-elevated)] rounded-md cursor-pointer transition-colors"
+                style={{ borderLeft: `3px solid ${getStatusConfig(agent.status).color}` }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "var(--color-bg-elevated)")}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-1)" }}>
-                  <span style={{ fontWeight: "var(--weight-medium)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-medium text-sm text-[var(--color-text-primary)]">
                     {formatAgentName(agent.name)}
                   </span>
-                  <Badge variant={agent.status === "completed" ? "success" : "destructive"} style={{ fontSize: "10px" }}>
+                  <Badge variant={agent.status === "completed" ? "success" : "destructive"} className="text-[10px]">
                     {agent.status}
                   </Badge>
                 </div>
-                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+                <div className="text-xs text-[var(--color-text-muted)]">
                   {agent.phase.replace(/_/g, " ")} • {((agent.duration_ms ?? 0) / 1000).toFixed(1)}s
                 </div>
               </div>
@@ -648,9 +587,9 @@ function getStatusConfig(status: string) {
 
 function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div style={{ padding: "var(--space-4)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)", textAlign: "center" }}>
-      <div style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color }}>{value}</div>
-      <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div>
+    <div className="p-4 bg-[var(--color-bg-elevated)] rounded-md text-center">
+      <div className="text-xl font-bold" style={{ color }}>{value}</div>
+      <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-widest">{label}</div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/utils/api";
+
 import type { AnalysisListItem, PaginatedResponse } from "@/types/analysis";
 
 const STATUS_COLORS: Record<string, "default" | "destructive" | "outline" | "secondary" | "success" | "warning"> = {
@@ -108,47 +109,39 @@ export default function HistoryPage() {
   };
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: "1400px", margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-6)" }}>
+    <div className="p-6 max-w-[1400px] mx-auto">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)", marginBottom: "var(--space-2)" }}>
+          <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
             Analysis History
           </h1>
-          <p style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-[var(--color-text-secondary)]">
             Track and manage all your past analyses
           </p>
         </div>
       </div>
 
       <Card>
-        <CardContent style={{ padding: 0 }}>
+        <CardContent className="p-0">
           {/* Filters */}
           <div className="flex flex-col md:flex-row gap-4 p-4 border-b border-[var(--color-border)] items-end">
             <div className="w-full md:w-auto md:min-w-[200px] md:flex-1">
-              <Label htmlFor="ticker-search" style={{ display: "block", marginBottom: "var(--space-1)", fontSize: "var(--text-xs)" }}>Ticker</Label>
+              <Label htmlFor="ticker-search" className="block mb-1 text-xs">Ticker</Label>
               <Input
                 id="ticker-search"
                 placeholder="AAPL, TSLA..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value.toUpperCase())}
-                style={{ width: "100%" }}
+                className="w-full"
               />
             </div>
             <div className="w-full md:w-auto md:min-w-[180px]">
-              <Label htmlFor="status-filter" style={{ display: "block", marginBottom: "var(--space-1)", fontSize: "var(--text-xs)" }}>Status</Label>
+              <Label htmlFor="status-filter" className="block mb-1 text-xs">Status</Label>
               <select
                 id="status-filter"
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                style={{
-                  width: "100%",
-                  padding: "var(--space-2) var(--space-3)",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--color-border)",
-                  background: "var(--color-bg-elevated)",
-                  color: "var(--color-text-primary)",
-                  fontSize: "var(--text-sm)",
-                }}
+                className="w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] text-sm"
               >
                 <option value="">All Statuses</option>
                 <option value="completed">Completed</option>
@@ -175,82 +168,82 @@ export default function HistoryPage() {
           </div>
 
           {isLoading ? (
-            <div style={{ padding: "var(--space-8)", textAlign: "center", color: "var(--color-text-muted)" }}>
+            <div className="p-8 text-center text-[var(--color-text-muted)]">
               Loading analyses...
             </div>
           ) : items.length === 0 ? (
-            <div style={{ padding: "var(--space-12)", textAlign: "center" }}>
-              <div style={{ fontSize: "3rem", marginBottom: "var(--space-4)" }}>&#x1F4CA;</div>
-              <h3 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)" }}>
+            <div className="p-12 text-center">
+              <div className="text-3xl mb-4">&#x1F4CA;</div>
+              <h3 className="text-lg font-semibold mb-2">
                 No analyses found
               </h3>
-              <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-4)" }}>
+              <p className="text-[var(--color-text-muted)] mb-4">
                 Run your first analysis to see it here
               </p>
               <Button onClick={() => navigate("/analyze")}>Run Analysis</Button>
             </div>
           ) : (
             <>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
                   <thead>
-                    <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-surface)" }}>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left" }}>
+                    <tr className="border-b border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+                      <th className="px-4 py-3 text-left">
                         <input
                           type="checkbox"
                           checked={selectedIds.size === items.length && items.length > 0}
                           onChange={toggleSelectAll}
-                          style={{ cursor: "pointer" }}
+                          className="cursor-pointer"
                         />
                       </th>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Ticker</th>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Status</th>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Recommendation</th>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Confidence</th>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Risk</th>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Date</th>
-                      <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Actions</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Ticker</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Recommendation</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Confidence</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Risk</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Date</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((analysis) => (
-                      <tr key={analysis.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                        <td style={{ padding: "var(--space-3) var(--space-4)" }}>
+                      <tr key={analysis.id} className="border-b border-[var(--color-border-subtle)]">
+                        <td className="px-4 py-3">
                           <input
                             type="checkbox"
                             checked={selectedIds.has(analysis.id)}
                             onChange={() => toggleSelect(analysis.id)}
-                            style={{ cursor: "pointer" }}
+                            className="cursor-pointer"
                           />
                         </td>
-                        <td style={{ padding: "var(--space-3) var(--space-4)", fontWeight: "var(--weight-medium)", fontFamily: "var(--font-mono)" }}>
+                        <td className="px-4 py-3 font-medium font-mono">
                           {analysis.ticker}
                         </td>
-                        <td style={{ padding: "var(--space-3) var(--space-4)" }}>
+                        <td className="px-4 py-3">
                           <Badge variant={STATUS_COLORS[analysis.status] || "secondary"}>
                             {analysis.status}
                           </Badge>
                         </td>
-                        <td style={{ padding: "var(--space-3) var(--space-4)" }}>
+                        <td className="px-4 py-3">
                           {analysis.final_recommendation ? (
                             <Badge variant={getRecommendationBadge(analysis.final_recommendation)}>
                               {analysis.final_recommendation}
                             </Badge>
                           ) : (
-                            <span style={{ color: "var(--color-text-muted)" }}>&#x2014;</span>
+                            <span className="text-[var(--color-text-muted)]">&#x2014;</span>
                           )}
                         </td>
-                        <td style={{ padding: "var(--space-3) var(--space-4)" }}>
-                          {analysis.confidence_score ? `${(analysis.confidence_score * 100).toFixed(0)}%` : <span style={{ color: "var(--color-text-muted)" }}>&#x2014;</span>}
+                        <td className="px-4 py-3">
+                          {analysis.confidence_score ? `${(analysis.confidence_score * 100).toFixed(0)}%` : <span className="text-[var(--color-text-muted)]">&#x2014;</span>}
                         </td>
-                        <td style={{ padding: "var(--space-3) var(--space-4)" }}>
-                          {analysis.risk_score ? `${(analysis.risk_score * 100).toFixed(0)}%` : <span style={{ color: "var(--color-text-muted)" }}>&#x2014;</span>}
+                        <td className="px-4 py-3">
+                          {analysis.risk_score ? `${(analysis.risk_score * 100).toFixed(0)}%` : <span className="text-[var(--color-text-muted)]">&#x2014;</span>}
                         </td>
-                        <td style={{ padding: "var(--space-3) var(--space-4)", color: "var(--color-text-secondary)", fontSize: "var(--text-sm)" }}>
+                        <td className="px-4 py-3 text-[var(--color-text-secondary)] text-sm">
                           {analysis.created_at ? new Date(analysis.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "\u2014"}
                         </td>
-                        <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right" }}>
-                          <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex gap-2 justify-end">
                             <Button variant="ghost" size="sm" onClick={() => navigate(`/analysis/${analysis.id}`)}>
                               View
                             </Button>
@@ -279,7 +272,7 @@ export default function HistoryPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-4)", borderTop: "1px solid var(--color-border)" }}>
+                <div className="flex justify-center items-center gap-3 p-4 border-t border-[var(--color-border)]">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -288,7 +281,7 @@ export default function HistoryPage() {
                   >
                     Previous
                   </Button>
-                  <span style={{ color: "var(--color-text-secondary)", fontSize: "var(--text-sm)" }}>
+                  <span className="text-[var(--color-text-secondary)] text-sm">
                     Page {page} of {totalPages} ({total} total)
                   </span>
                   <Button
