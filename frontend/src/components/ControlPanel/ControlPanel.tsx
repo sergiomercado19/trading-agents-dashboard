@@ -121,8 +121,8 @@ export default function ControlPanel({
             : "opacity-0 -translate-x-5 pointer-events-none"
         )}
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)] min-h-[40px]">
-          <span className="text-sm font-semibold text-[var(--color-text-secondary)] tracking-[0.02em] uppercase">Configure</span>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-c-border-subtle min-h-[40px]">
+          <span className="text-sm font-semibold text-c-text-secondary tracking-[0.02em] uppercase">Configure</span>
           {estimate && !estimateLoading && (
             <Badge variant="accent">~${estimate.estimated_cost_usd.toFixed(4)}</Badge>
           )}
@@ -149,7 +149,7 @@ export default function ControlPanel({
                 <span
                   key={p.id}
                   onClick={() => onLoadPreset(p)}
-                  className="flex items-center gap-1 px-2 py-0.5 text-xs bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-sm cursor-pointer text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"
+                  className="flex items-center gap-1 px-2 py-0.5 text-xs bg-c-bg-elevated border border-c-border rounded-sm cursor-pointer text-c-text-secondary hover:bg-c-bg-hover hover:text-c-text-primary"
                 >
                   {p.name}
                   <span
@@ -171,7 +171,7 @@ export default function ControlPanel({
 
           {/* Date */}
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-[var(--color-text-muted)] mb-1 block">Date</label>
+            <label className="text-xs text-c-text-muted mb-1 block">Date</label>
             <input
               type="date"
               value={date}
@@ -182,7 +182,7 @@ export default function ControlPanel({
 
           {/* Analysts */}
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-[var(--color-text-muted)] mb-1 block">Analysts</label>
+            <label className="text-xs text-c-text-muted mb-1 block">Analysts</label>
             <div className="flex gap-1">
               {ANALYSTS.map((a) => (
                 <Button
@@ -200,7 +200,7 @@ export default function ControlPanel({
 
           {/* Depth */}
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-[var(--color-text-muted)] mb-1 block">Depth</label>
+            <label className="text-xs text-c-text-muted mb-1 block">Depth</label>
             <div className="flex gap-1">
               {DEPTH_OPTIONS.map((opt) => (
                 <Button
@@ -227,11 +227,11 @@ export default function ControlPanel({
 
           {/* Cost estimate */}
           {estimate && (
-            <div className="px-3 py-2 bg-[var(--color-bg-elevated)] rounded-md border border-[var(--color-border-subtle)] text-xs">
-              <div className="flex justify-between text-[var(--color-text-muted)]">
+            <div className="px-3 py-2 bg-c-bg-elevated rounded-md border border-c-border-subtle text-xs">
+              <div className="flex justify-between text-c-text-muted">
                 <span>{estimate.estimated_tokens_in.toLocaleString()} in</span>
                 <span>{estimate.estimated_tokens_out.toLocaleString()} out</span>
-                <span className="text-[var(--color-accent)] font-semibold">${estimate.estimated_cost_usd.toFixed(4)}</span>
+                <span className="text-c-accent font-semibold">${estimate.estimated_cost_usd.toFixed(4)}</span>
               </div>
             </div>
           )}
@@ -257,8 +257,8 @@ export default function ControlPanel({
             : "opacity-0 translate-x-5 pointer-events-none"
         )}
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)] min-h-[40px]">
-          <span className="text-sm font-semibold text-[var(--color-text-secondary)] tracking-[0.02em] uppercase">Pipeline</span>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-c-border-subtle min-h-[40px]">
+          <span className="text-sm font-semibold text-c-text-secondary tracking-[0.02em] uppercase">Pipeline</span>
           {stats && (
             <div className="flex gap-2">
               <Badge variant="accent">${stats.cost_usd?.toFixed(4) || "0.00"}</Badge>
@@ -273,14 +273,14 @@ export default function ControlPanel({
 
         {/* Run info footer */}
         {snapshot && (
-          <div className="flex justify-between px-4 py-2 border-t border-[var(--color-border-subtle)] text-xs text-[var(--color-text-faint)]">
+          <div className="flex justify-between px-4 py-2 border-t border-c-border-subtle text-xs text-c-text-faint">
             <span>{snapshot.ticker}</span>
             <span>{snapshot.run_id?.slice(0, 8)}</span>
           </div>
         )}
 
         {/* Stop button */}
-        <div className="px-4 py-3 border-t border-[var(--color-border-subtle)]">
+        <div className="px-4 py-3 border-t border-c-border-subtle">
           <Button variant="danger" className="w-full px-4 py-3" onClick={onStop}>
             Stop
           </Button>

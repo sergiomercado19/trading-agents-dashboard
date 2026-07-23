@@ -8,7 +8,7 @@ interface Props {
 export default function CostDisplay({ estimate, loading }: Props) {
   if (loading) {
     return (
-      <div style={{ padding: "var(--space-3)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)", fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+      <div className="p-3 bg-c-bg-elevated rounded-md text-xs text-c-text-muted">
         Estimating cost...
       </div>
     );
@@ -17,25 +17,25 @@ export default function CostDisplay({ estimate, loading }: Props) {
   if (!estimate) return null;
 
   return (
-    <div style={{ padding: "var(--space-3)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border-subtle)" }}>
-      <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-2)" }}>Estimated Cost</div>
-      <div style={{ display: "flex", gap: "var(--space-4)", fontSize: "var(--text-xs)" }}>
+    <div className="p-3 bg-c-bg-elevated rounded-md border border-c-border-subtle">
+      <div className="text-xs text-c-text-muted mb-2">Estimated Cost</div>
+      <div className="flex gap-4 text-xs">
         <div>
-          <span style={{ color: "var(--color-text-muted)" }}>In: </span>
+          <span className="text-c-text-muted">In: </span>
           <span>{estimate.estimated_tokens_in.toLocaleString()}</span>
         </div>
         <div>
-          <span style={{ color: "var(--color-text-muted)" }}>Out: </span>
+          <span className="text-c-text-muted">Out: </span>
           <span>{estimate.estimated_tokens_out.toLocaleString()}</span>
         </div>
         <div>
-          <span style={{ color: "var(--color-text-muted)" }}>Cost: </span>
-          <span style={{ color: "var(--color-accent)", fontWeight: "var(--weight-semibold)" }}>
+          <span className="text-c-text-muted">Cost: </span>
+          <span className="text-c-accent font-semibold">
             ${estimate.estimated_cost_usd.toFixed(4)}
           </span>
         </div>
       </div>
-      <div style={{ marginTop: "var(--space-2)", fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}>
+      <div className="mt-2 text-xs text-c-text-faint">
         {estimate.stages.length} stages | {estimate.provider}
       </div>
     </div>

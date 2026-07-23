@@ -22,13 +22,13 @@ export function GeneralSection() {
   const providerModels = models[selectedProvider];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-      <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>General</h2>
+    <div className="flex flex-col gap-6">
+      <h2 className="text-xl font-bold text-c-text-primary">General</h2>
 
       {/* LLM Provider */}
       <section>
         <SectionHeading>LLM Provider</SectionHeading>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "var(--space-2)" }}>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2">
           {providers.map((p) => (
             <Button
               key={p.id}
@@ -45,7 +45,7 @@ export function GeneralSection() {
       {/* Models */}
       <section>
         <SectionHeading>Models</SectionHeading>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <FieldLabel>Quick Think</FieldLabel>
             <select value={quickModel} onChange={(e) => setQuickModel(e.target.value)} className="input">
@@ -66,15 +66,14 @@ export function GeneralSection() {
       {/* Data Vendors */}
       <section>
         <SectionHeading>Data Vendors</SectionHeading>
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+        <div className="flex flex-col gap-2">
           {DATA_VENDOR_CATEGORIES.map((cat) => (
-            <div key={cat.key} style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-              <span style={{ fontSize: "var(--text-sm)", width: 180, color: "var(--color-text-secondary)" }}>{cat.label}</span>
+            <div key={cat.key} className="flex items-center gap-3">
+              <span className="text-sm w-[180px] text-c-text-secondary">{cat.label}</span>
               <select
                 value={vendors[cat.key] || cat.options[0]}
                 onChange={(e) => setVendors({ ...vendors, [cat.key]: e.target.value })}
-                className="input"
-                style={{ width: 200 }}
+                className="input w-[200px]"
               >
                 {cat.options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
               </select>
@@ -86,7 +85,7 @@ export function GeneralSection() {
       {/* Risk Profile */}
       <section>
         <SectionHeading>Risk Profile</SectionHeading>
-        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <div className="flex gap-2">
           {RISK_PROFILES.map((rp) => (
             <Button
               key={rp.id}
@@ -94,8 +93,8 @@ export function GeneralSection() {
               onClick={() => setRiskProfile(rp.id)}
               className="flex-1 py-3 text-center flex-col"
             >
-              <div style={{ fontWeight: "var(--weight-semibold)" }}>{rp.label}</div>
-              <div style={{ fontSize: "var(--text-xs)", opacity: 0.7, marginTop: "var(--space-1)" }}>{rp.desc}</div>
+              <div className="font-semibold">{rp.label}</div>
+              <div className="text-xs opacity-70 mt-1">{rp.desc}</div>
             </Button>
           ))}
         </div>

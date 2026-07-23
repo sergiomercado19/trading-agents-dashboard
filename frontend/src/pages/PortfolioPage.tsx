@@ -91,23 +91,23 @@ export default function PortfolioPage() {
 
   if (!config?.is_connected && !loading) {
     return (
-      <div style={{ padding: "var(--space-6)", maxWidth: "1400px", margin: "0 auto" }}>
-        <div style={{ marginBottom: "var(--space-6)" }}>
-          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)", marginBottom: "var(--space-2)" }}>
+      <div className="p-6 max-w-content mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-c-text-primary mb-2">
             Portfolio
           </h1>
-          <p style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-c-text-secondary">
             Paper trading via Alpaca
           </p>
         </div>
         <Card>
-          <CardContent style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400, textAlign: "center" }}>
+          <CardContent className="flex items-center justify-center min-h-[400px] text-center">
             <div>
-              <div style={{ fontSize: "4rem", marginBottom: "var(--space-4)", color: "var(--color-text-muted)" }}><LinkIcon size={48} /></div>
-              <h3 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)", color: "var(--color-text-primary)" }}>
+              <div className="text-[4rem] mb-4 text-c-text-muted"><LinkIcon size={48} /></div>
+              <h3 className="text-lg font-semibold mb-2 text-c-text-primary">
                 Alpaca Not Configured
               </h3>
-              <p style={{ color: "var(--color-text-muted)", maxWidth: 400, margin: "0 auto", marginBottom: "var(--space-4)" }}>
+              <p className="text-c-text-muted max-w-panel mx-auto mb-4">
                 Connect your Alpaca paper trading account to view positions and execute trades.
               </p>
               <Button onClick={() => window.location.href = "/settings"}>Configure Alpaca</Button>
@@ -119,18 +119,18 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: "1400px", margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-6)" }}>
+    <div className="p-6 max-w-content mx-auto">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-2)" }}>
-            <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-2xl font-bold text-c-text-primary">
               Portfolio
             </h1>
             <Badge variant={config?.paper_trading !== false ? "outline" : "default"}>
               {config?.paper_trading !== false ? "Paper" : "Live"}
             </Badge>
           </div>
-          <p style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-c-text-secondary">
             Paper trading via Alpaca
           </p>
         </div>
@@ -138,7 +138,7 @@ export default function PortfolioPage() {
       </div>
 
       {fetchError && (
-        <div style={{ padding: "var(--space-3)", background: "var(--color-error-subtle)", color: "var(--color-error)", borderRadius: "var(--radius-md)", fontSize: "var(--text-sm)", marginBottom: "var(--space-4)" }}>
+        <div className="p-3 bg-c-error/12 text-c-error rounded-md text-sm mb-4">
           {fetchError}
         </div>
       )}
@@ -146,33 +146,33 @@ export default function PortfolioPage() {
       {/* Account Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardContent style={{ padding: "var(--space-5)" }}>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "var(--space-1)" }}>Equity</div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+          <CardContent className="p-5">
+            <div className="text-xs text-c-text-muted uppercase mb-1">Equity</div>
+            <div className="text-2xl font-bold text-c-text-primary">
               ${account?.equity?.toLocaleString() ?? "\u2014"}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent style={{ padding: "var(--space-5)" }}>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "var(--space-1)" }}>Buying Power</div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+          <CardContent className="p-5">
+            <div className="text-xs text-c-text-muted uppercase mb-1">Buying Power</div>
+            <div className="text-2xl font-bold text-c-text-primary">
               ${account?.buying_power?.toLocaleString() ?? "\u2014"}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent style={{ padding: "var(--space-5)" }}>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "var(--space-1)" }}>Day P&L</div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: (account?.day_pnl ?? 0) >= 0 ? "var(--color-success)" : "var(--color-error)" }}>
+          <CardContent className="p-5">
+            <div className="text-xs text-c-text-muted uppercase mb-1">Day P&L</div>
+            <div className={`text-2xl font-bold ${(account?.day_pnl ?? 0) >= 0 ? 'text-c-success' : 'text-c-error'}`}>
               ${(account?.day_pnl ?? 0).toLocaleString()}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent style={{ padding: "var(--space-5)" }}>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "var(--space-1)" }}>Unrealized P&L</div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: totalUnrealizedPL >= 0 ? "var(--color-success)" : "var(--color-error)" }}>
+          <CardContent className="p-5">
+            <div className="text-xs text-c-text-muted uppercase mb-1">Unrealized P&L</div>
+            <div className={`text-2xl font-bold ${totalUnrealizedPL >= 0 ? 'text-c-success' : 'text-c-error'}`}>
               ${totalUnrealizedPL.toLocaleString()} ({totalUnrealizedPLPC.toFixed(2)}%)
             </div>
           </CardContent>
@@ -185,60 +185,60 @@ export default function PortfolioPage() {
           <CardTitle>Positions</CardTitle>
           <CardDescription>{positions.length} open position{positions.length !== 1 ? "s" : ""}</CardDescription>
         </CardHeader>
-        <CardContent style={{ padding: 0 }}>
+        <CardContent className="p-0">
           {loading ? (
-            <div style={{ padding: "var(--space-8)", textAlign: "center", color: "var(--color-text-muted)" }}>
+            <div className="p-8 text-center text-c-text-muted">
               Loading positions...
             </div>
           ) : positions.length === 0 ? (
-            <div style={{ padding: "var(--space-12)", textAlign: "center" }}>
-              <div style={{ fontSize: "3rem", marginBottom: "var(--space-4)" }}>&#x1F4C8;</div>
-              <h3 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)" }}>
+            <div className="p-12 text-center">
+              <div className="text-[3rem] mb-4">&#x1F4C8;</div>
+              <h3 className="text-lg font-semibold mb-2">
                 No open positions
               </h3>
-              <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-4)" }}>
+              <p className="text-c-text-muted mb-4">
                 Start trading to build your portfolio
               </p>
               <Button onClick={() => setShowTradeModal(true)}>Place First Trade</Button>
             </div>
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-surface)" }}>
-                    <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "left", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Symbol</th>
-                    <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Qty</th>
-                    <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Avg Entry</th>
-                    <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Current</th>
-                    <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Market Value</th>
-                    <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>Unrealized P&L</th>
-                    <th style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", textTransform: "uppercase" }}></th>
+                  <tr className="border-b border-c-border bg-c-bg-surface">
+                    <th className="py-3 px-4 text-left text-xs font-semibold text-c-text-secondary uppercase">Symbol</th>
+                    <th className="py-3 px-4 text-right text-xs font-semibold text-c-text-secondary uppercase">Qty</th>
+                    <th className="py-3 px-4 text-right text-xs font-semibold text-c-text-secondary uppercase">Avg Entry</th>
+                    <th className="py-3 px-4 text-right text-xs font-semibold text-c-text-secondary uppercase">Current</th>
+                    <th className="py-3 px-4 text-right text-xs font-semibold text-c-text-secondary uppercase">Market Value</th>
+                    <th className="py-3 px-4 text-right text-xs font-semibold text-c-text-secondary uppercase">Unrealized P&L</th>
+                    <th className="py-3 px-4 text-right text-xs font-semibold text-c-text-secondary uppercase"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {positions.map((position) => (
-                    <tr key={position.symbol} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                      <td style={{ padding: "var(--space-3) var(--space-4)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)", fontFamily: "var(--font-mono)", color: "var(--color-text-primary)" }}>
+                    <tr key={position.symbol} className="border-b border-c-border-subtle">
+                      <td className="py-3 px-4 text-sm font-medium font-mono text-c-text-primary">
                         {position.symbol}
                       </td>
-                      <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-sm)", fontFamily: "var(--font-mono)", color: "var(--color-text-primary)" }}>
+                      <td className="py-3 px-4 text-right text-sm font-mono text-c-text-primary">
                         {position.qty}
                       </td>
-                      <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-sm)", fontFamily: "var(--font-mono)", color: "var(--color-text-secondary)" }}>
+                      <td className="py-3 px-4 text-right text-sm font-mono text-c-text-secondary">
                         ${position.avg_entry_price?.toFixed(2)}
                       </td>
-                      <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-sm)", fontFamily: "var(--font-mono)", color: "var(--color-text-primary)", fontWeight: "var(--weight-medium)" }}>
+                      <td className="py-3 px-4 text-right text-sm font-mono text-c-text-primary font-medium">
                         ${position.current_price?.toFixed(2)}
                       </td>
-                      <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right", fontSize: "var(--text-sm)", fontFamily: "var(--font-mono)", color: "var(--color-text-primary)", fontWeight: "var(--weight-medium)" }}>
+                      <td className="py-3 px-4 text-right text-sm font-mono text-c-text-primary font-medium">
                         ${position.market_value?.toLocaleString()}
                       </td>
-                      <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right" }}>
-                        <span style={{ fontSize: "var(--text-sm)", fontFamily: "var(--font-mono)", fontWeight: "var(--weight-medium)", color: (position.unrealized_pl || 0) >= 0 ? "var(--color-success)" : "var(--color-error)" }}>
+                      <td className="py-3 px-4 text-right">
+                        <span className={`text-sm font-mono font-medium ${(position.unrealized_pl || 0) >= 0 ? 'text-c-success' : 'text-c-error'}`}>
                           ${position.unrealized_pl?.toFixed(2)} ({(position.unrealized_plpc || 0).toFixed(2)}%)
                         </span>
                       </td>
-                      <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right" }}>
+                      <td className="py-3 px-4 text-right">
                         <Button variant="ghost" size="sm" onClick={() => handleClosePosition(position.symbol, position.qty)}>
                           Close
                         </Button>
@@ -254,25 +254,25 @@ export default function PortfolioPage() {
 
       {/* Trade Modal */}
       {showTradeModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "var(--space-4)" }}>
-          <Card style={{ width: "100%", maxWidth: 400 }}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-panel">
             <form id="trade-form" onSubmit={handleTrade}>
               <CardHeader>
                 <CardTitle>New Trade</CardTitle>
               </CardHeader>
-              <CardContent style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+              <CardContent className="flex flex-col gap-4">
                 <div>
                   <Label htmlFor="symbol">Symbol</Label>
                   <Input id="symbol" value={tradeForm.symbol} onChange={(e) => setTradeForm({ ...tradeForm, symbol: e.target.value.toUpperCase() })} placeholder="AAPL" required autoFocus />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="qty">Quantity</Label>
                     <Input id="qty" type="number" step="1" min="1" value={tradeForm.qty} onChange={(e) => setTradeForm({ ...tradeForm, qty: e.target.value })} placeholder="10" required />
                   </div>
                   <div>
                     <Label htmlFor="side">Side</Label>
-                    <select id="side" value={tradeForm.side} onChange={(e) => setTradeForm({ ...tradeForm, side: e.target.value as "buy" | "sell" })} style={{ width: "100%", padding: "var(--space-2) var(--space-3)", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-bg-elevated)", color: "var(--color-text-primary)", fontSize: "var(--text-sm)" }}>
+                    <select id="side" value={tradeForm.side} onChange={(e) => setTradeForm({ ...tradeForm, side: e.target.value as "buy" | "sell" })} className="w-full rounded-md border border-c-border bg-c-bg-elevated text-c-text-primary px-3 py-2 text-sm">
                       <option value="buy">Buy</option>
                       <option value="sell">Sell</option>
                     </select>
@@ -280,18 +280,18 @@ export default function PortfolioPage() {
                 </div>
                 <div>
                   <Label htmlFor="type">Order Type</Label>
-                  <select id="type" value={tradeForm.type} onChange={(e) => setTradeForm({ ...tradeForm, type: e.target.value as "market" | "limit" })} style={{ width: "100%", padding: "var(--space-2) var(--space-3)", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", background: "var(--color-bg-elevated)", color: "var(--color-text-primary)", fontSize: "var(--text-sm)" }}>
+                  <select id="type" value={tradeForm.type} onChange={(e) => setTradeForm({ ...tradeForm, type: e.target.value as "market" | "limit" })} className="w-full rounded-md border border-c-border bg-c-bg-elevated text-c-text-primary px-3 py-2 text-sm">
                     <option value="market">Market</option>
                     <option value="limit">Limit</option>
                   </select>
                 </div>
                 {tradeError && (
-                  <div style={{ padding: "var(--space-3)", background: "var(--color-error-subtle)", color: "var(--color-error)", borderRadius: "var(--radius-md)", fontSize: "var(--text-sm)" }}>
+                  <div className="p-3 bg-c-error/12 text-c-error rounded-md text-sm">
                     {tradeError}
                   </div>
                 )}
               </CardContent>
-              <CardFooter style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}>
+              <CardFooter className="gap-2 justify-end">
                 <Button variant="ghost" type="button" onClick={() => { setShowTradeModal(false); setTradeError(""); }}>Cancel</Button>
                 <Button type="submit">Submit Trade</Button>
               </CardFooter>

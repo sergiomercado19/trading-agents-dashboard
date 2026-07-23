@@ -31,11 +31,11 @@ export default function MemoryPage() {
   };
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-      <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Memory / RAG</h2>
+    <div className="p-6 max-w-[900px] mx-auto flex flex-col gap-6">
+      <h2 className="text-xl font-bold text-c-text-primary">Memory / RAG</h2>
 
       {/* Status + Config row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
+      <div className="grid grid-cols-2 gap-4">
         <MemoryStatusCard status={status} loading={loading} />
         <ObsidianConfig
           currentPath={status?.vault_path ?? null}
@@ -50,12 +50,12 @@ export default function MemoryPage() {
           <span className="panel-title">Sync</span>
         </div>
         <div className="panel-body">
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+          <div className="flex items-center gap-3">
             <Button onClick={handleSync} disabled={syncing}>
               {syncing ? "Syncing vault..." : "Sync Vault → ChromaDB"}
             </Button>
             {syncResult && (
-              <span style={{ fontSize: "var(--text-sm)", color: syncResult.status === "ok" ? "var(--color-success)" : "var(--color-error)" }}>
+              <span className={`text-sm ${syncResult.status === "ok" ? "text-c-success" : "text-c-error"}`}>
                 {syncResult.status === "ok"
                   ? `Indexed ${syncResult.indexed} notes`
                   : syncResult.message}
@@ -71,14 +71,13 @@ export default function MemoryPage() {
           <span className="panel-title">Similarity Search</span>
         </div>
         <div className="panel-body">
-          <div style={{ display: "flex", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
+          <div className="flex gap-2 mb-3">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder="Search past situations and recommendations..."
-              className="input"
-              style={{ flex: 1 }}
+              className="input flex-1"
             />
             <Button variant="secondary" onClick={handleSearch} disabled={searching || !query.trim()}>
               {searching ? "Searching..." : "Search"}
@@ -86,28 +85,23 @@ export default function MemoryPage() {
           </div>
 
           {results.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <div className="flex flex-col gap-2">
               {results.map((r) => (
                 <div
                   key={r.id}
-                  style={{
-                    padding: "var(--space-3)",
-                    background: "var(--color-bg-elevated)",
-                    borderRadius: "var(--radius-md)",
-                    border: "1px solid var(--color-border-subtle)",
-                  }}
+                  className="p-3 bg-c-bg-elevated rounded-md border border-c-border-subtle"
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
-                    <span style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)" }}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-semibold text-c-text-primary">
                       {String(r.metadata.source || r.id)}
                     </span>
                     {r.distance !== null && (
-                      <span className="badge bg-[var(--color-bg-overlay)] text-[var(--color-text-muted)]">
+                      <span className="badge bg-c-bg-overlay text-c-text-muted">
                         {r.distance.toFixed(3)}
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", lineHeight: "var(--leading-relaxed)", whiteSpace: "pre-wrap" }}>
+                  <div className="text-xs text-c-text-secondary leading-relaxed whitespace-pre-wrap">
                     {r.document.length > 500 ? r.document.slice(0, 500) + "..." : r.document}
                   </div>
                 </div>
@@ -115,7 +109,7 @@ export default function MemoryPage() {
             </div>
           )}
           {results.length === 0 && query && !searching && (
-            <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>No results found.</div>
+            <div className="text-sm text-c-text-muted">No results found.</div>
           )}
         </div>
       </section>

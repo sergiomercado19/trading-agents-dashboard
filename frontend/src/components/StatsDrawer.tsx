@@ -18,54 +18,26 @@ export default function StatsDrawer({ open, onClose, stats, estimate, snapshot, 
       {open && (
         <div
           onClick={onClose}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "oklch(0 0 0 / 0.3)",
-            zIndex: "var(--z-drawer)",
-            animation: "fadeIn var(--duration-normal) var(--ease-out)",
-          }}
+          className="fixed inset-0 z-[var(--z-drawer)] bg-black/30 animate-[fadeIn_var(--duration-normal)_var(--ease-out)]"
         />
       )}
 
       {/* Drawer */}
       <div
-        style={{
-          position: "fixed",
-          top: "var(--header-height)",
-          right: 0,
-          bottom: 0,
-          width: "var(--drawer-width)",
-          background: "var(--color-bg-surface)",
-          borderLeft: "1px solid var(--color-border)",
-          zIndex: "var(--z-drawer)",
-          transform: open ? "translateX(0)" : "translateX(100%)",
-          transition: "transform var(--duration-slow) var(--ease-out)",
-          display: "flex",
-          flexDirection: "column",
-          boxShadow: open ? "var(--shadow-lg)" : "none",
-        }}
+        className={`fixed right-0 bottom-0 top-[var(--header-height)] w-[var(--drawer-width)] z-[var(--z-drawer)] bg-c-bg-surface border-l border-c-border flex flex-col transition-[transform_var(--duration-slow)_var(--ease-out)] ${open ? "translate-x-0 shadow-lg" : "translate-x-full"}`}
       >
         {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "var(--space-3) var(--space-4)",
-            borderBottom: "1px solid var(--color-border-subtle)",
-          }}
-        >
+        <div className="flex items-center justify-between border-b border-c-border-subtle px-4 py-3">
           <span className="panel-title">Stats</span>
-          <Button variant="ghost" size="sm" onClick={onClose} style={{ fontSize: "var(--text-lg)", padding: 0, width: 24, height: 24 }}>
+          <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0 text-lg">
             ×
           </Button>
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflow: "auto", padding: "var(--space-4)" }}>
+        <div className="flex-1 overflow-auto p-4">
           {stats ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+            <div className="flex flex-col gap-4">
               {/* Cost */}
               <Section title="Cost">
                 <StatRow label="Estimated" value={estimate ? `$${estimate.estimated_cost_usd.toFixed(4)}` : "—"} />
@@ -104,7 +76,7 @@ export default function StatsDrawer({ open, onClose, stats, estimate, snapshot, 
               )}
             </div>
           ) : (
-            <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)", textAlign: "center", padding: "var(--space-8) 0" }}>
+            <div className="text-center text-sm text-c-text-muted py-8">
               No stats yet
             </div>
           )}
@@ -117,26 +89,10 @@ export default function StatsDrawer({ open, onClose, stats, estimate, snapshot, 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div
-        style={{
-          fontSize: "var(--text-xs)",
-          fontWeight: "var(--weight-semibold)",
-          color: "var(--color-text-muted)",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "var(--space-2)",
-        }}
-      >
+      <div className="text-xs font-semibold text-c-text-muted uppercase tracking-[0.05em] mb-2">
         {title}
       </div>
-      <div
-        style={{
-          background: "var(--color-bg-elevated)",
-          borderRadius: "var(--radius-md)",
-          border: "1px solid var(--color-border-subtle)",
-          overflow: "hidden",
-        }}
-      >
+      <div className="bg-c-bg-elevated rounded-md border border-c-border-subtle overflow-hidden">
         {children}
       </div>
     </div>
@@ -145,23 +101,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function StatRow({ label, value, accent, mono }: { label: string; value: string; accent?: boolean; mono?: boolean }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "var(--space-2) var(--space-3)",
-        borderBottom: "1px solid var(--color-border-subtle)",
-        fontSize: "var(--text-xs)",
-      }}
-    >
-      <span style={{ color: "var(--color-text-muted)" }}>{label}</span>
+    <div className="flex items-center justify-between border-b border-c-border-subtle py-2 px-3 text-xs">
+      <span className="text-c-text-muted">{label}</span>
       <span
-        style={{
-          color: accent ? "var(--color-accent)" : "var(--color-text-primary)",
-          fontWeight: accent ? "var(--weight-semibold)" : "var(--weight-regular)",
-          fontFamily: mono ? "var(--font-mono)" : "inherit",
-        }}
+        className={`${accent ? "text-c-accent font-semibold" : "text-c-text-primary"} ${mono ? "font-mono" : ""}`}
       >
         {value}
       </span>

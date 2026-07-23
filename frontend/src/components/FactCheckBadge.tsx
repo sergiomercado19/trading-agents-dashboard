@@ -7,11 +7,11 @@ type StatusKey = NonNullable<Props["status"]>;
 export type FactCheckStatus = StatusKey;
 
 const STATUS_CONFIG: Record<StatusKey, { icon: string; color: string; label: string }> = {
-  valid: { icon: "\u2713", color: "var(--success)", label: "Valid" },
-  broken: { icon: "\u2717", color: "var(--error)", label: "Broken" },
-  protected: { icon: "\ud83d\udd12", color: "var(--warning)", label: "Protected" },
-  unknown: { icon: "?", color: "var(--text-muted)", label: "Unknown" },
-  checking: { icon: "\u23f3", color: "var(--accent)", label: "Checking..." },
+  valid: { icon: "\u2713", color: "var(--color-success)", label: "Valid" },
+  broken: { icon: "\u2717", color: "var(--color-error)", label: "Broken" },
+  protected: { icon: "\ud83d\udd12", color: "var(--color-warning)", label: "Protected" },
+  unknown: { icon: "?", color: "var(--color-text-muted)", label: "Unknown" },
+  checking: { icon: "\u23f3", color: "var(--color-accent)", label: "Checking..." },
 };
 
 export default function FactCheckBadge({ url, status = "unknown" }: Props) {
@@ -19,21 +19,8 @@ export default function FactCheckBadge({ url, status = "unknown" }: Props) {
 
   return (
     <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 4,
-        fontSize: 11,
-        color: config.color,
-        padding: "2px 6px",
-        background: "var(--bg-tertiary)",
-        borderRadius: 4,
-        border: "1px solid var(--border)",
-        maxWidth: 240,
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-      }}
+      className="inline-flex items-center gap-1 text-[11px] py-0.5 px-1.5 bg-c-bg-elevated rounded border border-c-border max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap"
+      style={{ color: config.color }}
       title={`${url} — ${config.label}`}
     >
       <span>{config.icon}</span>

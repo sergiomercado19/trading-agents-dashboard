@@ -22,14 +22,13 @@ export default function ModelSelect({ provider, value, onChange, type = "quick" 
 
   return (
     <div>
-      <label style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", display: "block" }}>
+      <label className="block text-xs text-c-text-muted mb-1">
         {type === "quick" ? "Quick" : "Deep"}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="input"
-        style={{ fontSize: "var(--text-xs)", padding: "var(--space-2)" }}
+        className="input text-xs p-2"
       >
         {options.length === 0 && <option value={value}>{value || "Select provider"}</option>}
         {options.map((m) => (

@@ -26,76 +26,37 @@ export default function ObsidianConfig({ currentPath, isDocker, onSaved }: Props
   };
 
   return (
-    <div style={cardStyle}>
-      <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 10 }}>Obsidian Vault</div>
+    <div className="px-5 py-4 border border-c-border rounded-lg bg-c-bg-secondary">
+      <div className="font-semibold text-sm mb-[10px]">Obsidian Vault</div>
       {isDocker && (
-        <div style={{
-          padding: "8px 12px",
-          background: "var(--warning-bg, rgba(255,200,0,0.1))",
-          border: "1px solid var(--warning, #f0ad4e)",
-          borderRadius: 6,
-          fontSize: 12,
-          color: "var(--warning, #f0ad4e)",
-          marginBottom: 10,
-        }}>
+        <div className="px-3 py-2 bg-[var(--warning-bg,rgba(255,200,0,0.1))] border border-[var(--warning,#f0ad4e)] rounded-md text-xs text-[var(--warning,#f0ad4e)] mb-[10px]">
           Running in Docker — mount your vault to a container path and enter that path here.
         </div>
       )}
-      <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>
+      <div className="text-xs text-c-text-muted mb-2">
         Path to your Obsidian vault. Reports will be saved to <code>TradingAgents/Reports/</code> inside this vault.
       </div>
-      <div style={{ display: "flex", gap: 8 }}>
+      <div className="flex gap-2">
         <input
+          className="input flex-1 px-3 py-2 bg-c-bg-tertiary border border-c-border rounded-md text-c-text-primary text-[13px] font-mono"
           value={path}
           onChange={(e) => setPath(e.target.value)}
           placeholder={isDocker ? "/vault/tradingagents" : "~/tradingagents-vault"}
-          style={inputStyle}
         />
         <button
+          className="input px-4 py-2 bg-c-accent border-none rounded-md text-black font-semibold text-[13px] cursor-pointer"
           onClick={handleSave}
           disabled={saving || !path.trim()}
-          style={{
-            ...btnStyle,
-            opacity: saving || !path.trim() ? 0.5 : 1,
-          }}
+          style={{ opacity: saving || !path.trim() ? 0.5 : 1 }}
         >
           {saving ? "Saving..." : "Save"}
         </button>
       </div>
       {message && (
-        <div style={{ marginTop: 8, fontSize: 12, color: message === "Saved" ? "var(--success, #4caf50)" : "var(--error, #f44336)" }}>
+        <div className="mt-2 text-xs" style={{ color: message === "Saved" ? "var(--success, #4caf50)" : "var(--error, #f44336)" }}>
           {message}
         </div>
       )}
     </div>
   );
 }
-
-const cardStyle: React.CSSProperties = {
-  padding: "16px 20px",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
-  background: "var(--bg-secondary)",
-};
-
-const inputStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "8px 12px",
-  background: "var(--bg-tertiary)",
-  border: "1px solid var(--border)",
-  borderRadius: 6,
-  color: "var(--text-primary)",
-  fontSize: 13,
-  fontFamily: "monospace",
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: "8px 16px",
-  background: "var(--accent)",
-  border: "none",
-  borderRadius: 6,
-  color: "#000",
-  fontWeight: 600,
-  fontSize: 13,
-  cursor: "pointer",
-};

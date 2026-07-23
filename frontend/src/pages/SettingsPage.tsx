@@ -345,20 +345,20 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="p-6 max-w-[800px] mx-auto">
-        <div className="text-[var(--color-text-muted)] text-sm">Loading settings...</div>
+      <div className="p-6 max-w-narrow mx-auto">
+        <div className="text-c-text-muted text-sm">Loading settings...</div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-[800px] mx-auto">
+    <div className="p-6 max-w-narrow mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
+        <h1 className="text-2xl font-bold text-c-text-primary">
           Settings
         </h1>
         {saved && (
-          <span className="text-sm text-[var(--color-success)]">Saved!</span>
+          <span className="text-sm text-c-success">Saved!</span>
         )}
       </div>
 
@@ -464,7 +464,7 @@ export default function SettingsPage() {
 
                     return (
                       <div key={field.key} className="flex flex-col sm:flex-row sm:items-center gap-2">
-                        <span className="text-sm w-[100px] shrink-0 text-[var(--color-text-secondary)]">
+                        <span className="text-sm w-[100px] shrink-0 text-c-text-secondary">
                           {field.label}
                         </span>
                         <Input
@@ -486,7 +486,7 @@ export default function SettingsPage() {
                         {testResult && (
                           <span className={cn(
                             "text-xs max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap",
-                            testResult.valid ? "text-[var(--color-success)]" : "text-[var(--color-error)]"
+                            testResult.valid ? "text-c-success" : "text-c-error"
                           )}>
                             {testResult.message}
                           </span>
@@ -504,10 +504,10 @@ export default function SettingsPage() {
                   {AGENTS.map((agent) => {
                     const cfg = getAgentConfig(agent.name);
                     return (
-                      <div key={agent.name} className="p-3 bg-[var(--color-bg-elevated)] rounded-md">
+                      <div key={agent.name} className="p-3 bg-c-bg-elevated rounded-md">
                         <div className="font-medium mb-2 text-sm">
                           {agent.name}
-                          <span className="text-[var(--color-text-muted)] font-normal text-xs ml-1">
+                          <span className="text-c-text-muted font-normal text-xs ml-1">
                             ({agent.phase})
                           </span>
                         </div>
@@ -556,7 +556,7 @@ export default function SettingsPage() {
                   />
                   <span className="text-sm">Enable automatic failover between providers</span>
                 </label>
-                <p className="text-xs text-[var(--color-text-muted)] mt-2">
+                <p className="text-xs text-c-text-muted mt-2">
                   If primary provider fails, automatically retry with next available provider
                 </p>
               </div>
@@ -581,7 +581,7 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="flex flex-col gap-4 max-w-[500px]">
               {alpacaStatus?.is_connected && (
-                <div className="p-3 rounded-md text-sm text-[var(--color-success)]" style={{ background: "var(--color-success-subtle, oklch(0.95 0.02 155))", border: "1px solid var(--color-success)" }}>
+                <div className="p-3 rounded-md text-sm text-c-success" style={{ background: "var(--color-success-subtle, oklch(0.95 0.02 155))", border: "1px solid var(--color-success)" }}>
                   Connected to Alpaca ({alpacaStatus.paper_trading ? "Paper" : "Live"})
                   {alpacaStatus.last_sync && <span className="ml-2 opacity-70">Last sync: {new Date(alpacaStatus.last_sync).toLocaleString()}</span>}
                 </div>
@@ -617,12 +617,12 @@ export default function SettingsPage() {
                 <span className="text-sm">Paper Trading Mode</span>
               </label>
               {alpacaTestResult && (
-                <div className={cn("text-sm", alpacaTestResult.connected ? "text-[var(--color-success)]" : "text-[var(--color-error)]")}>
+                <div className={cn("text-sm", alpacaTestResult.connected ? "text-c-success" : "text-c-error")}>
                   {alpacaTestResult.connected ? "Connection successful" : "Connection failed"}
                 </div>
               )}
-              <p className="text-xs text-[var(--color-text-muted)]">
-                Get your API keys from <a href="https://alpaca.markets" target="_blank" rel="noopener noreferrer" className="text-[var(--color-accent)]">alpaca.markets</a>
+              <p className="text-xs text-c-text-muted">
+                Get your API keys from <a href="https://alpaca.markets" target="_blank" rel="noopener noreferrer" className="text-c-accent">alpaca.markets</a>
               </p>
             </CardContent>
             <CardFooter className="gap-2">
@@ -664,7 +664,7 @@ export default function SettingsPage() {
                 />
                 <span className="text-sm">Enable Perplefina Integration</span>
               </label>
-              <p className="text-xs text-[var(--color-text-muted)]">
+              <p className="text-xs text-c-text-muted">
                 Perplefina provides news sentiment and social media analysis for trading agents
               </p>
             </CardContent>
@@ -687,7 +687,7 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               {/* Create new key */}
-              <div className="flex gap-2 max-w-[400px]">
+              <div className="flex gap-2 max-w-panel">
                 <Input
                   value={newKeyName}
                   onChange={(e) => setNewKeyName(e.target.value)}
@@ -702,7 +702,7 @@ export default function SettingsPage() {
               {/* Show created key */}
               {createdKey && (
                 <div className="p-3 rounded-md text-sm" style={{ background: "var(--color-success-subtle)", border: "1px solid var(--color-success)" }}>
-                  <div className="font-semibold mb-1 text-[var(--color-success)]">
+                  <div className="font-semibold mb-1 text-c-success">
                     Key created (copy it now, it won't be shown again):
                   </div>
                   <code className="font-mono text-xs break-all">
@@ -721,24 +721,24 @@ export default function SettingsPage() {
 
               {/* Key list */}
               {apiKeys.length === 0 ? (
-                <p className="text-sm text-[var(--color-text-muted)]">No API keys yet.</p>
+                <p className="text-sm text-c-text-muted">No API keys yet.</p>
               ) : (
                 <div className="flex flex-col gap-2">
                   {apiKeys.map((key) => (
-                    <div key={key.id} className="flex items-center justify-between p-3 bg-[var(--color-bg-elevated)] rounded-md border border-[var(--color-border)]">
+                    <div key={key.id} className="flex items-center justify-between p-3 bg-c-bg-elevated rounded-md border border-c-border">
                       <div className="flex items-center gap-3">
                         <span className="font-medium text-sm">{key.name}</span>
-                        <code className="font-mono text-xs text-[var(--color-text-muted)]">
+                        <code className="font-mono text-xs text-c-text-muted">
                           {key.key_prefix}...
                         </code>
                         <span className={cn(
                           "text-xs px-1.5 py-0.5 rounded-sm",
-                          key.is_active ? "bg-[var(--color-success-subtle)] text-[var(--color-success)]" : "bg-[var(--color-error-subtle)] text-[var(--color-error)]"
+                          key.is_active ? "bg-[var(--color-success-subtle)] text-c-success" : "bg-[var(--color-error-subtle)] text-c-error"
                         )}>
                           {key.is_active ? "Active" : "Revoked"}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
+                      <div className="flex items-center gap-3 text-xs text-c-text-muted">
                         <span>Created {new Date(key.created_at).toLocaleDateString()}</span>
                         {key.is_active && (
                           <Button
@@ -783,10 +783,10 @@ export default function SettingsPage() {
                       <h4 className={sectionClassName}>Recent Analyses</h4>
                       <div className="flex flex-col gap-2">
                         {activity.recent_analyses.map((a) => (
-                          <div key={a.id} className="flex justify-between p-2 px-3 bg-[var(--color-bg-elevated)] rounded-sm text-sm">
+                          <div key={a.id} className="flex justify-between p-2 px-3 bg-c-bg-elevated rounded-sm text-sm">
                             <span><strong>{a.ticker}</strong></span>
-                            <span className="text-[var(--color-text-muted)]">{a.status}</span>
-                            <span className="text-[var(--color-text-muted)]">{new Date(a.created_at).toLocaleDateString()}</span>
+                            <span className="text-c-text-muted">{a.status}</span>
+                            <span className="text-c-text-muted">{new Date(a.created_at).toLocaleDateString()}</span>
                           </div>
                         ))}
                       </div>
@@ -799,15 +799,15 @@ export default function SettingsPage() {
                       <h4 className={sectionClassName}>Recent Trades</h4>
                       <div className="flex flex-col gap-2">
                         {activity.recent_trades.map((t) => (
-                          <div key={t.id} className="flex justify-between p-2 px-3 bg-[var(--color-bg-elevated)] rounded-sm text-sm">
+                          <div key={t.id} className="flex justify-between p-2 px-3 bg-c-bg-elevated rounded-sm text-sm">
                             <span>
                               <strong>{t.ticker}</strong>{" "}
-                              <span className={t.side === "buy" ? "text-[var(--color-success)]" : "text-[var(--color-error)]"}>
+                              <span className={t.side === "buy" ? "text-c-success" : "text-c-error"}>
                                 {t.side.toUpperCase()}
                               </span>
                             </span>
-                            <span className="text-[var(--color-text-muted)]">{t.quantity} @ ${t.price.toFixed(2)}</span>
-                            <span className="text-[var(--color-text-muted)]">{new Date(t.created_at).toLocaleDateString()}</span>
+                            <span className="text-c-text-muted">{t.quantity} @ ${t.price.toFixed(2)}</span>
+                            <span className="text-c-text-muted">{new Date(t.created_at).toLocaleDateString()}</span>
                           </div>
                         ))}
                       </div>
@@ -815,7 +815,7 @@ export default function SettingsPage() {
                   )}
                 </>
               ) : (
-                <p className="text-sm text-[var(--color-text-muted)]">Loading activity...</p>
+                <p className="text-sm text-c-text-muted">Loading activity...</p>
               )}
             </CardContent>
           </Card>
@@ -824,7 +824,7 @@ export default function SettingsPage() {
 
       {/* Health info (footer) */}
       {health && (
-        <div className="mt-6 p-3 rounded-md bg-[var(--color-bg-surface)] border border-[var(--color-border)] flex gap-4 text-xs text-[var(--color-text-muted)]">
+        <div className="mt-6 p-3 rounded-md bg-c-bg-surface border border-c-border flex gap-4 text-xs text-c-text-muted">
           <span>Python {health.python}</span>
           <span>TradingAgents: {health.tradingagents ? "Installed" : "Missing"}</span>
           <span>.env: {health.env_file ? "Present" : "Missing"}</span>
@@ -839,13 +839,13 @@ export default function SettingsPage() {
 /* Inline styles                                                       */
 /* ------------------------------------------------------------------ */
 
-const sectionClassName = "text-sm font-semibold text-[var(--color-text-secondary)] mb-3 uppercase";
+const sectionClassName = "text-sm font-semibold text-c-text-secondary mb-3 uppercase";
 
 function ActivityStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="p-3 bg-[var(--color-bg-elevated)] rounded-md border border-[var(--color-border)] text-center">
+    <div className="p-3 bg-c-bg-elevated rounded-md border border-c-border text-center">
       <div className="text-xl font-bold">{value}</div>
-      <div className="text-xs text-[var(--color-text-muted)] mt-1">{label}</div>
+      <div className="text-xs text-c-text-muted mt-1">{label}</div>
     </div>
   );
 }

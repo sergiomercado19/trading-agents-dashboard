@@ -1,6 +1,1 @@
-export default {
-  plugins: {
-    "@tailwindcss/vite": {},
-    autoprefixer: {},
-  },
-};
+export default {};

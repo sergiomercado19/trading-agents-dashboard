@@ -109,13 +109,13 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto">
+    <div className="p-6 max-w-content mx-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
+          <h1 className="text-2xl font-bold text-c-text-primary mb-2">
             Analysis History
           </h1>
-          <p className="text-[var(--color-text-secondary)]">
+          <p className="text-c-text-secondary">
             Track and manage all your past analyses
           </p>
         </div>
@@ -124,7 +124,7 @@ export default function HistoryPage() {
       <Card>
         <CardContent className="p-0">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4 p-4 border-b border-[var(--color-border)] items-end">
+          <div className="flex flex-col md:flex-row gap-4 p-4 border-b border-c-border items-end">
             <div className="w-full md:w-auto md:min-w-[200px] md:flex-1">
               <Label htmlFor="ticker-search" className="block mb-1 text-xs">Ticker</Label>
               <Input
@@ -141,7 +141,7 @@ export default function HistoryPage() {
                 id="status-filter"
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] text-sm"
+                className="w-full px-3 py-2 rounded-md border border-c-border bg-c-bg-elevated text-c-text-primary text-sm"
               >
                 <option value="">All Statuses</option>
                 <option value="completed">Completed</option>
@@ -168,7 +168,7 @@ export default function HistoryPage() {
           </div>
 
           {isLoading ? (
-            <div className="p-8 text-center text-[var(--color-text-muted)]">
+            <div className="p-8 text-center text-c-text-muted">
               Loading analyses...
             </div>
           ) : items.length === 0 ? (
@@ -177,7 +177,7 @@ export default function HistoryPage() {
               <h3 className="text-lg font-semibold mb-2">
                 No analyses found
               </h3>
-              <p className="text-[var(--color-text-muted)] mb-4">
+              <p className="text-c-text-muted mb-4">
                 Run your first analysis to see it here
               </p>
               <Button onClick={() => navigate("/analyze")}>Run Analysis</Button>
@@ -187,7 +187,7 @@ export default function HistoryPage() {
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="border-b border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+                    <tr className="border-b border-c-border bg-c-bg-surface">
                       <th className="px-4 py-3 text-left">
                         <input
                           type="checkbox"
@@ -196,18 +196,18 @@ export default function HistoryPage() {
                           className="cursor-pointer"
                         />
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Ticker</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Recommendation</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Confidence</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Risk</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Date</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase">Actions</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-c-text-secondary uppercase">Ticker</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-c-text-secondary uppercase">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-c-text-secondary uppercase">Recommendation</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-c-text-secondary uppercase">Confidence</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-c-text-secondary uppercase">Risk</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-c-text-secondary uppercase">Date</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-c-text-secondary uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((analysis) => (
-                      <tr key={analysis.id} className="border-b border-[var(--color-border-subtle)]">
+                      <tr key={analysis.id} className="border-b border-c-border-subtle">
                         <td className="px-4 py-3">
                           <input
                             type="checkbox"
@@ -230,16 +230,16 @@ export default function HistoryPage() {
                               {analysis.final_recommendation}
                             </Badge>
                           ) : (
-                            <span className="text-[var(--color-text-muted)]">&#x2014;</span>
+                            <span className="text-c-text-muted">&#x2014;</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          {analysis.confidence_score ? `${(analysis.confidence_score * 100).toFixed(0)}%` : <span className="text-[var(--color-text-muted)]">&#x2014;</span>}
+                          {analysis.confidence_score ? `${(analysis.confidence_score * 100).toFixed(0)}%` : <span className="text-c-text-muted">&#x2014;</span>}
                         </td>
                         <td className="px-4 py-3">
-                          {analysis.risk_score ? `${(analysis.risk_score * 100).toFixed(0)}%` : <span className="text-[var(--color-text-muted)]">&#x2014;</span>}
+                          {analysis.risk_score ? `${(analysis.risk_score * 100).toFixed(0)}%` : <span className="text-c-text-muted">&#x2014;</span>}
                         </td>
-                        <td className="px-4 py-3 text-[var(--color-text-secondary)] text-sm">
+                        <td className="px-4 py-3 text-c-text-secondary text-sm">
                           {analysis.created_at ? new Date(analysis.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "\u2014"}
                         </td>
                         <td className="px-4 py-3 text-right">
@@ -272,7 +272,7 @@ export default function HistoryPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-3 p-4 border-t border-[var(--color-border)]">
+                <div className="flex justify-center items-center gap-3 p-4 border-t border-c-border">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -281,7 +281,7 @@ export default function HistoryPage() {
                   >
                     Previous
                   </Button>
-                  <span className="text-[var(--color-text-secondary)] text-sm">
+                  <span className="text-c-text-secondary text-sm">
                     Page {page} of {totalPages} ({total} total)
                   </span>
                   <Button

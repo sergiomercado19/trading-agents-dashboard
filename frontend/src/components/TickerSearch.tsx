@@ -18,8 +18,8 @@ export default function TickerSearch({ value, onChange }: Props) {
   };
 
   return (
-    <div style={{ position: "relative" }}>
-      <label style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", display: "block" }}>
+    <div className="relative">
+      <label className="block text-xs text-c-text-muted mb-1">
         Ticker
       </label>
       <input
@@ -34,48 +34,18 @@ export default function TickerSearch({ value, onChange }: Props) {
         onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
         onFocus={() => query && setShowDropdown(true)}
         placeholder="AAPL, TSLA, 005930..."
-        className="input"
-        style={{ fontSize: "var(--text-sm)", textTransform: "uppercase", letterSpacing: "0.04em" }}
+        className="input text-sm uppercase tracking-[0.04em]"
       />
       {showDropdown && suggestions.length > 0 && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            background: "var(--color-bg-elevated)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius-md)",
-            marginTop: "var(--space-1)",
-            maxHeight: 200,
-            overflow: "auto",
-            zIndex: "var(--z-elevated)",
-            boxShadow: "var(--shadow-lg)",
-          }}
-        >
+        <div className="absolute top-full left-0 right-0 mt-1 max-h-[200px] overflow-auto z-50 rounded-md border border-c-border bg-c-bg-elevated shadow-lg">
           {suggestions.map((s) => (
             <button
               key={s.symbol}
               onMouseDown={() => handleSelect(s)}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                width: "100%",
-                padding: "var(--space-2) var(--space-3)",
-                fontSize: "var(--text-sm)",
-                background: "transparent",
-                border: "none",
-                color: "var(--color-text-primary)",
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "background var(--duration-fast) var(--ease-out)",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              className="flex w-full justify-between px-3 py-2 text-sm bg-transparent border-none text-c-text-primary cursor-pointer text-left transition-colors hover:bg-c-bg-hover"
             >
-              <span style={{ fontWeight: "var(--weight-semibold)", fontFamily: "var(--font-mono)" }}>{s.symbol}</span>
-              <span style={{ color: "var(--color-text-muted)", marginLeft: "var(--space-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span className="font-semibold font-mono">{s.symbol}</span>
+              <span className="text-c-text-muted ml-2 overflow-hidden text-ellipsis whitespace-nowrap">
                 {s.name}
               </span>
             </button>
@@ -83,7 +53,7 @@ export default function TickerSearch({ value, onChange }: Props) {
         </div>
       )}
       {loading && (
-        <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginTop: "var(--space-1)", display: "block" }}>
+        <span className="block text-xs text-c-text-faint mt-1">
           Searching...
         </span>
       )}

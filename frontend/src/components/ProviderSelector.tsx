@@ -22,10 +22,10 @@ export default function ProviderSelector({ value, onChange }: Props) {
 
   return (
     <div>
-      <label style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)", display: "block" }}>
+      <label className="block text-xs text-c-text-muted mb-1">
         Provider
       </label>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "var(--space-1)" }}>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-1">
         {providers.map((p) => (
           <Button
             key={p.id}

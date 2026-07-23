@@ -192,12 +192,12 @@ export default function AnalyzePage() {
   const isRunning = loading;
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto">
+    <div className="p-6 max-w-content mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
+        <h1 className="text-2xl font-bold text-c-text-primary mb-2">
           AI Stock Analysis
         </h1>
-        <p className="text-[var(--color-text-secondary)]">
+        <p className="text-c-text-secondary">
           Run multi-agent analysis on any stock using 13 specialized AI agents
         </p>
       </div>
@@ -234,27 +234,13 @@ export default function AnalyzePage() {
                           key={opt.value}
                           onClick={() => toggleAnalyst(opt.value)}
                           disabled={isRunning}
-                          onMouseEnter={(e) => {
-                            if (isRunning) return;
-                            if (isSelected) {
-                              e.currentTarget.style.background = "oklch(from var(--color-accent-subtle) l c h / 0.9)";
-                            } else {
-                              e.currentTarget.style.background = "var(--color-bg-hover)";
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = isSelected ? "var(--color-accent-subtle)" : "transparent";
-                          }}
                           className={cn(
                             "px-3 py-1 rounded-md text-sm transition-all",
                             isRunning ? "cursor-not-allowed" : "cursor-pointer",
                             isSelected
-                              ? "border border-[var(--color-accent)] text-[var(--color-accent)]"
-                              : "border border-[var(--color-border)] text-[var(--color-text-muted)]"
+                              ? "border border-c-accent text-c-accent bg-[var(--color-accent-subtle)] hover:bg-[var(--color-accent-subtle)/0.9]"
+                              : "border border-c-border text-c-text-muted bg-transparent hover:bg-c-bg-hover"
                           )}
-                          style={{
-                            background: isSelected ? "var(--color-accent-subtle)" : "transparent",
-                          }}
                         >
                           {opt.label}
                         </button>
@@ -270,7 +256,7 @@ export default function AnalyzePage() {
                     value={provider}
                     onChange={(e) => handleProviderChange(e.target.value)}
                     disabled={isRunning}
-                    className="mt-1 w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] text-sm"
+                    className="mt-1 w-full px-3 py-2 rounded-md border border-c-border bg-c-bg-elevated text-c-text-primary text-sm"
                   >
                     <option value="openai">OpenAI</option>
                     <option value="anthropic">Anthropic</option>
@@ -287,7 +273,7 @@ export default function AnalyzePage() {
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     disabled={isRunning || providerModels.length === 0}
-                    className="mt-1 w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] text-sm"
+                    className="mt-1 w-full px-3 py-2 rounded-md border border-c-border bg-c-bg-elevated text-c-text-primary text-sm"
                   >
                     {providerModels.length === 0 && <option value="">No models available</option>}
                     {providerModels.map((m) => (
@@ -312,7 +298,7 @@ export default function AnalyzePage() {
                 </Button>
 
                 {error && (
-                  <div className="p-3 bg-[var(--color-error-subtle)] text-[var(--color-error)] rounded-md text-sm">
+                  <div className="p-3 bg-[var(--color-error-subtle)] text-c-error rounded-md text-sm">
                     {error}
                   </div>
                 )}
@@ -343,11 +329,11 @@ export default function AnalyzePage() {
             <Card>
               <CardContent className="flex items-center justify-center min-h-[400px] text-center">
                 <div>
-                  <div className="text-[4rem] mb-4 text-[var(--color-text-muted)]"><BarChart3 size={48} /></div>
-                  <h3 className="text-lg font-semibold mb-2 text-[var(--color-text-primary)]">
+                  <div className="text-[4rem] mb-4 text-c-text-muted"><BarChart3 size={48} /></div>
+                  <h3 className="text-lg font-semibold mb-2 text-c-text-primary">
                     Ready to Analyze
                   </h3>
-                  <p className="text-[var(--color-text-muted)] max-w-[400px] mx-auto">
+                  <p className="text-c-text-muted max-w-panel mx-auto">
                     Enter a ticker symbol, select analysts, and click "Run Analysis" to get started with multi-agent AI analysis
                   </p>
                 </div>
@@ -380,19 +366,19 @@ function WorkflowPipeline({ agents, currentPhase, progress }: { agents: Record<s
             <div className="flex items-center gap-2 mb-1">
               <span className={cn(
                 "w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold transition-all",
-                isPast ? "bg-[var(--color-success)] text-white" : isActive ? "bg-[var(--color-accent)] text-white" : "bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)]"
+                isPast ? "bg-c-success text-white" : isActive ? "bg-c-accent text-white" : "bg-c-bg-elevated text-c-text-muted"
               )}>
                 {isPast ? "✓" : phaseIdx + 1}
               </span>
               <span className={cn(
                 "text-xs font-medium uppercase tracking-widest",
-                isActive ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-muted)]"
+                isActive ? "text-c-text-primary" : "text-c-text-muted"
               )}>
                 {phase.label}
               </span>
             </div>
 
-            <div className="flex flex-col gap-1 ml-[10px] pl-3 border-l border-[var(--color-border)]">
+            <div className="flex flex-col gap-1 ml-[10px] pl-3 border-l border-c-border">
               {phase.agents.map((agentName) => {
                 const state = agents[agentName];
                 const status = state?.status || "pending";
@@ -413,12 +399,12 @@ function WorkflowPipeline({ agents, currentPhase, progress }: { agents: Record<s
                     />
                     <span className={cn(
                       "text-xs",
-                      status === "running" ? "text-[var(--color-text-primary)] font-medium" : "text-[var(--color-text-muted)] font-normal"
+                      status === "running" ? "text-c-text-primary font-medium" : "text-c-text-muted font-normal"
                     )}>
                       {formatAgentName(agentName)}
                     </span>
                     {state?.duration_ms && (
-                      <span className="text-[10px] text-[var(--color-text-faint)] ml-auto">
+                      <span className="text-[10px] text-c-text-faint ml-auto">
                         {(state.duration_ms / 1000).toFixed(1)}s
                       </span>
                     )}
@@ -433,12 +419,12 @@ function WorkflowPipeline({ agents, currentPhase, progress }: { agents: Record<s
       {/* Progress bar */}
       <div className="mt-2">
         <div className="flex justify-between mb-1">
-          <span className="text-xs text-[var(--color-text-muted)]">Progress</span>
-          <span className="text-xs text-[var(--color-text-muted)]">{progress}%</span>
+          <span className="text-xs text-c-text-muted">Progress</span>
+          <span className="text-xs text-c-text-muted">{progress}%</span>
         </div>
-        <div className="h-1 bg-[var(--color-bg-elevated)] rounded-sm overflow-hidden">
+        <div className="h-1 bg-c-bg-elevated rounded-sm overflow-hidden">
           <div
-            className="h-full bg-[var(--color-accent)] rounded-sm transition-[width] duration-300"
+            className="h-full bg-c-accent rounded-sm transition-[width] duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -468,21 +454,21 @@ function RunningView({ agents, progress, currentPhase }: { agents: Record<string
         {/* Live feed */}
         <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
           {agentList.length === 0 ? (
-            <div className="p-6 text-center text-[var(--color-text-muted)]">
+            <div className="p-6 text-center text-c-text-muted">
               Waiting for agents to start...
             </div>
           ) : (
             agentList.map((agent, i) => (
               <div
                 key={agent.name + i}
-                className="p-3 bg-[var(--color-bg-elevated)] rounded-md animate-[slideInUp_0.3s_var(--ease-out)_both]"
+                className="p-3 bg-c-bg-elevated rounded-md animate-[slideInUp_0.3s_var(--ease-out)_both]"
                 style={{
                   borderLeft: `3px solid ${getStatusConfig(agent.status).color}`,
                   animationDelay: `${i * 50}ms`,
                 }}
               >
                 <div className="flex justify-between items-center mb-1">
-                  <span className="font-medium text-sm text-[var(--color-text-primary)]">
+                  <span className="font-medium text-sm text-c-text-primary">
                     {formatAgentName(agent.name)}
                   </span>
                   <Badge variant={agent.status === "completed" ? "success" : agent.status === "failed" ? "destructive" : agent.status === "running" ? "default" : "secondary"}>
@@ -490,7 +476,7 @@ function RunningView({ agents, progress, currentPhase }: { agents: Record<string
                   </Badge>
                 </div>
                 {agent.message && (
-                  <p className="text-xs text-[var(--color-text-muted)] mt-1">
+                  <p className="text-xs text-c-text-muted mt-1">
                     {agent.message.slice(0, 150)}{agent.message.length > 150 ? "..." : ""}
                   </p>
                 )}
@@ -531,10 +517,10 @@ function AnalysisResultView({ result, onSelectAgent }: { result: AnalysisResult;
         {/* Summary */}
         {result.summary && (
           <div className="mb-6">
-            <h4 className="text-sm font-semibold text-[var(--color-text-secondary)] mb-2 uppercase tracking-widest">
+            <h4 className="text-sm font-semibold text-c-text-secondary mb-2 uppercase tracking-widest">
               Summary
             </h4>
-            <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
+            <p className="text-c-text-secondary leading-relaxed text-sm">
               {result.summary}
             </p>
           </div>
@@ -542,7 +528,7 @@ function AnalysisResultView({ result, onSelectAgent }: { result: AnalysisResult;
 
         {/* Agent results */}
         <div>
-          <h4 className="text-sm font-semibold text-[var(--color-text-secondary)] mb-3 uppercase tracking-widest">
+          <h4 className="text-sm font-semibold text-c-text-secondary mb-3 uppercase tracking-widest">
             Agent Results
           </h4>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2">
@@ -550,20 +536,18 @@ function AnalysisResultView({ result, onSelectAgent }: { result: AnalysisResult;
               <div
                 key={agent.name}
                 onClick={() => onSelectAgent(agent)}
-                className="p-3 bg-[var(--color-bg-elevated)] rounded-md cursor-pointer transition-colors"
+                className="p-3 bg-c-bg-elevated hover:bg-c-bg-hover rounded-md cursor-pointer transition-colors"
                 style={{ borderLeft: `3px solid ${getStatusConfig(agent.status).color}` }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--color-bg-elevated)")}
               >
                 <div className="flex justify-between items-center mb-1">
-                  <span className="font-medium text-sm text-[var(--color-text-primary)]">
+                  <span className="font-medium text-sm text-c-text-primary">
                     {formatAgentName(agent.name)}
                   </span>
                   <Badge variant={agent.status === "completed" ? "success" : "destructive"} className="text-[10px]">
                     {agent.status}
                   </Badge>
                 </div>
-                <div className="text-xs text-[var(--color-text-muted)]">
+                <div className="text-xs text-c-text-muted">
                   {agent.phase.replace(/_/g, " ")} • {((agent.duration_ms ?? 0) / 1000).toFixed(1)}s
                 </div>
               </div>
@@ -587,9 +571,9 @@ function getStatusConfig(status: string) {
 
 function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="p-4 bg-[var(--color-bg-elevated)] rounded-md text-center">
+    <div className="p-4 bg-c-bg-elevated rounded-md text-center">
       <div className="text-xl font-bold" style={{ color }}>{value}</div>
-      <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-widest">{label}</div>
+      <div className="text-xs text-c-text-muted uppercase tracking-widest">{label}</div>
     </div>
   );
 }

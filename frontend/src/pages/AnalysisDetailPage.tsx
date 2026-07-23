@@ -94,8 +94,8 @@ export default function AnalysisDetailPage() {
 
   if (isLoading) {
     return (
-      <div style={{ padding: "var(--space-6)", maxWidth: "1400px", margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "center", padding: "var(--space-12)", color: "var(--color-text-muted)" }}>
+      <div className="p-6 max-w-content mx-auto">
+        <div className="flex justify-center p-12 text-c-text-muted">
           Loading analysis...
         </div>
       </div>
@@ -104,14 +104,14 @@ export default function AnalysisDetailPage() {
 
   if (error || !analysis) {
     return (
-      <div style={{ padding: "var(--space-6)", maxWidth: "1400px", margin: "0 auto" }}>
-        <div style={{ padding: "var(--space-12)", textAlign: "center" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "var(--space-4)" }}>&#x274C;</div>
-          <h3 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)" }}>
+      <div className="p-6 max-w-content mx-auto">
+        <div className="p-12 text-center">
+          <div className="text-[3rem] mb-4">&#x274C;</div>
+          <h3 className="text-lg font-semibold mb-2">
             Analysis not found
           </h3>
-          <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-4)" }}>
-            This analysis may have been deleted or you don't have access to it.
+          <p className="text-c-text-muted mb-4">
+            This analysis may have been deleted or you don&apos;t have access to it.
           </p>
           <Button onClick={() => navigate("/history")}>Back to History</Button>
         </div>
@@ -126,12 +126,12 @@ export default function AnalysisDetailPage() {
   const canCancel = ["running", "pending"].includes(analysis.status);
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: "1400px", margin: "0 auto" }}>
+    <div className="p-6 max-w-content mx-auto">
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-6)" }}>
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-2)" }}>
-            <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-2xl font-bold text-c-text-primary">
               {analysis.ticker}
             </h1>
             <Badge variant={STATUS_COLORS[analysis.status] || "secondary"}>{analysis.status}</Badge>
@@ -141,7 +141,7 @@ export default function AnalysisDetailPage() {
               </Badge>
             )}
           </div>
-          <p style={{ color: "var(--color-text-secondary)", fontSize: "var(--text-sm)" }}>
+          <p className="text-c-text-secondary text-sm">
             Created {analysis.created_at ? new Date(analysis.created_at).toLocaleString() : "—"}
             {analysis.completed_at ? ` \u2022 Completed ${new Date(analysis.completed_at).toLocaleString()}` : ""}
           </p>
@@ -169,36 +169,31 @@ export default function AnalysisDetailPage() {
       {/* Agent Pipeline */}
       <Card>
         <CardContent>
-          <h3 style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-secondary)", marginBottom: "var(--space-4)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <h3 className="text-sm font-semibold text-c-text-secondary mb-4 uppercase tracking-[0.05em]">
             Agent Pipeline
           </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+          <div className="flex flex-col gap-4">
             {PHASES.map((phase, phaseIdx) => {
               const isPast = PHASES.findIndex((p) => p.key === analysis.current_phase) > phaseIdx;
               const isActive = analysis.current_phase === phase.key;
 
               return (
                 <div key={phase.key}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-1)" }}>
-                    <span style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "var(--text-xs)",
-                      fontWeight: "var(--weight-semibold)",
-                      background: isPast ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                      color: isPast || isActive ? "white" : "var(--color-text-muted)",
-                    }}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold"
+                      style={{
+                        background: isPast ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                        color: isPast || isActive ? "white" : "var(--color-text-muted)",
+                      }}
+                    >
                       {isPast ? "\u2713" : phaseIdx + 1}
                     </span>
-                    <span style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-medium)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    <span className="text-xs font-medium text-c-text-muted uppercase tracking-[0.05em]">
                       {phase.label}
                     </span>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", marginLeft: "10px", paddingLeft: "var(--space-3)", borderLeft: "1px solid var(--color-border)" }}>
+                  <div className="flex flex-col gap-1 ml-[10px] pl-3 border-l border-c-border">
                     {phase.agents.map((agentName) => {
                       const agent = agentMap.get(agentName);
                       const status: AgentStatus = agent?.status || "pending";
@@ -207,38 +202,22 @@ export default function AnalysisDetailPage() {
                         <div
                           key={agentName}
                           onClick={() => agent && setSelectedAgent(agent)}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "var(--space-2)",
-                            padding: "var(--space-1) var(--space-2)",
-                            borderRadius: "var(--radius-sm)",
-                            cursor: agent ? "pointer" : "default",
-                            background: "transparent",
-                            transition: "background var(--duration-fast) var(--ease-out)",
-                          }}
-                          onMouseEnter={(e) => { if (agent) e.currentTarget.style.background = "var(--color-bg-hover)"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                          className={`flex items-center gap-2 py-1 px-2 rounded-sm transition-colors ${agent ? "cursor-pointer hover:bg-c-bg-hover" : "cursor-default"}`}
                         >
-                          <span style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: "50%",
-                            background: STATUS_DOT_COLORS[status],
-                            flexShrink: 0,
-                          }} />
-                          <span style={{
-                            fontSize: "var(--text-xs)",
-                            color: status === "completed" || status === "failed" ? "var(--color-text-primary)" : "var(--color-text-muted)",
-                            fontWeight: status === "completed" || status === "failed" ? "var(--weight-medium)" : "var(--weight-regular)",
-                          }}>
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ background: STATUS_DOT_COLORS[status] }}
+                          />
+                          <span
+                            className={`text-xs ${status === "completed" || status === "failed" ? "text-c-text-primary font-medium" : "text-c-text-muted"}`}
+                          >
                             {formatAgentName(agentName)}
                           </span>
                           {agent && (
                             <>
                               <Badge variant={STATUS_COLORS[status] || "secondary"} style={{ fontSize: "9px" }}>{status}</Badge>
                               {agent.duration_ms > 0 && (
-                                <span style={{ fontSize: "10px", color: "var(--color-text-faint)", marginLeft: "auto" }}>
+                                <span className="text-[10px] text-c-text-faint ml-auto">
                                   {(agent.duration_ms / 1000).toFixed(1)}s
                                 </span>
                               )}
@@ -287,9 +266,9 @@ export default function AnalysisDetailPage() {
 
 function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div style={{ padding: "var(--space-4)", background: "var(--color-bg-elevated)", borderRadius: "var(--radius-md)", textAlign: "center" }}>
-      <div style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color }}>{value}</div>
-      <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div>
+    <div className="p-4 bg-c-bg-elevated rounded-md text-center">
+      <div className="text-xl font-bold" style={{ color }}>{value}</div>
+      <div className="text-xs text-c-text-muted uppercase tracking-[0.05em]">{label}</div>
     </div>
   );
 }

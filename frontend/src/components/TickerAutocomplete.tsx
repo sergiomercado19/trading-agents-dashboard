@@ -90,7 +90,7 @@ export function TickerAutocomplete({ value, onChange, onSelect, disabled }: Tick
   }, []);
 
   return (
-    <div ref={wrapperRef} style={{ position: "relative" }}>
+    <div ref={wrapperRef} className="relative">
       <Input
         ref={inputRef}
         id="ticker"
@@ -99,47 +99,22 @@ export function TickerAutocomplete({ value, onChange, onSelect, disabled }: Tick
         onFocus={handleFocus}
         onKeyDown={handleKeyDown}
         placeholder="AAPL, TSLA, NVDA..."
-        style={{ textTransform: "uppercase" }}
+        className="uppercase"
         disabled={disabled}
         autoComplete="off"
       />
       {open && results.length > 0 && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            marginTop: 4,
-            background: "var(--color-bg-elevated)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius-md)",
-            maxHeight: 240,
-            overflowY: "auto",
-            zIndex: 50,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-          }}
-        >
+        <div className="absolute top-full left-0 right-0 mt-1 max-h-[240px] overflow-y-auto z-50 rounded-md border border-c-border bg-c-bg-elevated shadow-lg">
           {results.map((ticker, i) => (
             <div
               key={ticker.symbol}
               onClick={() => handleSelect(ticker)}
-              style={{
-                padding: "8px 12px",
-                cursor: "pointer",
-                background: i === highlightIdx ? "var(--color-accent-subtle)" : "transparent",
-                transition: "background 0.1s",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = i === highlightIdx ? "var(--color-accent-subtle)" : "transparent")}
+              className={`flex justify-between items-center px-3 py-2 cursor-pointer transition-colors hover:bg-c-bg-hover ${i === highlightIdx ? "bg-[var(--color-accent-subtle)]" : "bg-transparent"}`}
             >
-              <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>
+              <span className="font-semibold text-sm text-c-text-primary">
                 {ticker.symbol}
               </span>
-              <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginLeft: "var(--space-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span className="text-xs text-c-text-muted ml-2 overflow-hidden text-ellipsis whitespace-nowrap">
                 {ticker.name}
               </span>
             </div>

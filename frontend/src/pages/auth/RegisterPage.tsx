@@ -60,8 +60,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[var(--color-bg-root)] p-4">
-      <Card className="w-full max-w-[400px]">
+    <div className="flex items-center justify-center min-h-screen bg-c-bg-root p-4">
+      <Card className="w-full max-w-panel">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-3">
             <Logo size={48} />
@@ -72,7 +72,7 @@ export default function RegisterPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {error && (
-              <div className="p-3 bg-[var(--color-error-subtle)] text-[var(--color-error)] rounded-md text-sm">
+              <div className="p-3 bg-[var(--color-error-subtle)] text-c-error rounded-md text-sm">
                 {error}
               </div>
             )}
@@ -152,9 +152,9 @@ export default function RegisterPage() {
           </form>
         </CardContent>
         <CardFooter className="text-center">
-          <p className="text-[var(--color-text-muted)] text-sm">
+          <p className="text-c-text-muted text-sm">
             Already have an account?{" "}
-            <Link to="/login" className="text-[var(--color-accent)] font-medium">
+            <Link to="/login" className="text-c-accent font-medium">
               Sign in
             </Link>
           </p>

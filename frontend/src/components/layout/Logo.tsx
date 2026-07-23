@@ -9,7 +9,7 @@ export function Logo({ size = 32 }: LogoProps) {
       height={size}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="30 60 240 240"
-      style={{ flexShrink: 0 }}
+      className="shrink-0"
     >
       <defs>
         <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
@@ -54,14 +54,12 @@ interface LogoWithTextProps {
 
 export function LogoWithText({ size = 28 }: LogoWithTextProps) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+    <div className="flex items-center gap-3">
       <Logo size={size} />
-      <span style={{
-        fontSize: `calc(${size}px * 0.85)`,
-        fontWeight: "var(--weight-bold)",
-        color: "var(--color-text-primary)",
-        letterSpacing: "-0.02em",
-      }}>
+      <span
+        className="font-bold text-c-text-primary"
+        style={{ fontSize: `calc(${size}px * 0.85)`, letterSpacing: "-0.02em" }}
+      >
         TradingAgents
       </span>
     </div>

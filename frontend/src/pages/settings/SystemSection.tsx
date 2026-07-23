@@ -45,36 +45,31 @@ export function SystemSection() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-      <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>System</h2>
+    <div className="flex flex-col gap-6">
+      <h2 className="text-xl font-bold text-c-text-primary">System</h2>
 
       {/* Health Checks */}
       {health && (
         <section>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-3)" }}>
+          <div className="flex justify-between items-center mb-3">
             <SectionHeading>Health Checks</SectionHeading>
             <Button variant="secondary" size="sm" onClick={handleRefresh}>
               Refresh
             </Button>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "var(--space-3)" }}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
             {checks.map((check) => (
-              <Card key={check.label} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+              <Card key={check.label} className="flex items-center gap-2">
                 <span
-                  style={{
-                    color: check.ok ? "var(--color-success)" : "var(--color-error)",
-                    fontSize: "var(--text-sm)",
-                    width: 16,
-                    textAlign: "center",
-                  }}
+                  className={`text-sm w-4 text-center ${check.ok ? "text-c-success" : "text-c-error"}`}
                 >
                   {check.ok ? "✓" : "✗"}
                 </span>
-                <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                <span className="text-sm font-medium text-c-text-primary">
                   {check.label}
                 </span>
                 {check.detail && (
-                  <span style={{ marginLeft: "auto", color: "var(--color-text-muted)", fontSize: "var(--text-xs)", fontFamily: "var(--font-mono)" }}>
+                  <span className="ml-auto text-c-text-muted text-xs font-mono">
                     {check.detail}
                   </span>
                 )}
@@ -88,7 +83,7 @@ export function SystemSection() {
       {health && health.missing_deps.length > 0 && (
         <section>
           <SectionHeading>Missing Dependencies</SectionHeading>
-          <div style={{ fontSize: "var(--text-sm)", color: "var(--color-warning)", marginBottom: "var(--space-3)", fontFamily: "var(--font-mono)" }}>
+          <div className="text-sm text-c-warning mb-3 font-mono">
             {health.missing_deps.join(", ")}
           </div>
           <Button onClick={handleInstall} disabled={installing} className="w-fit">
@@ -96,21 +91,19 @@ export function SystemSection() {
           </Button>
           {installResult && (
             <div
+              className="mt-3 p-3 rounded-md"
               style={{
-                marginTop: "var(--space-3)",
-                padding: "var(--space-3)",
-                borderRadius: "var(--radius-md)",
-                background: installResult.success ? "var(--color-success-subtle)" : "var(--color-error-subtle)",
+                background: installResult.success ? "var(--color-success-subtle, oklch(0.72 0.19 155 / 0.12))" : "var(--color-error-subtle)",
                 border: `1px solid ${installResult.success ? "var(--color-success)" : "var(--color-error)"}`,
               }}
             >
               {installResult.installed.length > 0 && (
-                <div style={{ fontSize: "var(--text-sm)", color: "var(--color-success)", marginBottom: "var(--space-2)" }}>
+                <div className="text-sm text-c-success mb-2">
                   Installed: {installResult.installed.join(", ")}
                 </div>
               )}
               {installResult.errors.length > 0 && (
-                <div style={{ fontSize: "var(--text-sm)", color: "var(--color-error)" }}>
+                <div className="text-sm text-c-error">
                   Errors: {installResult.errors.join("; ")}
                 </div>
               )}
@@ -123,24 +116,24 @@ export function SystemSection() {
       {docker && (
         <section>
           <SectionHeading>Docker Info</SectionHeading>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "var(--space-3)" }}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
             <Card>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)" }}>In Docker</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>{docker.is_docker ? "Yes" : "No"}</div>
+              <div className="text-xs text-c-text-muted mb-1">In Docker</div>
+              <div className="font-mono text-sm text-c-text-primary">{docker.is_docker ? "Yes" : "No"}</div>
             </Card>
             <Card>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)" }}>Hostname</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>{docker.hostname || "—"}</div>
+              <div className="text-xs text-c-text-muted mb-1">Hostname</div>
+              <div className="font-mono text-sm text-c-text-primary">{docker.hostname || "—"}</div>
             </Card>
-            <Card style={{ gridColumn: "1 / -1" }}>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginBottom: "var(--space-1)" }}>Env Path</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", wordBreak: "break-all", color: "var(--color-text-secondary)" }}>
+            <Card className="col-span-full">
+              <div className="text-xs text-c-text-muted mb-1">Env Path</div>
+              <div className="font-mono text-xs text-c-text-secondary break-all">
                 {docker.env_path || "—"}
               </div>
             </Card>
           </div>
           {docker.is_docker && (
-            <div style={{ marginTop: "var(--space-3)", padding: "var(--space-2) var(--space-3)", background: "var(--color-warning-subtle)", border: "1px solid var(--color-warning)", borderRadius: "var(--radius-md)", fontSize: "var(--text-xs)", color: "var(--color-warning)" }}>
+            <div className="mt-3 py-2 px-3 rounded-md text-xs text-c-warning" style={{ background: "var(--color-warning-subtle, oklch(0.82 0.17 85 / 0.12))", border: "1px solid var(--color-warning)" }}>
               When running in Docker, mount your Obsidian vault and .env file into the container.
             </div>
           )}
@@ -150,14 +143,14 @@ export function SystemSection() {
       {/* Quick Links */}
       <section>
         <SectionHeading>Quick Links</SectionHeading>
-        <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-          <a href="/api/docs" target="_blank" style={{ textDecoration: "none" }}>
+        <div className="flex gap-2 flex-wrap">
+          <a href="/api/docs" target="_blank" className="no-underline">
             <Button variant="secondary" size="sm">API Docs</Button>
           </a>
-          <a href="/api/health" target="_blank" style={{ textDecoration: "none" }}>
+          <a href="/api/health" target="_blank" className="no-underline">
             <Button variant="secondary" size="sm">Health</Button>
           </a>
-          <a href="/api/health/detailed" target="_blank" style={{ textDecoration: "none" }}>
+          <a href="/api/health/detailed" target="_blank" className="no-underline">
             <Button variant="secondary" size="sm">Detailed Health</Button>
           </a>
         </div>

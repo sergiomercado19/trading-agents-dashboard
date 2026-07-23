@@ -18,23 +18,8 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header
-      style={{
-        height: "var(--header-height)",
-        borderBottom: "1px solid var(--color-border)",
-        background: "var(--color-bg-surface)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 var(--space-6)",
-        position: "sticky",
-        top: 0,
-        zIndex: "var(--z-sticky)",
-        overflow: "hidden",
-        maxWidth: "100vw",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
+    <header className="h-12 border-b border-c-border bg-c-bg-surface flex items-center justify-between px-6 sticky top-0 z-sticky overflow-hidden max-w-[100vw]">
+      <div className="flex items-center gap-4">
         {onToggleSidebar && (
           <Button
             variant="ghost"
@@ -48,7 +33,7 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
         <LogoWithText size={28} />
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
+      <div className="flex items-center gap-4">
         <div className="hidden lg:flex">
           <ThemeSwitcher themes={THEMES} currentTheme={theme} onChange={setTheme} />
         </div>
@@ -62,7 +47,7 @@ function ThemeSwitcher({ themes, currentTheme, onChange }: { themes: typeof THEM
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
-    <div style={{ display: "flex", background: "var(--color-bg-elevated)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: 2, gap: 2 }}>
+    <div className="flex bg-c-bg-elevated border border-c-border rounded-md p-[2px] gap-[2px]">
       {themes.map((t) => {
         const isActive = currentTheme === t.id;
         const isHovered = hoveredId === t.id && !isActive;
@@ -72,18 +57,10 @@ function ThemeSwitcher({ themes, currentTheme, onChange }: { themes: typeof THEM
             onClick={() => onChange(t.id)}
             onMouseEnter={() => setHoveredId(t.id)}
             onMouseLeave={() => setHoveredId(null)}
+            className="w-[30px] h-[26px] flex items-center justify-center rounded-sm border-none cursor-pointer transition-all"
             style={{
-              width: 30,
-              height: 26,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: "var(--radius-sm)",
-              border: "none",
-              cursor: "pointer",
               background: isActive ? "var(--color-accent)" : isHovered ? "var(--color-bg-hover)" : "transparent",
-              color: isActive ? "#fff" : "var(--color-text-muted)",
-              transition: "all var(--duration-fast) var(--ease-out)",
+              color: isActive ? "var(--color-primary-foreground)" : "var(--color-text-muted)",
             }}
             title={t.label}
           >
@@ -125,7 +102,7 @@ function UserMenu() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" style={{ minWidth: 200 }}>
+      <DropdownMenuContent align="end" className="min-w-[200px]">
         <DropdownMenuItem onClick={() => window.location.href = "/profile"}>Profile</DropdownMenuItem>
         <DropdownMenuItem onClick={() => window.location.href = "/settings"}>Settings</DropdownMenuItem>
         <DropdownMenuItem onClick={() => window.location.href = "/settings"}>API Keys</DropdownMenuItem>

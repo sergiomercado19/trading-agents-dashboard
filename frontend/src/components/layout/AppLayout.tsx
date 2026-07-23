@@ -40,7 +40,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, []);
 
   return (
-    <div className={cn("min-h-screen bg-[var(--color-bg-root)]", "flex flex-col")}>
+    <div className={cn("min-h-screen bg-c-bg-root", "flex flex-col")}>
       <Header onToggleSidebar={toggleMobile} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
@@ -49,12 +49,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           collapsed={sidebarCollapsed}
           onToggleCollapse={toggleCollapse}
         />
-        <main
-          className={cn(
-            "flex-1 overflow-auto transition-all duration-200 ease-out p-6",
-            sidebarCollapsed ? "lg:ml-16" : "lg:ml-72"
-          )}
-        >
+        <main className="flex-1 overflow-auto transition-all duration-200 ease-out p-6 lg:ml-16">
           {children}
         </main>
       </div>

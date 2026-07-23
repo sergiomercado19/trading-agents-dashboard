@@ -115,19 +115,19 @@ export default function ProfilePage() {
         <CardContent>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-[var(--color-text-muted)]">Status</span>
+              <span className="text-c-text-muted">Status</span>
               <div className="mt-1">{user?.is_active ? "Active" : "Inactive"}</div>
             </div>
             <div>
-              <span className="text-[var(--color-text-muted)]">Account type</span>
+              <span className="text-c-text-muted">Account type</span>
               <div className="mt-1">{user?.is_superuser ? "Admin" : "User"}</div>
             </div>
             <div>
-              <span className="text-[var(--color-text-muted)]">Member since</span>
+              <span className="text-c-text-muted">Member since</span>
               <div className="mt-1">{user?.created_at ? formatDate(user.created_at) : "—"}</div>
             </div>
             <div>
-              <span className="text-[var(--color-text-muted)]">Last login</span>
+              <span className="text-c-text-muted">Last login</span>
               <div className="mt-1">{activity?.last_login ? formatDate(activity.last_login) : "—"}</div>
             </div>
           </div>
@@ -155,9 +155,9 @@ export default function ProfilePage() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="p-4 bg-[var(--color-bg-elevated)] rounded-md border border-[var(--color-border)]">
+    <div className="p-4 bg-c-bg-elevated rounded-md border border-c-border">
       <div className="text-2xl font-bold">{value}</div>
-      <div className="text-sm text-[var(--color-text-muted)] mt-1">{label}</div>
+      <div className="text-sm text-c-text-muted mt-1">{label}</div>
     </div>
   );
 }

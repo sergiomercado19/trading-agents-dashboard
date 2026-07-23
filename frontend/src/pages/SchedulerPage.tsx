@@ -14,9 +14,9 @@ export default function SchedulerPage() {
   };
 
   return (
-    <div style={{ padding: "var(--space-6)", maxWidth: 800, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-5)" }}>
-        <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Scheduler</h2>
+    <div className="p-6 max-w-narrow mx-auto">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-xl font-bold text-c-text-primary">Scheduler</h2>
         {!showForm && (
           <Button onClick={() => setShowForm(true)}>
             + New Job
@@ -33,7 +33,7 @@ export default function SchedulerPage() {
       )}
 
       {loading ? (
-        <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>Loading jobs...</div>
+        <div className="text-c-text-muted text-sm">Loading jobs...</div>
       ) : (
         <SchedulerJobList jobs={jobs} onDelete={removeJob} />
       )}

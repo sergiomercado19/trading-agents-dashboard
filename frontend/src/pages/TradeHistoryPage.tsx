@@ -225,10 +225,10 @@ export default function TradeHistoryPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
+          <h1 className="text-2xl font-bold text-c-text-primary">
             Trade History
           </h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+          <p className="text-sm text-c-text-secondary mt-1">
             {stats.totalTrades} total trades
           </p>
         </div>
@@ -377,37 +377,37 @@ export default function TradeHistoryPage() {
       </div>
 
       {/* Trade Table */}
-      <div className="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden">
+      <div className="bg-c-bg-surface border border-c-border rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[var(--color-border)]">
-                <th className="text-left px-4 py-3 text-[var(--color-text-secondary)] font-medium">Date</th>
-                <th className="text-left px-4 py-3 text-[var(--color-text-secondary)] font-medium">Ticker</th>
-                <th className="text-left px-4 py-3 text-[var(--color-text-secondary)] font-medium">Side</th>
-                <th className="text-right px-4 py-3 text-[var(--color-text-secondary)] font-medium">Qty</th>
-                <th className="text-right px-4 py-3 text-[var(--color-text-secondary)] font-medium">Price</th>
-                <th className="text-right px-4 py-3 text-[var(--color-text-secondary)] font-medium">Filled Price</th>
-                <th className="text-left px-4 py-3 text-[var(--color-text-secondary)] font-medium">Status</th>
-                <th className="text-right px-4 py-3 text-[var(--color-text-secondary)] font-medium">Commission</th>
+              <tr className="border-b border-c-border">
+                <th className="text-left px-4 py-3 text-c-text-secondary font-medium">Date</th>
+                <th className="text-left px-4 py-3 text-c-text-secondary font-medium">Ticker</th>
+                <th className="text-left px-4 py-3 text-c-text-secondary font-medium">Side</th>
+                <th className="text-right px-4 py-3 text-c-text-secondary font-medium">Qty</th>
+                <th className="text-right px-4 py-3 text-c-text-secondary font-medium">Price</th>
+                <th className="text-right px-4 py-3 text-c-text-secondary font-medium">Filled Price</th>
+                <th className="text-left px-4 py-3 text-c-text-secondary font-medium">Status</th>
+                <th className="text-right px-4 py-3 text-c-text-secondary font-medium">Commission</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-[var(--color-text-secondary)]">
+                  <td colSpan={8} className="px-4 py-12 text-center text-c-text-secondary">
                     Loading trades...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-red-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-c-error">
                     Failed to load trades
                   </td>
                 </tr>
               ) : data?.items?.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-[var(--color-text-secondary)]">
+                  <td colSpan={8} className="px-4 py-12 text-center text-c-text-secondary">
                     No trades found
                   </td>
                 </tr>
@@ -415,31 +415,31 @@ export default function TradeHistoryPage() {
                 data?.items?.map((t) => (
                   <tr
                     key={t.id}
-                    className="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-bg-elevated)] transition-colors"
+                    className="border-b border-c-border last:border-0 hover:bg-c-bg-elevated transition-colors"
                   >
-                    <td className="px-4 py-3 text-[var(--color-text-primary)]">{fmtDate(t.created_at)}</td>
-                    <td className="px-4 py-3 font-medium text-[var(--color-text-primary)]">{t.ticker}</td>
+                    <td className="px-4 py-3 text-c-text-primary">{fmtDate(t.created_at)}</td>
+                    <td className="px-4 py-3 font-medium text-c-text-primary">{t.ticker}</td>
                     <td className="px-4 py-3">
                       <span
                         className={cn(
                           "px-2 py-0.5 rounded text-xs font-medium",
                           t.side === "buy"
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : "bg-rose-500/10 text-rose-400",
+                            ? "bg-c-success/10 text-c-success"
+                            : "bg-c-error/10 text-c-error",
                         )}
                       >
                         {t.side.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-[var(--color-text-primary)]">{t.quantity}</td>
-                    <td className="px-4 py-3 text-right text-[var(--color-text-primary)]">{fmtMoney(t.price)}</td>
-                    <td className="px-4 py-3 text-right text-[var(--color-text-secondary)]">
+                    <td className="px-4 py-3 text-right text-c-text-primary">{t.quantity}</td>
+                    <td className="px-4 py-3 text-right text-c-text-primary">{fmtMoney(t.price)}</td>
+                    <td className="px-4 py-3 text-right text-c-text-secondary">
                       {t.filled_price != null ? fmtMoney(t.filled_price) : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={t.status} />
                     </td>
-                    <td className="px-4 py-3 text-right text-[var(--color-text-secondary)]">
+                    <td className="px-4 py-3 text-right text-c-text-secondary">
                       {t.commission > 0 ? fmtMoney(t.commission) : "—"}
                     </td>
                   </tr>
@@ -452,7 +452,7 @@ export default function TradeHistoryPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-[var(--color-text-secondary)]">
+        <div className="flex items-center justify-between text-sm text-c-text-secondary">
           <span>
             Page {page} of {totalPages} ({data?.total ?? 0} trades)
           </span>
@@ -494,16 +494,16 @@ function StatCard({
   positive?: boolean;
 }) {
   return (
-    <div className="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl p-4">
-      <div className="text-xs text-[var(--color-text-secondary)] mb-1">{label}</div>
+    <div className="bg-c-bg-surface border border-c-border rounded-xl p-4">
+      <div className="text-xs text-c-text-secondary mb-1">{label}</div>
       <div
         className={cn(
           "text-xl font-bold",
           positive === undefined
-            ? "text-[var(--color-text-primary)]"
+            ? "text-c-text-primary"
             : positive
-              ? "text-emerald-500"
-              : "text-rose-500"
+              ? "text-c-success"
+              : "text-c-error"
         )}
       >
         {value}
@@ -520,8 +520,8 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl p-4">
-      <div className="text-sm font-medium text-[var(--color-text-secondary)] mb-3">
+    <div className="bg-c-bg-surface border border-c-border rounded-xl p-4">
+      <div className="text-sm font-medium text-c-text-secondary mb-3">
         {title}
       </div>
       {children}
@@ -544,13 +544,13 @@ function FilterInput({
 }) {
   return (
     <div>
-      <label className="block text-xs text-[var(--color-text-secondary)] mb-1">{label}</label>
+      <label className="block text-xs text-c-text-secondary mb-1">{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="px-3 py-1.5 rounded-md text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-accent)]"
+        className="px-3 py-1.5 rounded-md text-sm bg-c-bg-elevated border border-c-border text-c-text-primary placeholder:text-c-text-secondary focus:outline-hidden focus:border-c-accent"
       />
     </div>
   );
@@ -569,11 +569,11 @@ function FilterSelect({
 }) {
   return (
     <div>
-      <label className="block text-xs text-[var(--color-text-secondary)] mb-1">{label}</label>
+      <label className="block text-xs text-c-text-secondary mb-1">{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="px-3 py-1.5 rounded-md text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-accent)]"
+        className="px-3 py-1.5 rounded-md text-sm bg-c-bg-elevated border border-c-border text-c-text-primary focus:outline-hidden focus:border-c-accent"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -587,17 +587,17 @@ function FilterSelect({
 
 function StatusBadge({ status }: { status: string }) {
   const colorMap: Record<string, string> = {
-    filled: "bg-emerald-500/10 text-emerald-400",
-    pending: "bg-amber-500/10 text-amber-400",
-    cancelled: "bg-zinc-500/10 text-zinc-400",
-    rejected: "bg-rose-500/10 text-rose-400",
+    filled: "bg-c-success/10 text-c-success",
+    pending: "bg-c-warning/10 text-c-warning",
+    cancelled: "bg-muted/10 text-muted-foreground",
+    rejected: "bg-c-error/10 text-c-error",
   };
 
   return (
     <span
       className={cn(
         "px-2 py-0.5 rounded text-xs font-medium capitalize",
-        colorMap[status] ?? "bg-zinc-500/10 text-zinc-400",
+        colorMap[status] ?? "bg-muted/10 text-muted-foreground",
       )}
     >
       {status}

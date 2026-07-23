@@ -33,13 +33,13 @@ export function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse }: Sideba
       )}
       <aside
         className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50 bg-[var(--color-bg-surface)] border-r border-[var(--color-border)] transform transition-all duration-200 ease-out lg:translate-x-0 h-[calc(100vh-var(--header-height))] mt-[var(--header-height)]",
+          "fixed lg:static inset-y-0 left-0 z-50 bg-c-bg-surface border-r border-c-border transform transition-all duration-200 ease-out lg:translate-x-0 h-[calc(100vh-var(--header-height))]",
           isOpen ? "translate-x-0" : "-translate-x-full",
-          collapsed ? "lg:w-16" : "lg:w-72"
+          collapsed ? "lg:w-16" : "lg:w-48"
         )}
       >
         <TooltipProvider delayDuration={0}>
-          <nav style={{ padding: collapsed ? "var(--space-3) var(--space-2)" : "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+          <nav className={`flex flex-col gap-1 ${collapsed ? "p-3 px-2" : "p-4"}`}>
             {NAV_ITEMS.map((item) => {
               const linkContent = (
                 <NavLink
@@ -48,13 +48,12 @@ export function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse }: Sideba
                   end={item.path === "/"}
                   onClick={onClose}
                   className={({ isActive }) => cn(
-                    "group relative flex items-center gap-3 rounded-md text-sm font-medium transition-colors",
-                    collapsed ? "justify-center h-10 w-10" : "px-4 py-3",
+                    "group relative flex items-center rounded-md text-sm font-medium transition-colors no-underline",
+                    collapsed ? "justify-center h-10 w-10" : "gap-3 px-4 py-3",
                     isActive
-                      ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)]"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"
+                      ? "bg-c-bg-elevated text-c-text-primary"
+                      : "text-c-text-secondary hover:bg-c-bg-hover hover:text-c-text-primary"
                   )}
-                  style={{ textDecoration: "none" }}
                 >
                   <item.icon size={18} className="shrink-0" />
                   {!collapsed && <span>{item.label}</span>}
@@ -81,7 +80,7 @@ export function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse }: Sideba
 
         <button
           onClick={onToggleCollapse}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 hidden lg:flex items-center justify-center h-7 w-7 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)] transition-colors"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 hidden lg:flex items-center justify-center h-7 w-7 rounded-md text-c-text-muted hover:text-c-text-primary hover:bg-c-bg-elevated transition-colors"
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}

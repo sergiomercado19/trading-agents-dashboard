@@ -1,29 +1,13 @@
 export default function LoadingScreen() {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        background: "var(--color-bg-root)",
-      }}
-    >
+    <div className="flex items-center justify-center h-screen bg-c-bg-root">
       <div
+        className="w-8 h-8 rounded-full animate-spin"
         style={{
-          width: 32,
-          height: 32,
           border: "3px solid var(--color-border)",
           borderTopColor: "var(--color-accent)",
-          borderRadius: "50%",
-          animation: "spin 1s linear infinite",
         }}
       />
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }

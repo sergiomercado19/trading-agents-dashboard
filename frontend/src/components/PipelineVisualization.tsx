@@ -35,7 +35,7 @@ function formatStageName(stage: string): string {
 
 export default function PipelineVisualization({ agents }: Props) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+    <div className="flex flex-col gap-1">
       {STAGE_ORDER.map((stage, index) => {
         const status = agents[stage] || "pending";
         const config = getStatusConfig(status);
@@ -44,13 +44,9 @@ export default function PipelineVisualization({ agents }: Props) {
         return (
           <div
             key={stage}
+            className="flex items-center gap-2 py-2 px-3 rounded-sm"
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-2)",
-              padding: "var(--space-2) var(--space-3)",
               background: config.bg,
-              borderRadius: "var(--radius-sm)",
               borderLeft: `2px solid ${config.color}`,
               transition: "all var(--duration-normal) var(--ease-out)",
               animation: "slideInLeft var(--duration-normal) var(--ease-out) both",
@@ -58,23 +54,17 @@ export default function PipelineVisualization({ agents }: Props) {
             }}
           >
             <span
+              className="text-sm w-4 text-center font-mono"
               style={{
                 color: config.color,
-                fontSize: "var(--text-sm)",
-                width: 16,
-                textAlign: "center",
-                fontFamily: "var(--font-mono)",
                 animation: isActive ? "pulse 1.5s ease-in-out infinite" : "none",
               }}
             >
               {config.icon}
             </span>
             <span
-              style={{
-                fontSize: "var(--text-xs)",
-                color: isActive ? "var(--color-text-primary)" : "var(--color-text-muted)",
-                fontWeight: isActive ? "var(--weight-medium)" : "var(--weight-regular)",
-              }}
+              className={`text-xs ${isActive ? "text-c-text-primary" : "text-c-text-muted"}`}
+              style={{ fontWeight: isActive ? "var(--weight-medium)" : "var(--weight-regular)" }}
             >
               {formatStageName(stage)}
             </span>

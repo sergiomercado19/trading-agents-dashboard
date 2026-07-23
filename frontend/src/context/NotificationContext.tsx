@@ -69,18 +69,7 @@ export function NotificationContainer() {
   const { notifications, removeNotification } = useNotifications();
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: "var(--space-4)",
-        right: "var(--space-4)",
-        display: "flex",
-        flexDirection: "column",
-        gap: "var(--space-2)",
-        zIndex: 9999,
-        pointerEvents: "none",
-      }}
-    >
+    <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-[9999] pointer-events-none">
       {notifications.map((notification) => (
         <NotificationToast
           key={notification.id}
@@ -94,9 +83,9 @@ export function NotificationContainer() {
 
 function NotificationToast({ notification, onClose }: { notification: Notification; onClose: () => void }) {
   const typeStyles: Record<NotificationType, { bg: string; border: string; icon: string }> = {
-    info: { bg: "var(--color-accent-subtle)", border: "var(--color-accent)", icon: "ℹ" },
-    success: { bg: "var(--color-success-subtle)", border: "var(--color-success)", icon: "✓" },
-    warning: { bg: "var(--color-warning-subtle)", border: "var(--color-warning)", icon: "⚠" },
+    info: { bg: "var(--color-accent-subtle, oklch(0.62 0.17 255 / 0.12))", border: "var(--color-accent)", icon: "ℹ" },
+    success: { bg: "var(--color-success-subtle, oklch(0.72 0.19 155 / 0.12))", border: "var(--color-success)", icon: "✓" },
+    warning: { bg: "var(--color-warning-subtle, oklch(0.82 0.17 85 / 0.12))", border: "var(--color-warning)", icon: "⚠" },
     error: { bg: "var(--color-error-subtle)", border: "var(--color-error)", icon: "✕" },
   };
 
@@ -104,44 +93,29 @@ function NotificationToast({ notification, onClose }: { notification: Notificati
 
   return (
     <div
+      className="pointer-events-auto flex items-start gap-3 py-3 px-4 rounded-md shadow-lg min-w-[300px] max-w-panel animate-[slideInRight_var(--duration-normal)_var(--ease-out)]"
       style={{
-        pointerEvents: "auto",
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "var(--space-3)",
-        padding: "var(--space-3) var(--space-4)",
         background: style.bg,
         border: `1px solid ${style.border}`,
-        borderRadius: "var(--radius-md)",
-        boxShadow: "var(--shadow-lg)",
-        minWidth: 300,
-        maxWidth: 400,
-        animation: "slideInRight var(--duration-normal) var(--ease-out)",
       }}
     >
-      <span style={{ fontSize: "var(--text-lg)", color: style.border, flexShrink: 0 }}>{style.icon}</span>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)" }}>
+      <span className="text-lg shrink-0" style={{ color: style.border }}>{style.icon}</span>
+      <div className="flex-1 min-w-0">
+        <div className="font-semibold text-c-text-primary">
           {notification.title}
         </div>
         {notification.message && (
-          <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "var(--space-1)" }}>
+          <div className="text-sm text-c-text-secondary mt-1">
             {notification.message}
           </div>
         )}
         {notification.action && (
           <button
             onClick={notification.action.onClick}
+            className="mt-2 py-1 px-2 text-xs font-medium bg-transparent rounded-sm cursor-pointer"
             style={{
-              marginTop: "var(--space-2)",
-              padding: "var(--space-1) var(--space-2)",
-              fontSize: "var(--text-xs)",
-              fontWeight: "var(--weight-medium)",
               color: style.border,
-              background: "transparent",
               border: `1px solid ${style.border}`,
-              borderRadius: "var(--radius-sm)",
-              cursor: "pointer",
             }}
           >
             {notification.action.label}
@@ -150,15 +124,7 @@ function NotificationToast({ notification, onClose }: { notification: Notificati
       </div>
       <button
         onClick={onClose}
-        style={{
-          padding: "var(--space-1)",
-          color: "var(--color-text-muted)",
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          fontSize: "var(--text-lg)",
-          lineHeight: 1,
-        }}
+        className="p-1 text-c-text-muted bg-transparent border-none cursor-pointer text-lg leading-none"
       >
         ×
       </button>

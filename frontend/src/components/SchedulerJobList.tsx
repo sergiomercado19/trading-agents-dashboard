@@ -8,67 +8,51 @@ interface Props {
 export default function SchedulerJobList({ jobs, onDelete }: Props) {
   if (jobs.length === 0) {
     return (
-      <div style={{ padding: 16, color: "var(--text-muted)", fontSize: 13, textAlign: "center" }}>
+      <div className="p-4 text-c-text-muted text-sm text-center">
         No scheduled jobs yet. Create one to get started.
       </div>
     );
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <div className="flex flex-col gap-2">
       {jobs.map((job) => {
         const progressStatus = job.progress?.status;
         const statusColor = progressStatus === "running"
-          ? "var(--accent)"
+          ? "var(--color-accent)"
           : progressStatus === "completed"
-          ? "var(--success)"
+          ? "var(--color-success)"
           : progressStatus === "error"
-          ? "var(--error)"
-          : "var(--text-muted)";
+          ? "var(--color-error)"
+          : "var(--color-text-muted)";
 
         return (
           <div
             key={job.job_id}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              padding: "10px 14px",
-              background: "var(--bg-secondary)",
-              borderRadius: 8,
-              border: "1px solid var(--border)",
-            }}
+            className="flex items-center gap-3 p-2.5 px-3.5 bg-c-bg-surface rounded-lg border border-c-border"
           >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <span style={{ fontWeight: 600, fontSize: 14 }}>{job.ticker}</span>
-                <span style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "capitalize" }}>
+            <div className="flex-1" style={{ minWidth: 0 }}>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold text-sm">{job.ticker}</span>
+                <span className="text-xs text-c-text-muted capitalize">
                   {job.frequency}
                 </span>
                 {progressStatus && (
-                  <span style={{ fontSize: 11, color: statusColor, textTransform: "capitalize" }}>
+                  <span className="text-xs capitalize" style={{ color: statusColor }}>
                     {progressStatus}
                   </span>
                 )}
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              <div className="text-xs text-c-text-muted">
                 Next: {job.next_run || "N/A"}
               </div>
-              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+              <div className="text-xs text-c-text-muted mt-0.5">
                 {job.timezone} | {job.provider} | depth {job.research_depth}
               </div>
             </div>
             <button
               onClick={() => onDelete(job.job_id)}
-              style={{
-                padding: "6px 12px",
-                fontSize: 12,
-                background: "transparent",
-                color: "var(--error)",
-                border: "1px solid var(--border)",
-                borderRadius: 4,
-                cursor: "pointer",
-              }}
+              className="px-3 py-1.5 text-xs bg-transparent text-c-error border border-c-border rounded cursor-pointer"
             >
               Delete
             </button>

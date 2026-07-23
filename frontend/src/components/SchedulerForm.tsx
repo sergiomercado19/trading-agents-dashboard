@@ -65,40 +65,25 @@ export default function SchedulerForm({ onSubmit, onCancel }: Props) {
     return "";
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "8px 12px",
-    fontSize: 13,
-    background: "var(--bg-tertiary)",
-    border: "1px solid var(--border)",
-    borderRadius: 6,
-    color: "var(--text)",
-    outline: "none",
-  };
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <div>
-        <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Ticker</label>
-        <input type="text" value={ticker} onChange={(e) => setTicker(e.target.value)} placeholder="AAPL" style={inputStyle} />
+        <label className="block text-xs text-c-text-muted mb-1">Ticker</label>
+        <input type="text" value={ticker} onChange={(e) => setTicker(e.target.value)} placeholder="AAPL" className="input" />
       </div>
 
       <div>
-        <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Frequency</label>
-        <div style={{ display: "flex", gap: 6 }}>
+        <label className="block text-xs text-c-text-muted mb-1">Frequency</label>
+        <div className="flex gap-1.5">
           {FREQUENCIES.map((f) => (
             <button
               key={f.value}
               onClick={() => setFrequency(f.value)}
-              style={{
-                padding: "6px 12px",
-                fontSize: 12,
-                background: frequency === f.value ? "var(--accent)" : "var(--bg-tertiary)",
-                color: frequency === f.value ? "#fff" : "var(--text-muted)",
-                border: `1px solid ${frequency === f.value ? "var(--accent)" : "var(--border)"}`,
-                borderRadius: 4,
-                cursor: "pointer",
-              }}
+              className={`px-3 py-1.5 text-xs rounded border cursor-pointer transition-colors ${
+                frequency === f.value
+                  ? "bg-c-accent text-white border-c-accent"
+                  : "bg-c-bg-elevated text-c-text-muted border-c-border"
+              }`}
             >
               {f.label}
             </button>
@@ -107,42 +92,38 @@ export default function SchedulerForm({ onSubmit, onCancel }: Props) {
       </div>
 
       {frequency !== "hourly" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Hour</label>
-            <input type="number" min={0} max={23} value={hour} onChange={(e) => setHour(+e.target.value)} style={inputStyle} />
+            <label className="block text-xs text-c-text-muted mb-1">Hour</label>
+            <input type="number" min={0} max={23} value={hour} onChange={(e) => setHour(+e.target.value)} className="input" />
           </div>
           <div>
-            <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Minute</label>
-            <input type="number" min={0} max={59} value={minute} onChange={(e) => setMinute(+e.target.value)} style={inputStyle} />
+            <label className="block text-xs text-c-text-muted mb-1">Minute</label>
+            <input type="number" min={0} max={59} value={minute} onChange={(e) => setMinute(+e.target.value)} className="input" />
           </div>
         </div>
       )}
 
       {frequency === "hourly" && (
         <div>
-          <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Minute</label>
-          <input type="number" min={0} max={59} value={minute} onChange={(e) => setMinute(+e.target.value)} style={{ ...inputStyle, width: 120 }} />
+          <label className="block text-xs text-c-text-muted mb-1">Minute</label>
+          <input type="number" min={0} max={59} value={minute} onChange={(e) => setMinute(+e.target.value)} className="input w-[120px]" />
         </div>
       )}
 
       {frequency === "weekly" && (
         <div>
-          <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6, display: "block" }}>Days of Week</label>
-          <div style={{ display: "flex", gap: 4 }}>
+          <label className="block text-xs text-c-text-muted mb-1.5">Days of Week</label>
+          <div className="flex gap-1">
             {DAYS.map((d) => (
               <button
                 key={d.value}
                 onClick={() => toggleDay(d.value)}
-                style={{
-                  padding: "4px 10px",
-                  fontSize: 12,
-                  background: daysOfWeek.includes(d.value) ? "var(--accent)" : "var(--bg-tertiary)",
-                  color: daysOfWeek.includes(d.value) ? "#fff" : "var(--text-muted)",
-                  border: `1px solid ${daysOfWeek.includes(d.value) ? "var(--accent)" : "var(--border)"}`,
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
+                className={`px-2.5 py-1 text-xs rounded border cursor-pointer transition-colors ${
+                  daysOfWeek.includes(d.value)
+                    ? "bg-c-accent text-white border-c-accent"
+                    : "bg-c-bg-elevated text-c-text-muted border-c-border"
+                }`}
               >
                 {d.label}
               </button>
@@ -153,53 +134,39 @@ export default function SchedulerForm({ onSubmit, onCancel }: Props) {
 
       {frequency === "monthly" && (
         <div>
-          <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Day of Month</label>
-          <input type="number" min={1} max={31} value={dayOfMonth} onChange={(e) => setDayOfMonth(+e.target.value)} style={{ ...inputStyle, width: 120 }} />
+          <label className="block text-xs text-c-text-muted mb-1">Day of Month</label>
+          <input type="number" min={1} max={31} value={dayOfMonth} onChange={(e) => setDayOfMonth(+e.target.value)} className="input w-[120px]" />
         </div>
       )}
 
       <div>
-        <label style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, display: "block" }}>Timezone</label>
-        <select value={timezone} onChange={(e) => setTimezone(e.target.value)} style={inputStyle}>
+        <label className="block text-xs text-c-text-muted mb-1">Timezone</label>
+        <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className="input">
           {TIMEZONES.map((tz) => (
             <option key={tz} value={tz}>{tz}</option>
           ))}
         </select>
       </div>
 
-      <div style={{ padding: "8px 12px", background: "var(--bg-tertiary)", borderRadius: 6, fontSize: 12, color: "var(--text-muted)" }}>
+      <div className="py-2 px-3 bg-c-bg-elevated rounded-md text-xs text-c-text-muted">
         Preview: {previewNextRun()}
       </div>
 
-      <div style={{ display: "flex", gap: 8 }}>
+      <div className="flex gap-2">
         <button
           onClick={handleSubmit}
           disabled={!ticker}
-          style={{
-            flex: 1,
-            padding: "10px 16px",
-            fontSize: 14,
-            fontWeight: 600,
-            background: ticker ? "var(--accent)" : "var(--bg-tertiary)",
-            color: ticker ? "#fff" : "var(--text-muted)",
-            border: "none",
-            borderRadius: 6,
-            cursor: ticker ? "pointer" : "not-allowed",
-          }}
+          className={`flex-1 py-2.5 px-4 text-sm font-semibold rounded-md border-none cursor-pointer transition-colors ${
+            ticker
+              ? "bg-c-accent text-white cursor-pointer"
+              : "bg-c-bg-elevated text-c-text-muted cursor-not-allowed"
+          }`}
         >
           Create Job
         </button>
         <button
           onClick={onCancel}
-          style={{
-            padding: "10px 16px",
-            fontSize: 14,
-            background: "var(--bg-tertiary)",
-            color: "var(--text-muted)",
-            border: "1px solid var(--border)",
-            borderRadius: 6,
-            cursor: "pointer",
-          }}
+          className="py-2.5 px-4 text-sm bg-c-bg-elevated text-c-text-muted border border-c-border rounded-md cursor-pointer"
         >
           Cancel
         </button>

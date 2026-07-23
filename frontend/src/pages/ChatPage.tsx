@@ -72,7 +72,7 @@ export default function ChatPage() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50 w-[260px] min-w-[260px] border-r border-[var(--color-border-subtle)] flex flex-col bg-[var(--color-bg-surface)] transition-transform duration-200 ease-out",
+          "fixed lg:static inset-y-0 left-0 z-50 w-[260px] min-w-[260px] border-r border-c-border-subtle flex flex-col bg-c-bg-surface transition-transform duration-200 ease-out",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
@@ -87,30 +87,30 @@ export default function ChatPage() {
               className={cn(
                 "px-3 py-2 rounded-md cursor-pointer mb-1 transition-all duration-[120ms] ease-out",
                 activeId === s.id
-                  ? "bg-[var(--color-bg-elevated)] border border-[var(--color-border-accent)]"
+                  ? "bg-c-bg-elevated border border-c-border-accent"
                   : "bg-transparent border border-transparent"
               )}
             >
               <div className="flex justify-between items-center">
-                <span className="font-semibold text-sm overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-[var(--color-text-primary)]">
+                <span className="font-semibold text-sm overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-c-text-primary">
                   {s.title}
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={(e) => { e.stopPropagation(); handleDelete(s.id); }}
-                  className="p-0 w-4 h-4 text-sm leading-none text-[var(--color-text-faint)]"
+                  className="p-0 w-4 h-4 text-sm leading-none text-c-text-faint"
                 >
                   ×
                 </Button>
               </div>
-              <div className="text-xs text-[var(--color-text-faint)] mt-1">
+              <div className="text-xs text-c-text-faint mt-1">
                 {s.message_count} msgs · {s.model}
               </div>
             </div>
           ))}
           {sessions.length === 0 && (
-            <div className="text-[var(--color-text-faint)] text-sm p-3">No chats yet.</div>
+            <div className="text-c-text-faint text-sm p-3">No chats yet.</div>
           )}
         </div>
       </div>
@@ -118,13 +118,13 @@ export default function ChatPage() {
       {/* Main area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {!activeId ? (
-          <div className="flex-1 flex items-center justify-center text-[var(--color-text-faint)] text-sm">
+          <div className="flex-1 flex items-center justify-center text-c-text-faint text-sm">
             Select or create a chat
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
+            <div className="flex items-center gap-2 px-4 py-2 border-b border-c-border-subtle bg-c-bg-surface">
               <Button
                 variant="ghost"
                 size="icon"
@@ -145,7 +145,7 @@ export default function ChatPage() {
               ) : (
                 <span
                   onClick={() => { setEditingTitle(true); setTitleInput(selectedSession?.title || ""); }}
-                  className="cursor-pointer font-semibold text-base text-[var(--color-text-primary)]"
+                  className="cursor-pointer font-semibold text-base text-c-text-primary"
                   title="Click to rename"
                 >
                   {selectedSession?.title || "Chat"}
@@ -191,19 +191,19 @@ export default function ChatPage() {
                 <div key={i} className="mb-4">
                   <div className={cn(
                     "font-semibold text-xs uppercase tracking-wide mb-1",
-                    msg.role === "user" ? "text-[var(--color-accent)]" : "text-[var(--color-text-muted)]"
+                    msg.role === "user" ? "text-c-accent" : "text-c-text-muted"
                   )}>
                     {msg.role === "user" ? "You" : "Assistant"}
                   </div>
-                  <div className="text-sm leading-relaxed text-[var(--color-text-primary)] whitespace-pre-wrap">
+                  <div className="text-sm leading-relaxed text-c-text-primary whitespace-pre-wrap">
                     {msg.content}
                   </div>
                 </div>
               ))}
               {streaming && (
                 <div className="mb-4">
-                  <div className="font-semibold text-xs text-[var(--color-text-muted)] mb-1 uppercase tracking-wide">Assistant</div>
-                  <div className="text-sm leading-relaxed text-[var(--color-text-primary)] whitespace-pre-wrap">
+                  <div className="font-semibold text-xs text-c-text-muted mb-1 uppercase tracking-wide">Assistant</div>
+                  <div className="text-sm leading-relaxed text-c-text-primary whitespace-pre-wrap">
                     {streamText || <span className="animate-pulse opacity-50">Thinking...</span>}
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export default function ChatPage() {
             </div>
 
             {/* Input */}
-            <div className="flex items-end gap-2 px-4 py-3 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
+            <div className="flex items-end gap-2 px-4 py-3 border-t border-c-border-subtle bg-c-bg-surface">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

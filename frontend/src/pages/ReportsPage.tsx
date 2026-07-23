@@ -203,54 +203,39 @@ export default function ReportsPage() {
   };
 
   return (
-    <div style={{ display: "flex", height: "100%" }}>
+    <div className="flex h-full">
       {/* ── Sidebar ── */}
-      <div
-        style={{
-          width: 280,
-          minWidth: 280,
-          borderRight: "1px solid var(--color-border-subtle)",
-          display: "flex",
-          flexDirection: "column",
-          background: "var(--color-bg-surface)",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
+      <div className="w-[280px] min-w-[280px] border-r border-c-border-subtle flex flex-col bg-c-bg-surface relative overflow-hidden">
         {/* Header */}
         <div className="panel-header">
           <span className="panel-title">Reports</span>
-          <span className="badge bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)]">
+          <span className="badge bg-c-bg-elevated text-c-text-muted">
             {reports.length}
           </span>
         </div>
 
-        <div style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--color-border-subtle)", flexShrink: 0 }}>
+        <div className="p-2 border-b border-c-border-subtle flex-shrink-0">
           <input
             type="text"
             placeholder="Search ticker..."
             value={tickerFilter}
             onChange={(e) => setTickerFilter(e.target.value)}
-            className="input"
-            style={{ width: "100%", fontSize: "var(--text-sm)", padding: "var(--space-1) var(--space-2)" }}
+            className="input w-full text-sm py-1 px-2"
           />
         </div>
 
-        <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
+        <div className="relative flex-1 overflow-hidden">
           {/* ── Layer 1: Ticker list ── */}
           <div
+            className="absolute inset-0 flex flex-col"
             style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
               opacity: showTimestamps ? 0 : 1,
               transform: showTimestamps ? "translateX(-20px)" : "translateX(0)",
               transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
               pointerEvents: showTimestamps ? "none" : "auto",
             }}
           >
-          <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-2)" }}>
+          <div className="flex-1 overflow-y-auto p-2">
             {sortedTickers.map((ticker) => {
               const reports_for_ticker = tickerGroups[ticker] ?? [];
               const companyName = tickerNames[ticker];
@@ -258,26 +243,18 @@ export default function ReportsPage() {
                 <div
                   key={ticker}
                   onClick={() => handleTickerClick(ticker)}
-                  style={{
-                    padding: "var(--space-2) var(--space-3)",
-                    borderRadius: "var(--radius-md)",
-                    cursor: "pointer",
-                    marginBottom: "var(--space-1)",
-                    transition: "background var(--duration-fast) var(--ease-out)",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  className="py-2 px-3 rounded-md cursor-pointer mb-1 transition-colors duration-fast hover:bg-c-bg-hover"
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-md text-c-text-primary font-mono">
                       {ticker}
                     </span>
-                    <span className="badge bg-[var(--color-bg-elevated)] text-[var(--color-text-faint)] text-xs">
+                    <span className="badge bg-c-bg-elevated text-c-text-faint text-xs">
                       {reports_for_ticker.length}
                     </span>
                   </div>
                   {companyName && (
-                    <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "var(--space-1)" }}>
+                    <div className="text-sm text-c-text-secondary mt-1">
                       {companyName}
                     </div>
                   )}
@@ -285,7 +262,7 @@ export default function ReportsPage() {
               );
             })}
             {sortedTickers.length === 0 && (
-              <div style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)", padding: "var(--space-3)" }}>
+              <div className="text-c-text-muted text-sm p-3">
                 No reports found.
               </div>
             )}
@@ -294,11 +271,8 @@ export default function ReportsPage() {
 
         {/* ── Layer 2: Timestamp list (morphs in) ── */}
         <div
+          className="absolute inset-0 flex flex-col"
           style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            flexDirection: "column",
             opacity: showTimestamps ? 1 : 0,
             transform: showTimestamps ? "translateX(0)" : "translateX(20px)",
             transition: "opacity var(--duration-slow) var(--ease-out), transform var(--duration-slow) var(--ease-out)",
@@ -308,50 +282,36 @@ export default function ReportsPage() {
         >
           {/* Back header */}
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-2)",
-              padding: "var(--space-2) var(--space-3)",
-              borderBottom: "1px solid var(--color-border-subtle)",
-              cursor: "pointer",
-              transition: "background var(--duration-fast) var(--ease-out)",
-            }}
+            className="flex items-center gap-2 py-2 px-3 border-b border-c-border-subtle cursor-pointer transition-colors duration-fast hover:bg-c-bg-hover"
             onClick={handleBackToTickers}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
-            <span style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>←</span>
-            <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>
+            <span className="text-c-text-muted text-sm">←</span>
+            <span className="font-semibold text-sm text-c-text-primary font-mono">
               {selectedTicker}
             </span>
             {selectedTicker && tickerNames[selectedTicker] && (
-              <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginLeft: "var(--space-1)" }}>
+              <span className="text-xs text-c-text-faint ml-1">
                 {tickerNames[selectedTicker]}
               </span>
             )}
           </div>
 
           {/* Timestamp list */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-2)" }}>
+          <div className="flex-1 overflow-y-auto p-2">
             {tickerReports.map((r) => (
               <div
                 key={r.id}
                 onClick={() => handleReportClick(r)}
+                className="py-2 px-3 rounded-md cursor-pointer mb-1 transition-all duration-fast"
                 style={{
-                  padding: "var(--space-2) var(--space-3)",
-                  borderRadius: "var(--radius-md)",
-                  cursor: "pointer",
-                  marginBottom: "var(--space-1)",
                   background: selected?.id === r.id ? "var(--color-bg-elevated)" : "transparent",
                   border: selected?.id === r.id ? "1px solid var(--color-border-accent)" : "1px solid transparent",
-                  transition: "all var(--duration-fast) var(--ease-out)",
                 }}
               >
-                <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>
+                <div className="text-sm text-c-text-primary">
                   {formatDate(r.id)}
                 </div>
-                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginTop: "var(--space-1)", fontFamily: "var(--font-mono)" }}>
+                <div className="text-xs text-c-text-faint mt-1 font-mono">
                   {(r.size_bytes / 1024).toFixed(0)} KB
                 </div>
               </div>
@@ -362,33 +322,24 @@ export default function ReportsPage() {
       </div>
 
       {/* ── Main content ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div className="flex-1 flex flex-col overflow-hidden">
         {!selected ? (
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-faint)", fontSize: "var(--text-sm)" }}>
+          <div className="flex-1 flex items-center justify-center text-c-text-faint text-sm">
             {reports.length === 0 ? "No reports found" : "Select a report to view"}
           </div>
         ) : (
           <>
             {/* Action bar */}
-            <div
-              style={{
-                display: "flex",
-                gap: "var(--space-2)",
-                padding: "var(--space-2) var(--space-4)",
-                borderBottom: "1px solid var(--color-border-subtle)",
-                alignItems: "center",
-                background: "var(--color-bg-surface)",
-              }}
-            >
-              <span style={{ fontWeight: "var(--weight-bold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>{selected.ticker}</span>
-              <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)" }}>{formatDate(selected.id)}</span>
+            <div className="flex gap-2 py-2 px-4 border-b border-c-border-subtle items-center bg-c-bg-surface">
+              <span className="font-bold text-md text-c-text-primary font-mono">{selected.ticker}</span>
+              <span className="text-xs text-c-text-faint">{formatDate(selected.id)}</span>
               {selectedFile && (
                 <>
-                  <span style={{ color: "var(--color-text-muted)", margin: "0 var(--space-1)" }}>/</span>
-                  <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>{selectedFile.name}</span>
+                  <span className="text-c-text-muted mx-1">/</span>
+                  <span className="text-sm text-c-text-secondary">{selectedFile.name}</span>
                 </>
               )}
-              <div style={{ flex: 1 }} />
+              <div className="flex-1" />
               <Button variant="secondary" size="sm" onClick={handleCheckUrls} disabled={checkingUrls}>
                 {checkingUrls ? "Checking..." : "Check URLs"}
               </Button>
@@ -399,13 +350,13 @@ export default function ReportsPage() {
 
             {/* Content area */}
             {urlChecks.length > 0 && (
-              <div style={{ padding: "var(--space-3) var(--space-4)", borderBottom: "1px solid var(--color-border-subtle)" }}>
-                <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", marginBottom: "var(--space-2)", color: "var(--color-text-primary)" }}>URL Verification</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+              <div className="py-3 px-4 border-b border-c-border-subtle">
+                <div className="text-sm font-semibold mb-2 text-c-text-primary">URL Verification</div>
+                <div className="flex flex-col gap-1">
                   {urlChecks.map((uc) => (
-                    <div key={uc.url} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-xs)" }}>
+                    <div key={uc.url} className="flex items-center gap-2 text-xs">
                       <FactCheckBadge url={uc.url} status={uc.status as FactCheckStatus} />
-                      <span style={{ color: "var(--color-text-secondary)", wordBreak: "break-all" }}>{uc.url}</span>
+                      <span className="text-c-text-secondary break-all">{uc.url}</span>
                     </div>
                   ))}
                 </div>
@@ -413,11 +364,11 @@ export default function ReportsPage() {
             )}
 
             {loading ? (
-              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
+              <div className="flex-1 flex items-center justify-center text-c-text-muted text-sm">
                 Loading...
               </div>
             ) : selectedFile ? (
-              <div style={{ flex: 1, overflow: "hidden" }}>
+              <div className="flex-1 overflow-hidden">
                 <ReportReader
                   content={content}
                   onExport={handleExport}
@@ -427,7 +378,7 @@ export default function ReportsPage() {
                 />
               </div>
             ) : (
-              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-faint)", fontSize: "var(--text-sm)" }}>
+              <div className="flex-1 flex items-center justify-center text-c-text-faint text-sm">
                 Select a report to view
               </div>
             )}
