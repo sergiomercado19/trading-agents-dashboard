@@ -98,7 +98,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-4)", marginBottom: "var(--space-8)" }}>
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <Card>
           <CardContent style={{ padding: "var(--space-5)" }}>
             <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--space-1)" }}>
@@ -145,7 +145,7 @@ export default function HomePage() {
         <h2 style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)", marginBottom: "var(--space-4)" }}>
           Quick Actions
         </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {features.map((feature) => (
             <Link key={feature.link} to={feature.link} style={{ textDecoration: "none" }}>
               <Card style={{ padding: "var(--space-5)", transition: "all var(--duration-fast) var(--ease-out)", cursor: "pointer" }}>
@@ -183,6 +183,7 @@ export default function HomePage() {
           </Card>
         ) : (
           <Card style={{ overflow: "hidden" }}>
+            <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
@@ -217,6 +218,7 @@ export default function HomePage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </Card>
         )}
       </section>

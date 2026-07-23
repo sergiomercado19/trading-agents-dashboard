@@ -362,7 +362,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="general">
-        <TabsList style={{ marginBottom: "var(--space-6)" }}>
+        <TabsList className="flex overflow-x-auto flex-nowrap" style={{ marginBottom: "var(--space-6)" }}>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="ai">AI Providers</TabsTrigger>
           <TabsTrigger value="alpaca">Alpaca</TabsTrigger>
@@ -465,7 +465,7 @@ export default function SettingsPage() {
                     const isTesting = keyTesting === field.key;
 
                     return (
-                      <div key={field.key} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                      <div key={field.key} className="flex flex-col sm:flex-row sm:items-center gap-2">
                         <span style={{ fontSize: "var(--text-sm)", width: 100, flexShrink: 0, color: "var(--color-text-secondary)" }}>
                           {field.label}
                         </span>
@@ -506,7 +506,7 @@ export default function SettingsPage() {
               {/* Per-Agent Configuration */}
               <div>
                 <h4 style={sectionStyle}>Per-Agent Configuration</h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-3)" }}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {AGENTS.map((agent) => {
                     const cfg = getAgentConfig(agent.name);
                     return (
@@ -795,7 +795,7 @@ export default function SettingsPage() {
               {activity ? (
                 <>
                   {/* Stats */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-3)" }}>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <ActivityStat label="Total Analyses" value={activity.total_analyses} />
                     <ActivityStat label="Completed" value={activity.analyses_by_status.completed ?? 0} />
                     <ActivityStat label="Total Trades" value={activity.total_trades} />

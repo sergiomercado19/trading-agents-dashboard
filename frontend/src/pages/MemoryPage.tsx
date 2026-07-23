@@ -4,6 +4,7 @@ import { useMemoryStatus } from "../hooks/useMemoryStatus";
 import { useMemories } from "../hooks/useMemories";
 import MemoryStatusCard from "../components/MemoryStatusCard";
 import ObsidianConfig from "../components/ObsidianConfig";
+import { Button } from "@/components/ui/button";
 
 export default function MemoryPage() {
   const { status, loading, refresh } = useMemoryStatus();
@@ -50,9 +51,9 @@ export default function MemoryPage() {
         </div>
         <div className="panel-body">
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <button onClick={handleSync} disabled={syncing} className="btn btn-primary">
+            <Button onClick={handleSync} disabled={syncing}>
               {syncing ? "Syncing vault..." : "Sync Vault → ChromaDB"}
-            </button>
+            </Button>
             {syncResult && (
               <span style={{ fontSize: "var(--text-sm)", color: syncResult.status === "ok" ? "var(--color-success)" : "var(--color-error)" }}>
                 {syncResult.status === "ok"
@@ -79,9 +80,9 @@ export default function MemoryPage() {
               className="input"
               style={{ flex: 1 }}
             />
-            <button onClick={handleSearch} disabled={searching || !query.trim()} className="btn btn-secondary">
+            <Button variant="secondary" onClick={handleSearch} disabled={searching || !query.trim()}>
               {searching ? "Searching..." : "Search"}
-            </button>
+            </Button>
           </div>
 
           {results.length > 0 && (

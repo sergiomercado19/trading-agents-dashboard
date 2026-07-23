@@ -146,8 +146,8 @@ export default function AnalysisDetailPage() {
             {analysis.completed_at ? ` \u2022 Completed ${new Date(analysis.completed_at).toLocaleString()}` : ""}
           </p>
         </div>
-        <div style={{ display: "flex", gap: "var(--space-2)" }}>
-          <Button className="btn-ghost" onClick={() => navigate("/history")}>Back</Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="ghost" onClick={() => navigate("/history")}>Back</Button>
           {canCancel && (
             <Button variant="outline" onClick={handleCancel} disabled={cancelMutation.isPending}>Cancel</Button>
           )}
@@ -159,7 +159,7 @@ export default function AnalysisDetailPage() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "var(--space-3)", marginBottom: "var(--space-6)" }}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <StatCard label="Confidence" value={analysis.confidence_score ? `${(analysis.confidence_score * 100).toFixed(0)}%` : "\u2014"} color="var(--color-accent)" />
         <StatCard label="Risk Score" value={analysis.risk_score ? `${(analysis.risk_score * 100).toFixed(0)}%` : "\u2014"} color="var(--color-warning)" />
         <StatCard label="Agents" value={`${analysis.agents.length}`} color="var(--color-success)" />

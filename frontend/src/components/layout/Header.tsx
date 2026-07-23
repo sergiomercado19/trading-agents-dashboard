@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -29,6 +30,8 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
         position: "sticky",
         top: 0,
         zIndex: "var(--z-sticky)",
+        overflow: "hidden",
+        maxWidth: "100vw",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
@@ -46,7 +49,9 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
-        <ThemeSwitcher themes={THEMES} currentTheme={theme} onChange={setTheme} />
+        <div className="hidden lg:flex">
+          <ThemeSwitcher themes={THEMES} currentTheme={theme} onChange={setTheme} />
+        </div>
         <UserMenu />
       </div>
     </header>
@@ -54,30 +59,38 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
 }
 
 function ThemeSwitcher({ themes, currentTheme, onChange }: { themes: typeof THEMES; currentTheme: string; onChange: (t: "terminal" | "modern" | "bloomberg") => void }) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
   return (
     <div style={{ display: "flex", background: "var(--color-bg-elevated)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: 2, gap: 2 }}>
-      {themes.map((t) => (
-        <button
-          key={t.id}
-          onClick={() => onChange(t.id)}
-          style={{
-            width: 30,
-            height: 26,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: "var(--radius-sm)",
-            border: "none",
-            cursor: "pointer",
-            background: currentTheme === t.id ? "var(--color-accent)" : "transparent",
-            color: currentTheme === t.id ? "#fff" : "var(--color-text-faint)",
-            transition: "all var(--duration-fast) var(--ease-out)",
-          }}
-          title={t.label}
-        >
-          <t.icon size={14} />
-        </button>
-      ))}
+      {themes.map((t) => {
+        const isActive = currentTheme === t.id;
+        const isHovered = hoveredId === t.id && !isActive;
+        return (
+          <button
+            key={t.id}
+            onClick={() => onChange(t.id)}
+            onMouseEnter={() => setHoveredId(t.id)}
+            onMouseLeave={() => setHoveredId(null)}
+            style={{
+              width: 30,
+              height: 26,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "var(--radius-sm)",
+              border: "none",
+              cursor: "pointer",
+              background: isActive ? "var(--color-accent)" : isHovered ? "var(--color-bg-hover)" : "transparent",
+              color: isActive ? "#fff" : "var(--color-text-muted)",
+              transition: "all var(--duration-fast) var(--ease-out)",
+            }}
+            title={t.label}
+          >
+            <t.icon size={14} />
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -201,7 +201,7 @@ export default function AnalyzePage() {
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: isRunning || result ? "320px 1fr" : "380px 1fr", gap: "var(--space-6)", transition: "grid-template-columns 0.3s" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
         {/* ─── Left: Config Panel ─── */}
         <div>
           <Card>
@@ -226,25 +226,39 @@ export default function AnalyzePage() {
                 <div>
                   <Label>Analysts</Label>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1)", marginTop: "var(--space-2)" }}>
-                    {ANALYST_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => toggleAnalyst(opt.value)}
-                        disabled={isRunning}
-                        style={{
-                          padding: "var(--space-1) var(--space-3)",
-                          borderRadius: "var(--radius-md)",
-                          border: `1px solid ${selectedAnalysts.includes(opt.value) ? "var(--color-accent)" : "var(--color-border)"}`,
-                          background: selectedAnalysts.includes(opt.value) ? "var(--color-accent-subtle)" : "transparent",
-                          color: selectedAnalysts.includes(opt.value) ? "var(--color-accent)" : "var(--color-text-muted)",
-                          fontSize: "var(--text-sm)",
-                          cursor: isRunning ? "not-allowed" : "pointer",
-                          transition: "all var(--duration-fast) var(--ease-out)",
-                        }}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
+                    {ANALYST_OPTIONS.map((opt) => {
+                      const isSelected = selectedAnalysts.includes(opt.value);
+                      return (
+                        <button
+                          key={opt.value}
+                          onClick={() => toggleAnalyst(opt.value)}
+                          disabled={isRunning}
+                          onMouseEnter={(e) => {
+                            if (isRunning) return;
+                            if (isSelected) {
+                              e.currentTarget.style.background = "oklch(from var(--color-accent-subtle) l c h / 0.9)";
+                            } else {
+                              e.currentTarget.style.background = "var(--color-bg-hover)";
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = isSelected ? "var(--color-accent-subtle)" : "transparent";
+                          }}
+                          style={{
+                            padding: "var(--space-1) var(--space-3)",
+                            borderRadius: "var(--radius-md)",
+                            border: `1px solid ${isSelected ? "var(--color-accent)" : "var(--color-border)"}`,
+                            background: isSelected ? "var(--color-accent-subtle)" : "transparent",
+                            color: isSelected ? "var(--color-accent)" : "var(--color-text-muted)",
+                            fontSize: "var(--text-sm)",
+                            cursor: isRunning ? "not-allowed" : "pointer",
+                            transition: "all var(--duration-fast) var(--ease-out)",
+                          }}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

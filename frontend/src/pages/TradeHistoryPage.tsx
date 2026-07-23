@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/utils/api";
+import { Button } from "@/components/ui/button";
 import type {
   TradeHistoryItem,
   TradeHistoryResponse,
@@ -221,7 +222,7 @@ export default function TradeHistoryPage() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
             Trade History
@@ -231,18 +232,12 @@ export default function TradeHistoryPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={handleExportCsv}
-            className="px-4 py-2 rounded-md text-sm font-medium bg-[var(--color-bg-elevated)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
-          >
+          <Button variant="outline" size="sm" onClick={handleExportCsv}>
             Export CSV
-          </button>
-          <button
-            onClick={handleExportJson}
-            className="px-4 py-2 rounded-md text-sm font-medium bg-[var(--color-bg-elevated)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
-          >
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportJson}>
             Export JSON
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -461,20 +456,22 @@ export default function TradeHistoryPage() {
             Page {page} of {totalPages} ({data?.total ?? 0} trades)
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="px-3 py-1.5 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] disabled:opacity-40 hover:text-[var(--color-text-primary)] transition-colors"
             >
               Prev
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="px-3 py-1.5 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] disabled:opacity-40 hover:text-[var(--color-text-primary)] transition-colors"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       )}

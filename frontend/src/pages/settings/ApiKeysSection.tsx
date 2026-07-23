@@ -1,6 +1,7 @@
 import { useSettings } from "./SettingsContext";
 import { SectionHeading } from "./SettingsShared";
 import { KEY_GROUPS } from "./SettingsConstants";
+import { Button } from "@/components/ui/button";
 
 export function ApiKeysSection() {
   const {
@@ -59,22 +60,22 @@ export function ApiKeysSection() {
                     className="input"
                     style={{ flex: 1 }}
                   />
-                  <button
+                  <Button
+                    size="sm"
                     onClick={() => handleTest(entry)}
                     disabled={isTesting}
-                    className="btn btn-sm"
                     style={{
+                      minWidth: 60,
                       background: testResult?.valid
                         ? "var(--color-success)"
                         : testResult && !testResult.valid
                         ? "var(--color-error)"
                         : "var(--color-bg-elevated)",
                       color: testResult ? "#fff" : "var(--color-text-muted)",
-                      minWidth: 60,
                     }}
                   >
                     {isTesting ? "..." : testResult?.valid ? "Valid" : testResult ? "Invalid" : "Test"}
-                  </button>
+                  </Button>
                   {testResult && (
                     <span
                       style={{

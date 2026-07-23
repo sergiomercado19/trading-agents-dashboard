@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useChatSessions, useChatSession } from "../hooks/useChatSessions";
 import { useChatStream } from "../hooks/useChatStream";
+import { Button } from "@/components/ui/button";
 
 const CHAT_MODELS = [
   { id: "gpt-4o-mini", name: "GPT-4o Mini", provider: "openai" },
@@ -20,6 +21,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleInput, setTitleInput] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,9 +59,19 @@ export default function ChatPage() {
   const selectedSession = sessions.find((s) => s.id === activeId);
 
   return (
-    <div style={{ display: "flex", height: "100%" }}>
+    <div style={{ display: "flex", height: "100%", position: "relative" }}>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden"
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 40 }}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <div
+        className={`fixed lg:static inset-y-0 left-0 z-50 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
         style={{
           width: 260,
           minWidth: 260,
@@ -67,16 +79,17 @@ export default function ChatPage() {
           display: "flex",
           flexDirection: "column",
           background: "var(--color-bg-surface)",
+          transition: "transform 0.2s ease",
         }}
       >
         <div style={{ padding: "var(--space-3)" }}>
-          <button onClick={handleNew} className="btn btn-primary" style={{ width: "100%" }}>+ New Chat</button>
+          <Button onClick={handleNew} className="w-full">+ New Chat</Button>
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: "0 var(--space-2) var(--space-2)" }}>
           {sessions.map((s) => (
             <div
               key={s.id}
-              onClick={() => { setActiveId(s.id); reset(); }}
+              onClick={() => { setActiveId(s.id); reset(); setSidebarOpen(false); }}
               style={{
                 padding: "var(--space-2) var(--space-3)",
                 borderRadius: "var(--radius-md)",
@@ -91,13 +104,14 @@ export default function ChatPage() {
                 <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, color: "var(--color-text-primary)" }}>
                   {s.title}
                 </span>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={(e) => { e.stopPropagation(); handleDelete(s.id); }}
-                  className="btn btn-ghost btn-sm"
                   style={{ padding: 0, width: 16, height: 16, fontSize: "var(--text-sm)", lineHeight: 1, color: "var(--color-text-faint)" }}
                 >
                   ×
-                </button>
+                </Button>
               </div>
               <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", marginTop: "var(--space-1)" }}>
                 {s.message_count} msgs · {s.model}
@@ -129,6 +143,14 @@ export default function ChatPage() {
                 background: "var(--color-bg-surface)",
               }}
             >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden h-8 w-8"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                ☰
+              </Button>
               {editingTitle ? (
                 <input
                   value={titleInput}
@@ -231,14 +253,14 @@ export default function ChatPage() {
                 className="input"
                 style={{ resize: "none", minHeight: 42, maxHeight: 120, fontFamily: "inherit", fontSize: "var(--text-sm)" }}
               />
-              <button
+              <Button
                 onClick={handleSend}
                 disabled={!input.trim() || streaming}
-                className="btn btn-primary"
-                style={{ width: 42, height: 42, padding: 0, fontSize: "var(--text-lg)", opacity: !input.trim() || streaming ? 0.4 : 1 }}
+                className="w-[42px] h-[42px] p-0 text-lg opacity-100"
+                style={{ opacity: !input.trim() || streaming ? 0.4 : 1 }}
               >
                 →
-              </button>
+              </Button>
             </div>
           </>
         )}

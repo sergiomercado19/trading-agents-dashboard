@@ -1,5 +1,6 @@
 import type { RunSnapshot } from "../hooks/useRunStream";
 import type { CostEstimate } from "../hooks/useCostEstimate";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   open: boolean;
@@ -56,9 +57,9 @@ export default function StatsDrawer({ open, onClose, stats, estimate, snapshot, 
           }}
         >
           <span className="panel-title">Stats</span>
-          <button onClick={onClose} className="btn btn-ghost btn-sm" style={{ fontSize: "var(--text-lg)", padding: 0, width: 24, height: 24 }}>
+          <Button variant="ghost" size="sm" onClick={onClose} style={{ fontSize: "var(--text-lg)", padding: 0, width: 24, height: 24 }}>
             ×
-          </button>
+          </Button>
         </div>
 
         {/* Content */}

@@ -48,15 +48,14 @@ export function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse }: Sideba
                   to={item.path}
                   end={item.path === "/"}
                   onClick={onClose}
-                  className={cn(
+                  className={({ isActive }) => cn(
                     "group relative flex items-center gap-3 rounded-md text-sm font-medium transition-colors",
-                    collapsed ? "justify-center h-10 w-10" : "px-4 py-3"
+                    collapsed ? "justify-center h-10 w-10" : "px-4 py-3",
+                    isActive
+                      ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)]"
+                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"
                   )}
-                  style={({ isActive }) => ({
-                    color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-                    background: isActive ? "var(--color-bg-elevated)" : "transparent",
-                    textDecoration: "none",
-                  })}
+                  style={{ textDecoration: "none" }}
                 >
                   <item.icon size={18} className="shrink-0" />
                   {!collapsed && <span>{item.label}</span>}

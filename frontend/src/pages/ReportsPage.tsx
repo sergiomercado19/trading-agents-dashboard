@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchJson } from "../api/client";
+import { Button } from "@/components/ui/button";
 import ReportReader from "../components/ReportReader/ReportReader";
 import FactCheckBadge from "../components/FactCheckBadge";
 import type { FactCheckStatus } from "../components/FactCheckBadge";
@@ -388,12 +389,12 @@ export default function ReportsPage() {
                 </>
               )}
               <div style={{ flex: 1 }} />
-              <button onClick={handleCheckUrls} disabled={checkingUrls} className="btn btn-sm btn-secondary">
+              <Button variant="secondary" size="sm" onClick={handleCheckUrls} disabled={checkingUrls}>
                 {checkingUrls ? "Checking..." : "Check URLs"}
-              </button>
-              <button onClick={handleDelete} className="btn btn-sm btn-ghost" style={{ color: "var(--color-error)", borderColor: "var(--color-error)" }}>
+              </Button>
+              <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={handleDelete}>
                 Delete
-              </button>
+              </Button>
             </div>
 
             {/* Content area */}

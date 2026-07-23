@@ -2,6 +2,7 @@ import { useState } from "react";
 import SchedulerForm from "../components/SchedulerForm";
 import SchedulerJobList from "../components/SchedulerJobList";
 import { useSchedulerJobs } from "../hooks/useSchedulerJobs";
+import { Button } from "@/components/ui/button";
 
 export default function SchedulerPage() {
   const { jobs, loading, addJob, removeJob } = useSchedulerJobs();
@@ -17,9 +18,9 @@ export default function SchedulerPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-5)" }}>
         <h2 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--color-text-primary)" }}>Scheduler</h2>
         {!showForm && (
-          <button onClick={() => setShowForm(true)} className="btn btn-primary">
+          <Button onClick={() => setShowForm(true)}>
             + New Job
-          </button>
+          </Button>
         )}
       </div>
 

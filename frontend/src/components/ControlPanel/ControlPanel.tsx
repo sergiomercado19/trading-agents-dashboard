@@ -139,7 +139,7 @@ export default function ControlPanel({
               className={`input ${styles.presetInput}`}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
-            <Button variant="primary" size="sm" onClick={handleSave} disabled={!presetName.trim()}>
+            <Button variant="default" size="sm" onClick={handleSave} disabled={!presetName.trim()}>
               Save
             </Button>
           </div>
@@ -188,7 +188,7 @@ export default function ControlPanel({
               {ANALYSTS.map((a) => (
                 <Button
                   key={a.id}
-                  variant={analysts.includes(a.id) ? "primary" : "secondary"}
+                  variant={analysts.includes(a.id) ? "default" : "secondary"}
                   size="sm"
                   onClick={() => toggleAnalyst(a.id)}
                   className={styles.buttonFlex}
@@ -206,7 +206,7 @@ export default function ControlPanel({
               {DEPTH_OPTIONS.map((opt) => (
                 <Button
                   key={opt.value}
-                  variant={depth === opt.value ? "primary" : "secondary"}
+                  variant={depth === opt.value ? "default" : "secondary"}
                   size="sm"
                   onClick={() => onDepthChange(opt.value)}
                   className={styles.buttonFlex}
@@ -239,7 +239,7 @@ export default function ControlPanel({
 
           {/* Start button */}
           <Button
-            variant="primary"
+            variant="default"
             className={styles.startButton}
             onClick={onStart}
             disabled={!ticker}

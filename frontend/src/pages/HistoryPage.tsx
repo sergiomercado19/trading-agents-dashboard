@@ -123,8 +123,8 @@ export default function HistoryPage() {
       <Card>
         <CardContent style={{ padding: 0 }}>
           {/* Filters */}
-          <div style={{ display: "flex", gap: "var(--space-4)", padding: "var(--space-4)", borderBottom: "1px solid var(--color-border)", flexWrap: "wrap", alignItems: "flex-end" }}>
-            <div style={{ minWidth: 200, flex: 1 }}>
+          <div className="flex flex-col md:flex-row gap-4 p-4 border-b border-[var(--color-border)] items-end">
+            <div className="w-full md:w-auto md:min-w-[200px] md:flex-1">
               <Label htmlFor="ticker-search" style={{ display: "block", marginBottom: "var(--space-1)", fontSize: "var(--text-xs)" }}>Ticker</Label>
               <Input
                 id="ticker-search"
@@ -134,7 +134,7 @@ export default function HistoryPage() {
                 style={{ width: "100%" }}
               />
             </div>
-            <div style={{ minWidth: 180 }}>
+            <div className="w-full md:w-auto md:min-w-[180px]">
               <Label htmlFor="status-filter" style={{ display: "block", marginBottom: "var(--space-1)", fontSize: "var(--text-xs)" }}>Status</Label>
               <select
                 id="status-filter"
@@ -251,20 +251,20 @@ export default function HistoryPage() {
                         </td>
                         <td style={{ padding: "var(--space-3) var(--space-4)", textAlign: "right" }}>
                           <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}>
-                            <Button className="btn-ghost btn-sm" onClick={() => navigate(`/analysis/${analysis.id}`)}>
+                            <Button variant="ghost" size="sm" onClick={() => navigate(`/analysis/${analysis.id}`)}>
                               View
                             </Button>
                             {["failed", "cancelled", "stale"].includes(analysis.status) && (
-                              <Button className="btn-ghost btn-sm" onClick={() => retryMutation.mutate(analysis.id)} disabled={retryMutation.isPending}>
+                              <Button variant="ghost" size="sm" onClick={() => retryMutation.mutate(analysis.id)} disabled={retryMutation.isPending}>
                                 Retry
                               </Button>
                             )}
                             {["running", "pending"].includes(analysis.status) && (
-                              <Button className="btn-ghost btn-sm" onClick={() => cancelMutation.mutate(analysis.id)} disabled={cancelMutation.isPending}>
+                              <Button variant="ghost" size="sm" onClick={() => cancelMutation.mutate(analysis.id)} disabled={cancelMutation.isPending}>
                                 Cancel
                               </Button>
                             )}
-                            <Button className="btn-ghost btn-sm" style={{ color: "var(--color-error)" }} onClick={() => {
+                            <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => {
                               if (confirm("Delete this analysis?")) deleteMutation.mutate(analysis.id);
                             }} disabled={deleteMutation.isPending}>
                               Delete
@@ -281,7 +281,8 @@ export default function HistoryPage() {
               {totalPages > 1 && (
                 <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-4)", borderTop: "1px solid var(--color-border)" }}>
                   <Button
-                    className="btn-ghost btn-sm"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1}
                   >
@@ -291,7 +292,8 @@ export default function HistoryPage() {
                     Page {page} of {totalPages} ({total} total)
                   </span>
                   <Button
-                    className="btn-ghost btn-sm"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page >= totalPages}
                   >

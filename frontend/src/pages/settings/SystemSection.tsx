@@ -1,5 +1,6 @@
 import { useSettings } from "./SettingsContext";
 import { SectionHeading, Card } from "./SettingsShared";
+import { Button } from "@/components/ui/button";
 
 export function SystemSection() {
   const {
@@ -52,9 +53,9 @@ export function SystemSection() {
         <section>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-3)" }}>
             <SectionHeading>Health Checks</SectionHeading>
-            <button onClick={handleRefresh} className="btn btn-secondary btn-sm">
+            <Button variant="secondary" size="sm" onClick={handleRefresh}>
               Refresh
-            </button>
+            </Button>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "var(--space-3)" }}>
             {checks.map((check) => (
@@ -90,9 +91,9 @@ export function SystemSection() {
           <div style={{ fontSize: "var(--text-sm)", color: "var(--color-warning)", marginBottom: "var(--space-3)", fontFamily: "var(--font-mono)" }}>
             {health.missing_deps.join(", ")}
           </div>
-          <button onClick={handleInstall} disabled={installing} className="btn btn-primary" style={{ width: "fit-content" }}>
+          <Button onClick={handleInstall} disabled={installing} className="w-fit">
             {installing ? "Installing..." : "Install Missing"}
-          </button>
+          </Button>
           {installResult && (
             <div
               style={{
@@ -150,14 +151,14 @@ export function SystemSection() {
       <section>
         <SectionHeading>Quick Links</SectionHeading>
         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-          <a href="/api/docs" target="_blank" className="btn btn-secondary btn-sm" style={{ textDecoration: "none" }}>
-            API Docs
+          <a href="/api/docs" target="_blank" style={{ textDecoration: "none" }}>
+            <Button variant="secondary" size="sm">API Docs</Button>
           </a>
-          <a href="/api/health" target="_blank" className="btn btn-secondary btn-sm" style={{ textDecoration: "none" }}>
-            Health
+          <a href="/api/health" target="_blank" style={{ textDecoration: "none" }}>
+            <Button variant="secondary" size="sm">Health</Button>
           </a>
-          <a href="/api/health/detailed" target="_blank" className="btn btn-secondary btn-sm" style={{ textDecoration: "none" }}>
-            Detailed Health
+          <a href="/api/health/detailed" target="_blank" style={{ textDecoration: "none" }}>
+            <Button variant="secondary" size="sm">Detailed Health</Button>
           </a>
         </div>
       </section>

@@ -141,7 +141,7 @@ export default function ProfilePage() {
             <CardTitle>Activity Summary</CardTitle>
           </CardHeader>
           <CardContent>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--space-4)" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <StatCard label="Total Analyses" value={activity.total_analyses} />
               <StatCard label="Completed" value={activity.analyses_by_status.completed ?? 0} />
               <StatCard label="Total Trades" value={activity.total_trades} />

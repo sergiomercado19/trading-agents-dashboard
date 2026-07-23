@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchJson } from "../api/client";
+import { Button } from "@/components/ui/button";
 
 interface Provider {
   id: string;
@@ -26,14 +27,15 @@ export default function ProviderSelector({ value, onChange }: Props) {
       </label>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "var(--space-1)" }}>
         {providers.map((p) => (
-          <button
+          <Button
             key={p.id}
+            variant={value === p.id ? "default" : "secondary"}
+            size="sm"
             onClick={() => onChange(p.id)}
-            className={`btn btn-sm ${value === p.id ? "btn-primary" : "btn-secondary"}`}
-            style={{ fontSize: "var(--text-xs)", padding: "var(--space-2)" }}
+            className="text-xs py-2"
           >
             {p.name}
-          </button>
+          </Button>
         ))}
       </div>
     </div>
