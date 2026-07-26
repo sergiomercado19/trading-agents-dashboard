@@ -5,6 +5,7 @@ interface Provider {
   id: string;
   name: string;
   requires_key: boolean;
+  env_key: string | null;
 }
 
 interface Props {
@@ -14,10 +15,27 @@ interface Props {
 
 export default function ProviderSelector({ value, onChange }: Props) {
   const [providers, setProviders] = useState<Provider[]>([]);
+  const [envData, setEnvData] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    fetchJson<Provider[]>("/providers").then(setProviders).catch(() => {});
+    Promise.all([
+      fetchJson<Provider[]>("/providers"),
+      fetchJson<Record<string, string>>("/env"),
+    ]).then(([provs, env]) => {
+      setProviders(provs);
+      setEnvData(env);
+    }).catch(() => {});
   }, []);
+
+  const available = providers.filter(
+    (p) => !p.env_key || envData[p.env_key]
+  );
+
+  useEffect(() => {
+    if (available.length > 0 && !available.some((p) => p.id === value)) {
+      onChange(available[0]!.id);
+    }
+  }, [available, value, onChange]);
 
   return (
     <div>
@@ -25,7 +43,7 @@ export default function ProviderSelector({ value, onChange }: Props) {
         Provider
       </label>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "var(--space-1)" }}>
-        {providers.map((p) => (
+        {available.map((p) => (
           <button
             key={p.id}
             onClick={() => onChange(p.id)}
