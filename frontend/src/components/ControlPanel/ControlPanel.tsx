@@ -8,19 +8,12 @@ import type { RunSnapshot } from "../../hooks/useRunStream";
 import type { CostEstimate } from "../../hooks/useCostEstimate";
 import styles from "./ControlPanel.module.css";
 
-interface Preset {
-  id: string;
-  name: string;
-  config: Record<string, unknown>;
-}
-
 interface Props {
   running: boolean;
   snapshot: RunSnapshot | null;
   agents: Record<string, string>;
   estimate: CostEstimate | null;
   estimateLoading: boolean;
-  presets: Preset[];
   ticker: string;
   date: string;
   analysts: string[];
@@ -32,9 +25,6 @@ interface Props {
   elapsedSeconds: number;
   onStart: () => void;
   onStop: () => void;
-  onSavePreset: (name: string) => void;
-  onLoadPreset: (preset: Preset) => void;
-  onDeletePreset: (id: string) => void;
   onTickerChange: (v: string) => void;
   onDateChange: (v: string) => void;
   onAnalystsChange: (v: string[]) => void;
@@ -63,7 +53,6 @@ export default function ControlPanel({
   agents,
   estimate,
   estimateLoading,
-  presets,
   ticker,
   date,
   analysts,
@@ -75,9 +64,6 @@ export default function ControlPanel({
   elapsedSeconds,
   onStart,
   onStop,
-  onSavePreset,
-  onLoadPreset,
-  onDeletePreset,
   onTickerChange,
   onDateChange,
   onAnalystsChange,
@@ -86,7 +72,6 @@ export default function ControlPanel({
   onQuickModelChange,
   onDeepModelChange,
 }: Props) {
-  const [presetName, setPresetName] = useState("");
   const [showForm, setShowForm] = useState(!running);
 
   useEffect(() => {
@@ -100,13 +85,6 @@ export default function ControlPanel({
 
   const toggleAnalyst = (id: string) => {
     onAnalystsChange(analysts.includes(id) ? analysts.filter((a) => a !== id) : [...analysts, id]);
-  };
-
-  const handleSave = () => {
-    if (presetName.trim()) {
-      onSavePreset(presetName.trim());
-      setPresetName("");
-    }
   };
 
   return (
@@ -129,43 +107,6 @@ export default function ControlPanel({
         </div>
 
         <div className={styles.body}>
-          {/* Presets */}
-          <div className={styles.row}>
-            <input
-              value={presetName}
-              onChange={(e) => setPresetName(e.target.value)}
-              placeholder="Preset name..."
-              className={`input ${styles.presetInput}`}
-              onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            />
-            <Button variant="primary" onClick={handleSave} disabled={!presetName.trim()}>
-              Save
-            </Button>
-          </div>
-
-          {presets.length > 0 && (
-            <div className={styles.presetList}>
-              {presets.map((p) => (
-                <span
-                  key={p.id}
-                  onClick={() => onLoadPreset(p)}
-                  className={styles.presetItem}
-                >
-                  {p.name}
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeletePreset(p.id);
-                    }}
-                    className={styles.presetDelete}
-                  >
-                    ×
-                  </span>
-                </span>
-              ))}
-            </div>
-          )}
-
           {/* Ticker */}
           <TickerSearch value={ticker} onChange={onTickerChange} />
 

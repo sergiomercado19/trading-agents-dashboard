@@ -64,35 +64,17 @@ export const healthRoutes = {
 } as const;
 
 export const providerRoutes = {
-  list: {
-    method: 'GET' as const,
-    path: '/providers',
-    response: {} as Provider[],
-  },
-  models: {
-    method: 'GET' as const,
-    path: '/models',
-    response: {} as ModelLists,
-  },
-} as const;
-
-export const presetRoutes = {
-  list: {
-    method: 'GET' as const,
-    path: '/presets',
-    response: {} as Preset[],
-  },
-  create: {
-    method: 'POST' as const,
-    path: '/presets',
-    response: {} as Preset,
-  },
-  delete: (id: string) => ({
-    method: 'DELETE' as const,
-    path: `/presets/${id}`,
-    response: undefined as void,
-  }),
-} as const;
+   list: {
+     method: 'GET' as const,
+     path: '/providers',
+     response: {} as Provider[],
+   },
+   models: {
+     method: 'GET' as const,
+     path: '/models',
+     response: {} as ModelLists,
+   },
+ } as const;
 
 export const analyzeRoutes = {
   start: {
@@ -297,21 +279,20 @@ export const tickerNameRoutes = {
 } as const;
 
 export const routes = {
-  health: healthRoutes,
-  providers: providerRoutes,
-  presets: presetRoutes,
-  analyze: analyzeRoutes,
-  config: configRoutes,
-  reports: reportRoutes,
-  estimate: estimateRoutes,
-  apiKeys: apiKeyRoutes,
-  chat: chatRoutes,
-  scheduler: schedulerRoutes,
-  history: historyRoutes,
-  memory: memoryRoutes,
-  docker: dockerRoutes,
-  tickers: tickerNameRoutes,
-} as const;
+   health: healthRoutes,
+   providers: providerRoutes,
+   analyze: analyzeRoutes,
+   config: configRoutes,
+   reports: reportRoutes,
+   estimate: estimateRoutes,
+   apiKeys: apiKeyRoutes,
+   chat: chatRoutes,
+   scheduler: schedulerRoutes,
+   history: historyRoutes,
+   memory: memoryRoutes,
+   docker: dockerRoutes,
+   tickers: tickerNameRoutes,
+ } as const;
 
 export type RouteResponse<T extends Route> = T extends Route<any, infer R> ? R : never;
 export type RouteParams<T extends Route> = T extends Route<infer P, any> ? P : never;

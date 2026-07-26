@@ -6,34 +6,86 @@ import StatsDrawer from "../components/StatsDrawer";
 import { useRunStream } from "../hooks/useRunStream";
 import { useRuns } from "../hooks/useRuns";
 import { useCostEstimate } from "../hooks/useCostEstimate";
-import { fetchJson, postJson } from "../api/client";
+import { fetchJson } from "../api/client";
 
-interface Preset {
-  id: string;
-  name: string;
-  config: Record<string, unknown>;
+// Cookie helpers
+function getSettingFromCookie(name: string): string | undefined {
+  const cookies = document.cookie.split('; ');
+  for (const cookie of cookies) {
+    const [key, value] = cookie.split('=');
+    if (key === name) {
+      return value;
+    }
+  }
+  return undefined;
 }
 
+function setSettingInCookie(name: string, value: string) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/`;
+}
+
+// Safer parsing for JSON values from cookies
+function parseJsonFromCookie<T>(cookieValue: string | undefined, defaultValue: T): T {
+  if (cookieValue === undefined) return defaultValue;
+  try {
+    return JSON.parse(cookieValue) as T;
+  } catch (e) {
+    return defaultValue;
+  }
+}
+
+// State initialization from cookies
 export default function AnalyzePage() {
   const navigate = useNavigate();
-  const [ticker, setTicker] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().split("T")[0] ?? new Date().toISOString().slice(0, 10));
-  const [analysts, setAnalysts] = useState<string[]>(["market", "social", "news", "fundamentals"]);
-  const [depth, setDepth] = useState(3);
-  const [provider, setProvider] = useState("nvidia");
-  const [quickModel, setQuickModel] = useState("nvidia/nemotron-3-nano-30b-a3b");
-  const [deepModel, setDeepModel] = useState("nvidia/nemotron-3-ultra-550b-a55b");
+  const [ticker, setTicker] = useState<string>(() => {
+    const cookieVal = getSettingFromCookie('analyze_ticker');
+    return cookieVal || "";
+  });
+  const [date, setDate] = useState<string>(() => {
+    const cookieVal = getSettingFromCookie('analyze_date');
+    return cookieVal || new Date().toISOString().split('T')[0] || "";
+  });
+  const [analysts, setAnalysts] = useState<string[]>(() => {
+    const defaultAnalysts = ["market", "social", "news", "fundamentals"];
+    return parseJsonFromCookie(getSettingFromCookie('analyze_analysts'), defaultAnalysts);
+  });
+  const [depth, setDepth] = useState<number>(() => {
+    const cookieVal = getSettingFromCookie('analyze_depth');
+    return cookieVal ? parseInt(cookieVal) || 3 : 3;
+  });
+  const [provider, setProvider] = useState<string>(() => {
+    const cookieVal = getSettingFromCookie('analyze_provider');
+    return cookieVal || 'nvidia';
+  });
+  const [quickModel, setQuickModel] = useState<string>(() => {
+    const cookieVal = getSettingFromCookie('analyze_quick_model');
+    return cookieVal || 'nvidia/nemotron-3-nano-30b-a3b';
+  });
+  const [deepModel, setDeepModel] = useState<string>(() => {
+    const cookieVal = getSettingFromCookie('analyze_deep_model');
+    return cookieVal || 'nvidia/nemotron-3-ultra-550b-a55b';
+  });
+
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
-  const [presets, setPresets] = useState<Preset[]>([]);
   const [statsOpen, setStatsOpen] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-  useEffect(() => {
-    fetchJson<Preset[]>("/presets").then(setPresets).catch(() => {});
-  }, []);
-
   const { start, stop } = useRuns();
+
+  // State persistence when analysis runs
+  useEffect(() => {
+    if (activeRunId) {
+      setSettingInCookie('analyze_ticker', ticker);
+      setSettingInCookie('analyze_date', date);
+      setSettingInCookie('analyze_analysts', JSON.stringify(analysts));
+      setSettingInCookie('analyze_depth', String(depth));
+      setSettingInCookie('analyze_provider', provider);
+      setSettingInCookie('analyze_quick_model', quickModel);
+      setSettingInCookie('analyze_deep_model', deepModel);
+    }
+  }, [activeRunId, ticker, date, analysts, depth, provider, quickModel, deepModel]);
+  
   const { snapshot, agents, messages, stats, done, error } = useRunStream(activeRunId);
   const { estimate, loading: estimateLoading } = useCostEstimate({
     ticker,
@@ -113,26 +165,6 @@ export default function AnalyzePage() {
     }
   };
 
-  const handleSavePreset = async (name: string) => {
-    const config = { analysts, depth, provider, quickModel, deepModel };
-    const data = await postJson<Preset>("/presets", { name, config });
-    setPresets((prev) => [...prev, data]);
-  };
-
-  const handleLoadPreset = (p: Preset) => {
-    const c = p.config;
-    if (c.analysts) setAnalysts(c.analysts as string[]);
-    if (c.depth) setDepth(c.depth as number);
-    if (c.provider) setProvider(c.provider as string);
-    if (c.quickModel) setQuickModel(c.quickModel as string);
-    if (c.deepModel) setDeepModel(c.deepModel as string);
-  };
-
-  const handleDeletePreset = async (id: string) => {
-    await fetch(`/api/presets/${id}`, { method: "DELETE" });
-    setPresets((prev) => prev.filter((p) => p.id !== id));
-  };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
       {/* Stats toggle button */}
@@ -171,7 +203,6 @@ export default function AnalyzePage() {
             agents={agents}
             estimate={estimate}
             estimateLoading={estimateLoading}
-            presets={presets}
             ticker={ticker}
             date={date}
             analysts={analysts}
@@ -183,9 +214,6 @@ export default function AnalyzePage() {
             elapsedSeconds={elapsedSeconds}
             onStart={handleStart}
             onStop={handleStop}
-            onSavePreset={handleSavePreset}
-            onLoadPreset={handleLoadPreset}
-            onDeletePreset={handleDeletePreset}
             onTickerChange={setTicker}
             onDateChange={setDate}
             onAnalystsChange={setAnalysts}

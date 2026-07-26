@@ -37,19 +37,10 @@ export interface Provider {
 }
 
 export interface ModelLists {
-  [provider: string]: {
-    quick: string[];
-    deep: string[];
-  };
-}
-
-/**
- * ── Presets ──
- */
-export interface Preset {
-  id: string;
-  name: string;
-  config: Record<string, unknown>;
+   [provider: string]: {
+     quick: string[];
+     deep: string[];
+   };
 }
 
 /**
