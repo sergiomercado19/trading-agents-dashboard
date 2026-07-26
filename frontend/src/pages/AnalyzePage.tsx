@@ -142,28 +142,8 @@ export default function AnalyzePage() {
   useEffect(() => {
     if (!done || !activeRunId) return;
 
-    const redirectToReport = async () => {
-      try {
-        const reports = await fetchJson<{ id: string; ticker: string; modified: number }[]>("/reports");
-        // Find the most recent report for this ticker
-        const tickerReports = reports
-          .filter((r) => r.ticker.toUpperCase() === ticker.toUpperCase())
-          .sort((a, b) => b.modified - a.modified);
-
-        if (tickerReports.length > 0) {
-          const latest = tickerReports[0]!;
-          const timestamp = latest.id.replace(/^[^_]+_/, "");
-          navigate(`/reports/${latest.ticker}/${timestamp}`);
-        } else {
-          // Fallback to reports page if no report found
-          navigate("/reports");
-        }
-      } catch {
-        navigate("/reports");
-      }
-    };
-
-    redirectToReport();
+    // Redirect to ticker reports page when analysis completes
+    navigate(`/reports/${ticker.toUpperCase()}`);
   }, [done, activeRunId, ticker, navigate]);
 
   const handleStart = async () => {

@@ -6,6 +6,7 @@ import ModelSelect from "../ModelSelect";
 import PipelineVisualization from "../PipelineVisualization";
 import type { RunSnapshot } from "../../hooks/useRunStream";
 import type { CostEstimate } from "../../hooks/useCostEstimate";
+import { formatElapsedTime } from "../../utils/formatTime";
 import styles from "./ControlPanel.module.css";
 
 interface Props {
@@ -197,8 +198,8 @@ export default function ControlPanel({
           <span className={styles.title}>Pipeline</span>
           {stats && (
             <div className={styles.stats}>
-              <Badge variant="accent">${stats.cost_usd?.toFixed(4) || "0.00"}</Badge>
-              <Badge variant="neutral">{elapsedSeconds}s</Badge>
+              <Badge variant="accent">${stats.cost_usd?.toFixed(2) || "0.00"}</Badge>
+              <Badge variant="neutral">{formatElapsedTime(elapsedSeconds)}</Badge>
             </div>
           )}
         </div>

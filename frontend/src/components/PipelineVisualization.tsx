@@ -10,14 +10,16 @@ const STAGE_ORDER = [
   "bull_researcher",
   "bear_researcher",
   "research_manager",
-  "portfolio_manager",
   "trader",
+  "portfolio_manager",
 ];
 
 const STATUS_FALLBACK = { color: "var(--color-text-faint)", icon: "○", bg: "transparent" };
 
 function getStatusConfig(status: string) {
   switch (status) {
+    case "pending":
+      return { color: "var(--color-accent)", icon: "○", bg: "transparent" };
     case "in_progress":
       return { color: "var(--color-accent)", icon: "●", bg: "var(--color-accent-subtle)" };
     case "completed":

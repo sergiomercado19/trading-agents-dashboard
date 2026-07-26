@@ -114,6 +114,7 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
         final_state: dict = {}
         prev_state: dict = {}
         completed_stages: set[str] = set()
+        started_stages: set[str] = set()
         started_at = (await run_manager.get(run_id)).started
         # Track message IDs already sent to avoid duplicates and empty msgs.
         _seen_msg_ids: set[int] = set()
@@ -128,6 +129,14 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
             "fundamentals_report": "fundamentals_analyst",
         }
 
+        # All pipeline agents in order
+        _ALL_AGENTS = [
+            "market_analyst", "social_media_analyst",
+            "news_analyst", "fundamentals_analyst",
+            "bull_researcher", "bear_researcher",
+            "research_manager", "trader", "portfolio_manager",
+        ]
+
         async def _emit(agent: str, status: str) -> None:
             await run_manager.add_event(run_id, {
                 "type": "agent_update",
@@ -136,53 +145,83 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
                 "status": status,
             })
 
-        async def _detect_stages(chunk: dict) -> None:
-            """Compare *chunk* against ``prev_state`` and emit agent_update
-            events for every pipeline stage that transitioned."""
-            nonlocal prev_state
-
-            # --- analysts (report fields) ---
+        async def _recompute_all_statuses() -> None:
+            """Re-evaluate ALL agent statuses from accumulated state (like CLI)."""
+            # Check accumulated final_state for each agent's completion criteria
+            # --- Analysts ---
+            found_active = False
             for field, stage in _REPORT_STAGES.items():
-                new_val = chunk.get(field)
-                if new_val and stage not in completed_stages:
-                    completed_stages.add(stage)
-                    await _emit(stage, "completed")
+                has_report = bool(final_state.get(field))
+                if has_report:
+                    if stage not in completed_stages:
+                        completed_stages.add(stage)
+                        await _emit(stage, "completed")
+                elif not found_active and stage not in completed_stages:
+                    # First analyst without report -> in_progress
+                    found_active = True
+                    if stage not in started_stages:
+                        started_stages.add(stage)
+                        await _emit(stage, "in_progress")
+                # else: waiting analysts stay pending (default)
 
-            # --- investment debate (bull / bear / research manager) ---
-            debate = chunk.get("investment_debate_state") or {}
-            prev_debate = prev_state.get("investment_debate_state") or {}
+            # --- Research team (bull/bear/research_manager) ---
+            debate = final_state.get("investment_debate_state") or {}
+            bull_history = debate.get("bull_history", "")
+            bear_history = debate.get("bear_history", "")
+            judge_decision = debate.get("judge_decision", "")
 
-            bull_new = debate.get("bull_history", "")
-            bull_old = prev_debate.get("bull_history", "")
-            if bull_new and bull_new != bull_old and "bull_researcher" not in completed_stages:
-                completed_stages.add("bull_researcher")
-                await _emit("bull_researcher", "completed")
+            # Bull/Bear: in_progress when their history appears, completed when judge_decision appears
+            if bull_history:
+                if "bull_researcher" not in started_stages:
+                    started_stages.add("bull_researcher")
+                    await _emit("bull_researcher", "in_progress")
+            if bear_history:
+                if "bear_researcher" not in started_stages:
+                    started_stages.add("bear_researcher")
+                    await _emit("bear_researcher", "in_progress")
 
-            bear_new = debate.get("bear_history", "")
-            bear_old = prev_debate.get("bear_history", "")
-            if bear_new and bear_new != bear_old and "bear_researcher" not in completed_stages:
-                completed_stages.add("bear_researcher")
-                await _emit("bear_researcher", "completed")
+            # When judge_decision appears, mark both bull/bear and research_manager as completed
+            if judge_decision:
+                if "bull_researcher" not in completed_stages:
+                    completed_stages.add("bull_researcher")
+                    await _emit("bull_researcher", "completed")
+                if "bear_researcher" not in completed_stages:
+                    completed_stages.add("bear_researcher")
+                    await _emit("bear_researcher", "completed")
+                if "research_manager" not in completed_stages:
+                    completed_stages.add("research_manager")
+                    await _emit("research_manager", "completed")
+            elif "research_manager" not in started_stages and (bull_history or bear_history):
+                # Research manager in_progress when debate starts
+                started_stages.add("research_manager")
+                await _emit("research_manager", "in_progress")
 
-            judge_new = debate.get("judge_decision", "")
-            judge_old = prev_debate.get("judge_decision", "")
-            if judge_new and not judge_old and "research_manager" not in completed_stages:
-                completed_stages.add("research_manager")
-                await _emit("research_manager", "completed")
+            # --- Trader ---
+            trader_plan = final_state.get("trader_investment_plan", "")
+            if trader_plan:
+                if "trader" not in completed_stages:
+                    completed_stages.add("trader")
+                    await _emit("trader", "completed")
+                elif "trader" not in started_stages:
+                    started_stages.add("trader")
+                    await _emit("trader", "in_progress")
 
-            # --- trader ---
-            tip_new = chunk.get("trader_investment_plan", "")
-            tip_old = prev_state.get("trader_investment_plan", "")
-            if tip_new and tip_new != tip_old and "trader" not in completed_stages:
-                completed_stages.add("trader")
-                await _emit("trader", "completed")
+            # --- Portfolio Manager ---
+            final_decision = final_state.get("final_trade_decision", "")
+            if final_decision:
+                if "portfolio_manager" not in completed_stages:
+                    completed_stages.add("portfolio_manager")
+                    await _emit("portfolio_manager", "completed")
+                elif "portfolio_manager" not in started_stages:
+                    started_stages.add("portfolio_manager")
+                    await _emit("portfolio_manager", "in_progress")
 
-            # --- portfolio manager (final_trade_decision) ---
-            ftd_new = chunk.get("final_trade_decision", "")
-            ftd_old = prev_state.get("final_trade_decision", "")
-            if ftd_new and ftd_new != ftd_old and "portfolio_manager" not in completed_stages:
-                completed_stages.add("portfolio_manager")
-                await _emit("portfolio_manager", "completed")
+        async def _detect_stages(chunk: dict) -> None:
+            """Merge chunk into accumulated state and re-evaluate all statuses."""
+            for key, value in chunk.items():
+                if value:
+                    final_state[key] = value
+            await _recompute_all_statuses()
         # --- end helpers -----------------------------------------------
 
         while True:
@@ -281,6 +320,12 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
                 tickers_store.update({request.ticker: company_name})
         except Exception:
             logger.debug("Could not persist company name for %s", request.ticker)
+
+        # Finalize: ensure all agents marked completed (matching CLI behavior)
+        for agent in _ALL_AGENTS:
+            if agent not in completed_stages:
+                completed_stages.add(agent)
+                await _emit(agent, "completed")
 
         await run_manager.update(
             run_id,
