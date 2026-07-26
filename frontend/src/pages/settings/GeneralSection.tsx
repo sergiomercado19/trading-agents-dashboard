@@ -1,6 +1,7 @@
 import { useSettings } from "./SettingsContext";
 import { SectionHeading, FieldLabel } from "./SettingsShared";
 import { DATA_VENDOR_CATEGORIES, RISK_PROFILES } from "./SettingsConstants";
+import { getModelLabel } from "../../model-labels";
 
 export function GeneralSection() {
   const {
@@ -47,14 +48,14 @@ export function GeneralSection() {
           <div>
             <FieldLabel>Quick Think</FieldLabel>
             <select value={quickModel} onChange={(e) => setQuickModel(e.target.value)} className="input">
-              {providerModels?.quick?.map((m) => <option key={m} value={m}>{m}</option>)}
+              {providerModels?.quick?.map((m) => <option key={m} value={m}>{getModelLabel(m)}</option>)}
               {!providerModels && <option value={quickModel}>{quickModel}</option>}
             </select>
           </div>
           <div>
             <FieldLabel>Deep Think</FieldLabel>
             <select value={deepModel} onChange={(e) => setDeepModel(e.target.value)} className="input">
-              {providerModels?.deep?.map((m) => <option key={m} value={m}>{m}</option>)}
+              {providerModels?.deep?.map((m) => <option key={m} value={m}>{getModelLabel(m)}</option>)}
               {!providerModels && <option value={deepModel}>{deepModel}</option>}
             </select>
           </div>

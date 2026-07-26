@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchJson } from "../api/client";
+import { getModelLabel } from "../model-labels";
 
 interface Props {
   provider: string;
@@ -33,7 +34,7 @@ export default function ModelSelect({ provider, value, onChange, type = "quick" 
       >
         {options.length === 0 && <option value={value}>{value || "Select provider"}</option>}
         {options.map((m) => (
-          <option key={m} value={m}>{m}</option>
+          <option key={m} value={m}>{getModelLabel(m)}</option>
         ))}
       </select>
     </div>
