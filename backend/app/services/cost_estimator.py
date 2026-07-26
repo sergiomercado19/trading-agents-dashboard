@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from backend.app.models.schemas import AnalyzeRequest
+from app.models.schemas import AnalyzeRequest
 
 
 # Approximate token prices per 1M tokens (USD)

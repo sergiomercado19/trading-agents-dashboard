@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from backend.app.services.memory_service import memory_service
+from app.services.memory_service import memory_service
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
 

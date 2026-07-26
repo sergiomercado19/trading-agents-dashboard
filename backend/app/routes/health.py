@@ -8,7 +8,7 @@ from pathlib import Path
 
 from fastapi import APIRouter
 
-from backend.app.models.schemas import DetailedHealthResponse, HealthResponse, InstallResponse
+from app.models.schemas import DetailedHealthResponse, HealthResponse, InstallResponse
 
 router = APIRouter(prefix="/api", tags=["health"])
 

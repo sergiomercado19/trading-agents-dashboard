@@ -11,8 +11,8 @@ import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from backend.app.core.config import RUNS_DIR
-from backend.app.services.progress_tracker import progress_tracker
+from app.core.config import RUNS_DIR
+from app.services.progress_tracker import progress_tracker
 
 logger = logging.getLogger(__name__)
 
@@ -105,8 +105,8 @@ class AnalysisScheduler:
         })
 
         try:
-            from backend.app.routes.analyze import _run_analysis_background
-            from backend.app.services.run_manager import run_manager
+            from app.routes.analyze import _run_analysis_background
+            from app.services.run_manager import run_manager
 
             run = await run_manager.create(
                 ticker=job_data["ticker"],
@@ -114,7 +114,7 @@ class AnalysisScheduler:
             )
             progress_tracker.update(job_id, {"run_id": run.run_id, "status": "running"})
 
-            from backend.app.models.schemas import AnalyzeRequest
+            from app.models.schemas import AnalyzeRequest
             request = AnalyzeRequest(
                 ticker=job_data["ticker"],
                 date=time.strftime("%Y-%m-%d"),

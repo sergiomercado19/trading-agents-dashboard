@@ -41,8 +41,20 @@ MODELS: dict[str, dict[str, list[str]]] = {
         "deep": ["deepseek-v4-pro", "deepseek-v4-flash"],
     },
     "nvidia": {
-        "quick": ["nvidia/nemotron-3-nano-30b-a3b", "nvidia/nemotron-3-mini-8b-a3b"],
-        "deep": ["nvidia/nemotron-3-ultra-550b-a55b", "nvidia/nemotron-3-super-49b-a49b"],
+        "quick": ["nvidia/nemotron-3-nano-30b-a3b"],
+        "deep": ["nvidia/nemotron-3-ultra-550b-a55b"],
+    },
+    "openrouter": {
+        "quick": ["google/gemini-2.5-flash", "meta-llama/llama-3.3-70b-instruct", "anthropic/claude-3.5-sonnet"],
+        "deep": ["google/gemini-2.5-pro", "meta-llama/llama-3.3-405b-instruct", "anthropic/claude-3.5-sonnet"],
+    },
+    "mistral": {
+        "quick": ["mistral-small-latest", "mistral-medium-latest"],
+        "deep": ["mistral-large-latest", "codestral-latest"],
+    },
+    "groq": {
+        "quick": ["llama-3.3-70b-versatile", "gemma2-9b-it"],
+        "deep": ["llama-3.1-405b-reasoning", "mixtral-8x7b-32768"],
     },
     "ollama": {
         "quick": ["qwen3:latest", "gpt-oss:latest", "glm-4.7-flash:latest"],

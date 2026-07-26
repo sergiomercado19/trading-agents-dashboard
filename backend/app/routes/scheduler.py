@@ -6,7 +6,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from backend.app.services.scheduler import scheduler
+from app.services.scheduler import scheduler
 
 logger = logging.getLogger(__name__)
 

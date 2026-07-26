@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from backend.app.routes import health, stream, runs, config, env, analyze, ticker, estimate, providers, reports, file_reports, scheduler, test_key, memory, chat, history
+from app.routes import health, stream, runs, config, env, analyze, ticker, estimate, providers, reports, file_reports, scheduler, test_key, memory, chat, history
 
 
 logging.basicConfig(
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from backend.app.services.scheduler import scheduler as sched
+    from app.services.scheduler import scheduler as sched
     try:
         sched.start()
         logger.info("Scheduler started")

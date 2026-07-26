@@ -5,8 +5,8 @@ import time
 import uuid
 from pathlib import Path
 
-from backend.app.core.config import REPO_ROOT
-from backend.app.models.schemas import (
+from app.core.config import REPO_ROOT
+from app.models.schemas import (
     ChatMessage,
     ChatSession,
     ChatSessionSummary,
@@ -116,7 +116,7 @@ class ChatService:
         context_parts = []
         for report_path in session.pinned_reports:
             try:
-                from backend.app.core.config import REPO_ROOT
+                from app.core.config import REPO_ROOT
                 full_path = REPO_ROOT / report_path
                 if full_path.is_dir():
                     full_path = full_path / "complete_report.md"

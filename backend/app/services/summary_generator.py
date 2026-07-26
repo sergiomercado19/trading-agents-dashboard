@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from backend.app.models.schemas import RunSnapshot
+from app.models.schemas import RunSnapshot
 
 
 class SummaryGenerator:

@@ -66,6 +66,29 @@ export default function AnalyzePage() {
     return cookieVal || 'nvidia/nemotron-3-ultra-550b-a55b';
   });
 
+  // Fetch models and reset selection when provider changes
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const models = await fetchJson<Record<string, { quick: string[]; deep: string[] }>>("/models");
+        const providerModels = models[provider];
+        if (providerModels) {
+          const quickModels = providerModels.quick || [];
+          const deepModels = providerModels.deep || [];
+          if (quickModels.length > 0 && !quickModels.includes(quickModel)) {
+            setQuickModel(quickModels[0]);
+          }
+          if (deepModels.length > 0 && !deepModels.includes(deepModel)) {
+            setDeepModel(deepModels[0]);
+          }
+        }
+      } catch (e) {
+        // Ignore fetch errors
+      }
+    };
+    fetchModels();
+  }, [provider]);
+
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [statsOpen, setStatsOpen] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);

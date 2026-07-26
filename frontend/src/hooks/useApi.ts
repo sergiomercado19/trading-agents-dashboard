@@ -72,7 +72,8 @@ export function useApi<T = unknown>(
       while (true) {
         try {
           const routePath = typeof routeRef.current === "function" ? routeRef.current() : routeRef.current;
-          const url = new URL(routePath, window.location.origin);
+          const baseUrl = "/api";
+          const url = new URL(routePath, baseUrl);
           if (params) {
             Object.entries(params).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {

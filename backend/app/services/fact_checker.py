@@ -7,7 +7,7 @@ from pathlib import Path
 
 import httpx
 
-from backend.app.models.schemas import FactCheckResult
+from app.models.schemas import FactCheckResult
 
 
 class FactChecker:

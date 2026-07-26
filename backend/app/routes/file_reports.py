@@ -9,8 +9,8 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import HTMLResponse, StreamingResponse
 
-from backend.app.core.config import REPO_ROOT
-from backend.app.services.fact_checker import fact_checker
+from app.core.config import REPO_ROOT
+from app.services.fact_checker import fact_checker
 
 router = APIRouter(prefix="/api", tags=["reports"])
 

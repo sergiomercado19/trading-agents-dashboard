@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from backend.app.services.env_store import env_store
+from app.services.env_store import env_store
 
 router = APIRouter(prefix="/api", tags=["env"])
 

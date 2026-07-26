@@ -16,10 +16,17 @@ export default function ModelSelect({ provider, value, onChange, type = "quick" 
     fetchJson<Record<string, { quick: string[]; deep: string[] }>>("/models")
       .then(setModels)
       .catch(() => {});
-  }, []);
+  }, [provider]);
 
   const providerModels = models[provider];
   const options = providerModels?.[type] ?? [];
+
+  // Reset to first available option if current value not in new provider's options
+  useEffect(() => {
+    if (options.length > 0 && !options.includes(value)) {
+      onChange(options[0]);
+    }
+  }, [provider, options, value, onChange]);
 
   return (
     <div>

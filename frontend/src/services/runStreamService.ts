@@ -94,7 +94,7 @@ class RunStreamService {
   private connectInternal() {
     if (this.closed || !this.runId) return;
 
-    const es = new EventSource(`/stream?run_id=${this.runId}`);
+    const es = new EventSource(`/api/stream?run_id=${this.runId}`);
     this.esRef = es;
 
     es.onopen = () => {

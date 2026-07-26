@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from backend.app.core.config import RUNS_DIR
+from app.core.config import RUNS_DIR
 
 PROGRESS_DIR = RUNS_DIR / "scheduler_progress"
 

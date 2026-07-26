@@ -6,8 +6,8 @@ import httpx
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
-from backend.app.models.schemas import TickerSuggestion
-from backend.app.services.tickers_store import tickers_store
+from app.models.schemas import TickerSuggestion
+from app.services.tickers_store import tickers_store
 
 router = APIRouter(prefix="/api", tags=["ticker"])
 

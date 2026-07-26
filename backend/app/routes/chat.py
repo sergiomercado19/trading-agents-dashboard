@@ -8,9 +8,9 @@ import time
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from backend.app.core.sse import create_sse_response
-from backend.app.services.chat_service import chat_service
-from backend.app.models.schemas import ChatSessionSummary
+from app.core.sse import create_sse_response
+from app.services.chat_service import chat_service
+from app.models.schemas import ChatSessionSummary
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +164,7 @@ async def _fallback_llm_call(
 ) -> str:
     """Fallback LLM call using httpx for providers that support it."""
     import httpx
-    from backend.app.services.env_store import env_store
+    from app.services.env_store import env_store
 
     api_key = env_store.get(f"{provider.upper()}_API_KEY", "")
     if not api_key:

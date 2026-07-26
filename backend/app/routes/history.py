@@ -5,9 +5,9 @@ from pathlib import Path
 
 from fastapi import APIRouter
 
-from backend.app.core.config import REPO_ROOT
-from backend.app.services.run_manager import run_manager
-from backend.app.services.progress_tracker import progress_tracker
+from app.core.config import REPO_ROOT
+from app.services.run_manager import run_manager
+from app.services.progress_tracker import progress_tracker
 
 router = APIRouter(prefix="/api", tags=["history"])
 

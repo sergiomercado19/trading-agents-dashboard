@@ -6,8 +6,8 @@ import time
 import uuid
 from pathlib import Path
 
-from backend.app.core.config import RUNS_DIR, RUNS_JSON
-from backend.app.models.schemas import RunSnapshot, RunStats
+from app.core.config import RUNS_DIR, RUNS_JSON
+from app.models.schemas import RunSnapshot, RunStats
 
 
 class RunManager:

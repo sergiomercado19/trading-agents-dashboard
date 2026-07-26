@@ -9,8 +9,8 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
-from backend.app.models.schemas import AnalyzeRequest, RunSnapshot
-from backend.app.services.run_manager import run_manager
+from app.models.schemas import AnalyzeRequest, RunSnapshot
+from app.services.run_manager import run_manager
 
 logger = logging.getLogger(__name__)
 
@@ -274,7 +274,7 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
         # Persist resolved company name for sidebar display.
         try:
             from tradingagents.agents.utils.agent_utils import resolve_instrument_identity
-            from backend.app.services.tickers_store import tickers_store
+            from app.services.tickers_store import tickers_store
             identity = resolve_instrument_identity(request.ticker)
             company_name = identity.get("company_name")
             if company_name:

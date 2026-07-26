@@ -6,8 +6,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from backend.app.core.config import REPO_ROOT
-from backend.app.models.schemas import MemoryStatus
+from app.core.config import REPO_ROOT
+from app.models.schemas import MemoryStatus
 
 # Default vault path for Obsidian integration
 _DEFAULT_VAULT = str(Path.home() / "tradingagents-vault")

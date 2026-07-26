@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from backend.app.models.schemas import AnalyzeRequest
-from backend.app.services.cost_estimator import cost_estimator
+from app.models.schemas import AnalyzeRequest
+from app.services.cost_estimator import cost_estimator
 
 router = APIRouter(prefix="/api", tags=["estimate"])
 

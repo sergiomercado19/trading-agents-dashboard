@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from backend.app.services.run_manager import run_manager
+from app.services.run_manager import run_manager
 
 router = APIRouter(prefix="/api", tags=["runs"])
 

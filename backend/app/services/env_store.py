@@ -6,7 +6,7 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 
-from backend.app.core.config import ENV_PATH
+from app.core.config import ENV_PATH
 
 _SENSITIVE_KEYS = {"_API_KEY", "_SECRET", "_TOKEN", "_PASSWORD", "_BEARER"}
 

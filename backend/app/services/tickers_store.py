@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from backend.app.core.config import REPO_ROOT
+from app.core.config import REPO_ROOT
 
 _TICKERS_PATH = REPO_ROOT / "tickers.json"
 

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from backend.app.services.run_manager import run_manager
-from backend.app.services.debate_extractor import debate_extractor
-from backend.app.services.summary_generator import summary_generator
+from app.services.run_manager import run_manager
+from app.services.debate_extractor import debate_extractor
+from app.services.summary_generator import summary_generator
 
 router = APIRouter(prefix="/api", tags=["reports"])
 
