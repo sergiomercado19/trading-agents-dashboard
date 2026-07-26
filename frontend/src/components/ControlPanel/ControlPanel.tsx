@@ -138,7 +138,7 @@ export default function ControlPanel({
               className={`input ${styles.presetInput}`}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
-            <Button variant="primary" size="sm" onClick={handleSave} disabled={!presetName.trim()}>
+            <Button variant="primary" onClick={handleSave} disabled={!presetName.trim()}>
               Save
             </Button>
           </div>
