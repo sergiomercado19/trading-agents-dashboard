@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ControlPanel from "../components/ControlPanel/ControlPanel";
 import MessageFeed from "../components/MessageFeed/MessageFeed";
-import StatsDrawer from "../components/StatsDrawer";
 import { useRunStream } from "../hooks/useRunStream";
 import { useRuns } from "../hooks/useRuns";
 import { useCostEstimate } from "../hooks/useCostEstimate";
@@ -90,7 +89,6 @@ export default function AnalyzePage() {
   }, [provider]);
 
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
-  const [statsOpen, setStatsOpen] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -170,23 +168,6 @@ export default function AnalyzePage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
-      {/* Stats toggle button */}
-      <button
-        onClick={() => setStatsOpen(true)}
-        className="btn btn-ghost btn-sm"
-        style={{
-          position: "absolute",
-          top: "var(--space-3)",
-          right: "var(--space-3)",
-          zIndex: "var(--z-elevated)",
-          background: "var(--color-bg-elevated)",
-          border: "1px solid var(--color-border)",
-        }}
-      >
-        <span style={{ fontSize: "var(--text-sm)" }}>◇</span>
-        Stats
-      </button>
-
       {/* Terminal grid: 2 panels */}
       <div
         style={{
@@ -253,16 +234,6 @@ export default function AnalyzePage() {
           {error}
         </div>
       )}
-
-      {/* Stats drawer */}
-      <StatsDrawer
-        open={statsOpen}
-        onClose={() => setStatsOpen(false)}
-        stats={stats}
-        estimate={estimate}
-        snapshot={snapshot}
-        done={done}
-      />
     </div>
   );
 }
