@@ -134,7 +134,7 @@ export default function ReportsPage() {
     const all = Object.keys(tickerGroups).sort();
     if (!tickerFilter) return all;
     const q = tickerFilter.toUpperCase();
-    return all.filter((t) => t === q || (tickerNames[t] ?? "").toUpperCase() === q);
+    return all.filter((t) => t.includes(q) || (tickerNames[t] ?? "").toUpperCase().includes(q));
   }, [tickerGroups, tickerNames, tickerFilter]);
 
   const tickerReports = selectedTicker ? tickerGroups[selectedTicker] || [] : [];
