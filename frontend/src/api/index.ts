@@ -31,4 +31,4 @@ export {
   ApiErrorCode,
   HTTP_STATUS,
   statusToCode,
-} from '../lib/errors';
+} from '../utils/errors';

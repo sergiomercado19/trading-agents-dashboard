@@ -12,7 +12,7 @@ import {
   TimeoutError,
   isRetriableError,
   createApiError,
-} from '../lib/errors';
+} from '../utils/errors';
 
 /**
  * Default retry configuration

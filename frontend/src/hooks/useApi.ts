@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useRef, useState } from "react";
-import { type ApiError, isRetriableError, createApiError } from "../lib/errors";
+import { type ApiError, isRetriableError, createApiError } from "../utils/errors";
 
 export interface UseApiState<T> {
   data: T | null;
