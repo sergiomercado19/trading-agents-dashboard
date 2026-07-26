@@ -271,6 +271,17 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
         except Exception:
             logger.exception("Failed to save report tree for run %s", run_id)
 
+        # Persist resolved company name for sidebar display.
+        try:
+            from tradingagents.agents.utils.agent_utils import resolve_instrument_identity
+            from backend.app.services.tickers_store import tickers_store
+            identity = resolve_instrument_identity(request.ticker)
+            company_name = identity.get("company_name")
+            if company_name:
+                tickers_store.update({request.ticker: company_name})
+        except Exception:
+            logger.debug("Could not persist company name for %s", request.ticker)
+
         await run_manager.update(
             run_id,
             status="completed",
