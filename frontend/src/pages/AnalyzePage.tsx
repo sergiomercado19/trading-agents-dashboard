@@ -147,6 +147,20 @@ const { start, stop, runs: allRuns, refresh: refreshRuns } = useRuns();
 
   const running = snapshot?.status === "running";
 
+  // Restore startTime from snapshot when mounting an existing run
+  useEffect(() => {
+    if (snapshot && snapshot.started && !startTime) {
+      const snapshotTime = snapshot.started * 1000;
+      if (snapshot.status === "running") {
+        setStartTime(snapshotTime);
+        setElapsedSeconds(Math.floor((Date.now() - snapshotTime) / 1000));
+      } else if (["completed", "stopped", "error"].includes(snapshot.status)) {
+        setStartTime(null);
+        setElapsedSeconds(Math.floor((snapshot.ended ?? Date.now() / 1000) - snapshot.started));
+      }
+    }
+  }, [snapshot]);
+
   // Morphing state for ControlPanel <-> PipelineLayer transition
   const [showForm, setShowForm] = useState(!running);
   const [showPipeline, setShowPipeline] = useState(running);

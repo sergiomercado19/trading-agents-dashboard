@@ -266,6 +266,7 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
                         continue
                     _last_sent_content = content
                     agent = getattr(msg, "name", None) or "agent"
+                    await run_manager.add_message(run_id, agent, content[:2000])
                     await run_manager.add_event(run_id, {
                         "type": "message",
                         "run_id": run_id,

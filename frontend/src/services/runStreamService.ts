@@ -24,6 +24,7 @@ export interface RunSnapshot {
   decision: string | null;
   agents: Record<string, string>;
   reports: Record<string, string>;
+  messages?: { agent: string; content: string }[];
   stats: {
     llm_calls: number;
     tool_calls: number;
@@ -107,6 +108,7 @@ class RunStreamService {
       this.updateState({
         snapshot: data,
         agents: data.agents ?? this.state.agents,
+        messages: data.messages ?? this.state.messages,
         stats: data.stats ?? this.state.stats,
       });
     });

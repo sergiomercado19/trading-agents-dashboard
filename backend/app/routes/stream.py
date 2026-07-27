@@ -18,7 +18,9 @@ async def stream_events(request: Request, run_id: str | None = None):
             raise HTTPException(status_code=404, detail="Run queue not found")
         if run:
             # Send initial snapshot so the frontend knows the current state
-            await queue.put({"type": "snapshot", "data": run.model_dump()})
+            snapshot_data = run.model_dump()
+            snapshot_data["messages"] = await run_manager.get_messages(run_id)
+            await queue.put({"type": "snapshot", "data": snapshot_data})
     else:
         # Global stream — return snapshot of all runs then ping
         queue = asyncio.Queue()

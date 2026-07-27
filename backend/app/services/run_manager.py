@@ -16,6 +16,7 @@ class RunManager:
     def __init__(self) -> None:
         self._runs: dict[str, RunSnapshot] = {}
         self._queues: dict[str, asyncio.Queue] = {}
+        self._messages: dict[str, list[dict]] = {}
         self._lock = asyncio.Lock()
         RUNS_DIR.mkdir(parents=True, exist_ok=True)
         self._load()
@@ -53,6 +54,14 @@ class RunManager:
 
     async def get_queue(self, run_id: str) -> asyncio.Queue | None:
         return self._queues.get(run_id)
+
+    async def add_message(self, run_id: str, agent: str, content: str) -> None:
+        if run_id not in self._messages:
+            self._messages[run_id] = []
+        self._messages[run_id].append({"agent": agent, "content": content})
+
+    async def get_messages(self, run_id: str) -> list[dict]:
+        return self._messages.get(run_id, [])
 
     async def update(self, run_id: str, **updates) -> RunSnapshot | None:
         async with self._lock:
@@ -93,6 +102,7 @@ class RunManager:
             if run_id in self._runs:
                 del self._runs[run_id]
                 self._queues.pop(run_id, None)
+                self._messages.pop(run_id, None)
                 await self._save()
                 return True
             return False
