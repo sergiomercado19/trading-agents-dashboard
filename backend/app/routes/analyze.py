@@ -9,7 +9,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
-from app.models.schemas import AnalyzeRequest, RunSnapshot
+from app.models.schemas import AnalyzeRequest, RunSnapshot, RunStats
 from app.services.run_manager import run_manager
 
 logger = logging.getLogger(__name__)
@@ -138,6 +138,10 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
         ]
 
         async def _emit(agent: str, status: str) -> None:
+            run = await run_manager.get(run_id)
+            if run:
+                agents = {**run.agents, agent: status}
+                await run_manager.update(run_id, agents=agents)
             await run_manager.add_event(run_id, {
                 "type": "agent_update",
                 "run_id": run_id,
@@ -334,6 +338,7 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
             ended=time.time(),
             decision=decision,
             reports=reports,
+            stats=RunStats(elapsed_s=time.time() - started_at),
         )
         run = await run_manager.get(run_id)
         if run:

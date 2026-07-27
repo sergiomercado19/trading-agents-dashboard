@@ -5,6 +5,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { runStreamService } from "../services/runStreamService";
+import { fetchJson } from "../api/client";
 
 export interface AgentUpdate {
   agent: string;
@@ -74,10 +75,23 @@ export function useRunStream(runId: string | null) {
       return;
     }
 
+    let cancelled = false;
+    fetchJson<RunSnapshot>(`/runs/${runId}`).then((data) => {
+      if (!cancelled) {
+        setState((prev) => ({
+          ...prev,
+          snapshot: data,
+          agents: data.agents ?? {},
+          stats: data.stats ?? prev.stats,
+        }));
+      }
+    }).catch(() => {});
+
     const unsubscribe = runStreamService.subscribe(setState);
     runStreamService.connect(runId);
 
     return () => {
+      cancelled = true;
       unsubscribe();
       // Don't disconnect here - let service manage connection lifecycle
     };
