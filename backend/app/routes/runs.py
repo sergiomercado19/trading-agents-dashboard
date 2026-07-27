@@ -47,3 +47,11 @@ async def stop_run(run_id: str):
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
     return run.model_dump()
+
+
+@router.delete("/runs/{run_id}")
+async def delete_run(run_id: str):
+    success = await run_manager.delete(run_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Run not found")
+    return {"success": True}

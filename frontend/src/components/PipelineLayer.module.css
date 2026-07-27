@@ -1,0 +1,52 @@
+.pipelineLayer {
+  display: flex;
+  flex-direction: column;
+  transition: opacity var(--duration-normal) var(--ease-out),
+    transform var(--duration-normal) var(--ease-out);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  min-height: 40px;
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.pipelineBody {
+  padding: var(--space-2);
+  flex: 1;
+}
+
+.runInfo {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.stopButton {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+}
+
+.stats {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+}

@@ -1,17 +1,12 @@
 .controlPanel {
   display: flex;
   flex-direction: column;
-  height: 100%;
   position: relative;
-  overflow: hidden;
 }
 
 .layer {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
-  overflow: auto;
   transition: opacity var(--duration-normal) var(--ease-out),
     transform var(--duration-normal) var(--ease-out);
 }
@@ -154,35 +149,6 @@
   width: 100%;
   padding: var(--space-2) var(--space-4);
   margin-top: var(--space-2);
-}
-
-.pipelineBody {
-  padding: var(--space-2);
-  flex: 1;
-}
-
-.runInfo {
-  display: flex;
-  justify-content: space-between;
-  padding: var(--space-2) var(--space-4);
-  border-top: 1px solid var(--color-border-subtle);
-  font-size: var(--text-xs);
-  color: var(--color-text-faint);
-}
-
-.stopButton {
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-}
-
-.stats {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.footer {
-  padding: var(--space-3) var(--space-4);
-  border-top: 1px solid var(--color-border-subtle);
 }
 
 .buttonFlex {

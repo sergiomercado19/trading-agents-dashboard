@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ControlPanel from "../components/ControlPanel/ControlPanel";
+import PipelineLayer from "../components/PipelineVisualization";
 import MessageFeed from "../components/MessageFeed/MessageFeed";
+import ActiveAnalyses from "../components/ActiveAnalyses/ActiveAnalyses";
 import { useRunStream } from "../hooks/useRunStream";
 import { useRuns } from "../hooks/useRuns";
 import { useCostEstimate } from "../hooks/useCostEstimate";
@@ -75,10 +77,10 @@ export default function AnalyzePage() {
           const quickModels = providerModels.quick || [];
           const deepModels = providerModels.deep || [];
           if (quickModels.length > 0 && !quickModels.includes(quickModel)) {
-            setQuickModel(quickModels[0]);
+            setQuickModel(quickModels[0]!);
           }
           if (deepModels.length > 0 && !deepModels.includes(deepModel)) {
-            setDeepModel(deepModels[0]);
+            setDeepModel(deepModels[0]!);
           }
         }
       } catch (e) {
@@ -92,7 +94,32 @@ export default function AnalyzePage() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-  const { start, stop } = useRuns();
+const { start, stop, runs: allRuns, refresh: refreshRuns } = useRuns();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize activeRunId from query param on mount
+  useEffect(() => {
+    const runParam = searchParams.get("run");
+    if (runParam) {
+      setActiveRunId(runParam);
+    }
+  }, [searchParams]);
+
+  // Fetch active runs periodically
+  useEffect(() => {
+    refreshRuns();
+    const interval = setInterval(refreshRuns, 5000);
+    return () => clearInterval(interval);
+  }, [refreshRuns]);
+
+  // All runs for the list (including completed)
+  const allRunsList = allRuns.map((r) => ({
+    run_id: r.run_id,
+    ticker: r.ticker,
+    date: r.date,
+    status: r.status,
+    started: r.started,
+  }));
 
   // State persistence when analysis runs
   useEffect(() => {
@@ -119,6 +146,20 @@ export default function AnalyzePage() {
   });
 
   const running = snapshot?.status === "running";
+
+  // Morphing state for ControlPanel <-> PipelineLayer transition
+  const [showForm, setShowForm] = useState(!running);
+  const [showPipeline, setShowPipeline] = useState(running);
+
+  useEffect(() => {
+    if (!running) {
+      const t = setTimeout(() => setShowForm(true), 50);
+      return () => clearTimeout(t);
+    }
+    setShowForm(false);
+    setShowPipeline(true);
+    return undefined;
+  }, [running]);
 
   useEffect(() => {
     if (!running || !startTime) {
@@ -158,6 +199,7 @@ export default function AnalyzePage() {
       deep_model: deepModel,
     });
     setActiveRunId(run.run_id);
+    setSearchParams({ run: run.run_id });
   };
 
   const handleStop = async () => {
@@ -165,6 +207,19 @@ export default function AnalyzePage() {
       await stop(activeRunId);
     }
   };
+
+  const handleSelectRun = useCallback((runId: string) => {
+    setActiveRunId(runId);
+    setSearchParams({ run: runId });
+  }, [setSearchParams]);
+
+  const handleStopRun = useCallback(async (runId: string) => {
+    await stop(runId);
+    if (activeRunId === runId) {
+      setActiveRunId(null);
+      setSearchParams({});
+    }
+  }, [activeRunId, stop, setSearchParams]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
@@ -179,33 +234,73 @@ export default function AnalyzePage() {
           minHeight: 0,
         }}
       >
-        {/* Panel 1: Control / Pipeline */}
-        <div style={{ minHeight: 0 }}>
-          <ControlPanel
-            running={running}
-            snapshot={snapshot}
-            agents={agents}
-            estimate={estimate}
-            estimateLoading={estimateLoading}
-            ticker={ticker}
-            date={date}
-            analysts={analysts}
-            depth={depth}
-            provider={provider}
-            quickModel={quickModel}
-            deepModel={deepModel}
-            stats={stats}
-            elapsedSeconds={elapsedSeconds}
-            onStart={handleStart}
-            onStop={handleStop}
-            onTickerChange={setTicker}
-            onDateChange={setDate}
-            onAnalystsChange={setAnalysts}
-            onDepthChange={setDepth}
-            onProviderChange={setProvider}
-            onQuickModelChange={setQuickModel}
-            onDeepModelChange={setDeepModel}
-          />
+        {/* Panel 1: Control / Pipeline + Active Analyses (stacked vertically) */}
+        <div style={{ minHeight: 0, display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+          {/* Control/Pipeline morphing container */}
+          <div style={{ position: "relative", minHeight: 578, height: "50%" }}>
+            {/* Form layer */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                opacity: showForm ? 1 : 0,
+                transform: showForm ? "translateX(0)" : "translateX(-20px)",
+                transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
+                pointerEvents: showForm ? "auto" : "none",
+              }}
+            >
+              <ControlPanel
+                estimate={estimate}
+                estimateLoading={estimateLoading}
+                ticker={ticker}
+                date={date}
+                analysts={analysts}
+                depth={depth}
+                provider={provider}
+                quickModel={quickModel}
+                deepModel={deepModel}
+                onStart={handleStart}
+                onTickerChange={setTicker}
+                onDateChange={setDate}
+                onAnalystsChange={setAnalysts}
+                onDepthChange={setDepth}
+                onProviderChange={setProvider}
+                onQuickModelChange={setQuickModel}
+                onDeepModelChange={setDeepModel}
+              />
+            </div>
+
+            {/* Pipeline layer (morphs in when running) */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                opacity: showPipeline ? 1 : 0,
+                transform: showPipeline ? "translateX(0)" : "translateX(20px)",
+                transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
+                transitionDelay: "150ms",
+                pointerEvents: showPipeline ? "auto" : "none",
+              }}
+            >
+              <PipelineLayer
+                agents={agents}
+                stats={stats}
+                elapsedSeconds={elapsedSeconds}
+                snapshot={snapshot}
+                onStop={handleStop}
+              />
+            </div>
+          </div>
+
+          {/* Active analyses list */}
+          <div style={{ height: "50%" }}>
+            <ActiveAnalyses
+              runs={allRunsList}
+              activeRunId={activeRunId}
+              onSelectRun={handleSelectRun}
+              onStopRun={handleStopRun}
+            />
+          </div>
         </div>
 
         {/* Panel 2: Message Feed */}

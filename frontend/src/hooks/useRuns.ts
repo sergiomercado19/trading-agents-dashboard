@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { fetchJson, postJson } from "../api/client";
+import { fetchJson, postJson, api } from "../api/client";
 import type { RunSnapshot } from "./useRunStream";
 
 export function useRuns() {
@@ -35,5 +35,10 @@ export function useRuns() {
     return run as RunSnapshot;
   }, []);
 
-  return { runs, loading, start, stop, refresh };
+  const deleteRun = useCallback(async (runId: string) => {
+    await api.delete(`/runs/${runId}`);
+    setRuns((prev) => prev.filter((r) => r.run_id !== runId));
+  }, []);
+
+  return { runs, loading, start, stop, deleteRun, refresh };
 }

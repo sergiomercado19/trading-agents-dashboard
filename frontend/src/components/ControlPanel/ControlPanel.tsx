@@ -1,18 +1,11 @@
-import { useState, useEffect } from "react";
 import { Button, Badge } from "../ui";
 import TickerSearch from "../TickerSearch";
 import ProviderSelector from "../ProviderSelector";
 import ModelSelect from "../ModelSelect";
-import PipelineVisualization from "../PipelineVisualization";
-import type { RunSnapshot } from "../../hooks/useRunStream";
 import type { CostEstimate } from "../../hooks/useCostEstimate";
-import { formatElapsedTime } from "../../utils/formatTime";
 import styles from "./ControlPanel.module.css";
 
 interface Props {
-  running: boolean;
-  snapshot: RunSnapshot | null;
-  agents: Record<string, string>;
   estimate: CostEstimate | null;
   estimateLoading: boolean;
   ticker: string;
@@ -22,10 +15,7 @@ interface Props {
   provider: string;
   quickModel: string;
   deepModel: string;
-  stats: RunSnapshot["stats"] | null;
-  elapsedSeconds: number;
   onStart: () => void;
-  onStop: () => void;
   onTickerChange: (v: string) => void;
   onDateChange: (v: string) => void;
   onAnalystsChange: (v: string[]) => void;
@@ -49,9 +39,6 @@ const DEPTH_OPTIONS = [
 ];
 
 export default function ControlPanel({
-  running,
-  snapshot,
-  agents,
   estimate,
   estimateLoading,
   ticker,
@@ -61,10 +48,7 @@ export default function ControlPanel({
   provider,
   quickModel,
   deepModel,
-  stats,
-  elapsedSeconds,
   onStart,
-  onStop,
   onTickerChange,
   onDateChange,
   onAnalystsChange,
@@ -73,155 +57,99 @@ export default function ControlPanel({
   onQuickModelChange,
   onDeepModelChange,
 }: Props) {
-  const [showForm, setShowForm] = useState(!running);
-
-  useEffect(() => {
-    if (!running) {
-      const t = setTimeout(() => setShowForm(true), 50);
-      return () => clearTimeout(t);
-    }
-    setShowForm(false);
-    return undefined;
-  }, [running]);
-
   const toggleAnalyst = (id: string) => {
     onAnalystsChange(analysts.includes(id) ? analysts.filter((a) => a !== id) : [...analysts, id]);
   };
 
   return (
     <div className={styles.controlPanel}>
-      {/* Form layer */}
-      <div
-        className={`${styles.layer} ${styles.formLayer} ${showForm ? styles.visible : ""}`}
-        style={{
-          opacity: showForm ? 1 : 0,
-          transform: showForm ? "translateX(0)" : "translateX(-20px)",
-          transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
-          pointerEvents: showForm ? "auto" : "none",
-        }}
-      >
-        <div className={styles.header}>
-          <span className={styles.title}>Configure</span>
-          {estimate && !estimateLoading && (
-            <Badge variant="accent">~${estimate.estimated_cost_usd.toFixed(4)}</Badge>
-          )}
-        </div>
-
-        <div className={styles.body}>
-          {/* Ticker */}
-          <TickerSearch value={ticker} onChange={onTickerChange} />
-
-          {/* Date */}
-          <div className={styles.section}>
-            <label className={styles.label}>Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => onDateChange(e.target.value)}
-              className={`input ${styles.dateInput}`}
-            />
-          </div>
-
-          {/* Analysts */}
-          <div className={styles.section}>
-            <label className={styles.label}>Analysts</label>
-            <div className={styles.row}>
-              {ANALYSTS.map((a) => (
-                <Button
-                  key={a.id}
-                  variant={analysts.includes(a.id) ? "primary" : "secondary"}
-                  size="sm"
-                  onClick={() => toggleAnalyst(a.id)}
-                  className={styles.buttonFlex}
-                >
-                  {a.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Depth */}
-          <div className={styles.section}>
-            <label className={styles.label}>Depth</label>
-            <div className={styles.row}>
-              {DEPTH_OPTIONS.map((opt) => (
-                <Button
-                  key={opt.value}
-                  variant={depth === opt.value ? "primary" : "secondary"}
-                  size="sm"
-                  onClick={() => onDepthChange(opt.value)}
-                  className={styles.buttonFlex}
-                >
-                  {opt.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Provider */}
-          <ProviderSelector value={provider} onChange={onProviderChange} />
-
-          {/* Models */}
-          <div className={styles.grid}>
-            <ModelSelect provider={provider} value={quickModel} onChange={onQuickModelChange} type="quick" />
-            <ModelSelect provider={provider} value={deepModel} onChange={onDeepModelChange} type="deep" />
-          </div>
-
-          {/* Cost estimate */}
-          {estimate && (
-            <div className={styles.costEstimate}>
-              <div className={styles.costRow}>
-                <span>{estimate.estimated_tokens_in.toLocaleString()} in</span>
-                <span>{estimate.estimated_tokens_out.toLocaleString()} out</span>
-                <span className={styles.costTotal}>${estimate.estimated_cost_usd.toFixed(4)}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Start button */}
-          <Button
-            variant="primary"
-            className={styles.startButton}
-            onClick={onStart}
-            disabled={!ticker}
-          >
-            Start Analysis
-          </Button>
-        </div>
+      <div className={styles.header}>
+        <span className={styles.title}>Configure</span>
+        {estimate && !estimateLoading && (
+          <Badge variant="accent">~${estimate.estimated_cost_usd.toFixed(4)}</Badge>
+        )}
       </div>
 
-      {/* Pipeline layer (morphs in when running) */}
-      <div
-        className={`${styles.layer} ${styles.pipelineLayer} ${running ? styles.visible : ""}`}
-      >
-        <div className={styles.header}>
-          <span className={styles.title}>Pipeline</span>
-          {stats && (
-            <div className={styles.stats}>
-              <Badge variant="accent">${stats.cost_usd?.toFixed(2) || "0.00"}</Badge>
-              <Badge variant="neutral">{formatElapsedTime(elapsedSeconds)}</Badge>
+      <div className={styles.body}>
+        {/* Ticker */}
+        <TickerSearch value={ticker} onChange={onTickerChange} />
+
+        {/* Date */}
+        <div className={styles.section}>
+          <label className={styles.label}>Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => onDateChange(e.target.value)}
+            className={`input ${styles.dateInput}`}
+          />
+        </div>
+
+        {/* Analysts */}
+        <div className={styles.section}>
+          <label className={styles.label}>Analysts</label>
+          <div className={styles.row}>
+            {ANALYSTS.map((a) => (
+              <Button
+                key={a.id}
+                variant={analysts.includes(a.id) ? "primary" : "secondary"}
+                size="sm"
+                onClick={() => toggleAnalyst(a.id)}
+                className={styles.buttonFlex}
+              >
+                {a.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Depth */}
+        <div className={styles.section}>
+          <label className={styles.label}>Depth</label>
+          <div className={styles.row}>
+            {DEPTH_OPTIONS.map((opt) => (
+              <Button
+                key={opt.value}
+                variant={depth === opt.value ? "primary" : "secondary"}
+                size="sm"
+                onClick={() => onDepthChange(opt.value)}
+                className={styles.buttonFlex}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Provider */}
+        <ProviderSelector value={provider} onChange={onProviderChange} />
+
+        {/* Models */}
+        <div className={styles.grid}>
+          <ModelSelect provider={provider} value={quickModel} onChange={onQuickModelChange} type="quick" />
+          <ModelSelect provider={provider} value={deepModel} onChange={onDeepModelChange} type="deep" />
+        </div>
+
+        {/* Cost estimate */}
+        {estimate && (
+          <div className={styles.costEstimate}>
+            <div className={styles.costRow}>
+              <span>{estimate.estimated_tokens_in.toLocaleString()} in</span>
+              <span>{estimate.estimated_tokens_out.toLocaleString()} out</span>
+              <span className={styles.costTotal}>${estimate.estimated_cost_usd.toFixed(4)}</span>
             </div>
-          )}
-        </div>
-
-        <div className={styles.pipelineBody}>
-          <PipelineVisualization agents={agents} />
-        </div>
-
-        {/* Run info footer */}
-        {snapshot && (
-          <div className={styles.runInfo}>
-            <span>{snapshot.ticker}</span>
-            <span>{snapshot.run_id?.slice(0, 8)}</span>
           </div>
         )}
 
-        {/* Stop button */}
-        <div className={styles.footer}>
-          <Button variant="danger" className={styles.stopButton} onClick={onStop}>
-            Stop
-          </Button>
-        </div>
+        {/* Start button */}
+        <Button
+          variant="primary"
+          className={styles.startButton}
+          onClick={onStart}
+          disabled={!ticker}
+        >
+          Start Analysis
+        </Button>
       </div>
     </div>
   );

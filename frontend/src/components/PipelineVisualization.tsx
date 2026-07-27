@@ -1,6 +1,7 @@
-interface Props {
-  agents: Record<string, string>;
-}
+import { Badge, Button } from "./ui";
+import { formatElapsedTime } from "../utils/formatTime";
+import type { RunSnapshot } from "../hooks/useRunStream";
+import styles from "./PipelineLayer.module.css";
 
 const STAGE_ORDER = [
   "market_analyst",
@@ -35,7 +36,11 @@ function formatStageName(stage: string): string {
   return stage.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export default function PipelineVisualization({ agents }: Props) {
+interface PipelineVisualizationProps {
+  agents: Record<string, string>;
+}
+
+function PipelineVisualizationInner({ agents }: PipelineVisualizationProps) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
       {STAGE_ORDER.map((stage, index) => {
@@ -83,6 +88,53 @@ export default function PipelineVisualization({ agents }: Props) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+export interface PipelineLayerProps {
+  agents: Record<string, string>;
+  stats: RunSnapshot["stats"] | null;
+  elapsedSeconds: number;
+  snapshot: RunSnapshot | null;
+  onStop: () => void;
+}
+
+export default function PipelineLayer({
+  agents,
+  stats,
+  elapsedSeconds,
+  snapshot,
+  onStop,
+}: PipelineLayerProps) {
+  return (
+    <div className={styles.pipelineLayer}>
+      <div className={styles.header}>
+        <span className={styles.title}>Pipeline</span>
+        {stats && (
+          <div className={styles.stats}>
+            <Badge variant="accent">${stats.cost_usd?.toFixed(2) || "0.00"}</Badge>
+            <Badge variant="neutral">{formatElapsedTime(elapsedSeconds)}</Badge>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.pipelineBody}>
+        <PipelineVisualizationInner agents={agents} />
+      </div>
+
+      {snapshot && (
+        <div className={styles.runInfo}>
+          <span>{snapshot.ticker}</span>
+          <span>{snapshot.run_id?.slice(0, 8)}</span>
+        </div>
+      )}
+
+      <div className={styles.footer}>
+        <Button variant="danger" className={styles.stopButton} onClick={onStop}>
+          Stop
+        </Button>
+      </div>
     </div>
   );
 }
