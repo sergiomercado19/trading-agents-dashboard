@@ -140,7 +140,9 @@ function AppInner() {
             <Route path="/analyze/:runId" element={<AnalyzePage />} />
             <Route path="/scheduler" element={<SchedulerPage />} />
             <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/reports/*" element={<ReportsPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/reports/:ticker" element={<ReportsPage />} />
+            <Route path="/reports/:ticker/:timestamp" element={<ReportsPage />} />
             <Route path="/memory" element={<MemoryPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/history" element={<HistoryPage />} />

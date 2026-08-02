@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchJson } from "../api/client";
 import ReportReader from "../components/ReportReader/ReportReader";
 import FactCheckBadge from "../components/FactCheckBadge";
@@ -42,13 +42,8 @@ function formatDate(dateStr: string): string {
 }
 
 export default function ReportsPage() {
-  const location = useLocation();
   const navigate = useNavigate();
-
-  // Parse path segments from /reports/* wildcard
-  const pathSegments = location.pathname.replace(/^\/reports\/?/, "").split("/").filter(Boolean);
-  const urlTicker = pathSegments[0] || null;
-  const urlTimestamp = pathSegments[1] || null;
+  const { ticker: urlTicker, timestamp: urlTimestamp } = useParams<{ ticker: string; timestamp: string }>();
 
   const [reports, setReports] = useState<ReportMeta[]>([]);
   const [selected, setSelected] = useState<ReportMeta | null>(null);
@@ -72,19 +67,26 @@ export default function ReportsPage() {
     fetchJson<ReportMeta[]>("/reports").then(setReports).catch(() => {});
   }, []);
 
-  // Sync URL params to state on initial load only
+  // Sync URL params to state
   useEffect(() => {
-    if (urlSynced.current) return;
-    if (!urlTicker || reports.length === 0) return;
+    if (reports.length === 0) return;
     urlSynced.current = true;
-    setSelectedTicker(urlTicker);
-    setShowTimestamps(true);
-    if (urlTimestamp) {
-      // Match against id which is TICKER_timestamp
-      const match = reports.find((r) => r.ticker === urlTicker && r.id.endsWith(urlTimestamp));
-      if (match) {
-        setSelected(match);
+    if (urlTicker) {
+      setSelectedTicker(urlTicker);
+      setShowTimestamps(true);
+      if (urlTimestamp) {
+        // Match against id which is TICKER_timestamp
+        const match = reports.find((r) => r.ticker === urlTicker && r.id.endsWith(urlTimestamp));
+        if (match) {
+          setSelected(match);
+        }
       }
+    } else {
+      setSelectedTicker(null);
+      setShowTimestamps(false);
+      setSelected(null);
+      setFileTree([]);
+      setSelectedFile(null);
     }
   }, [reports, urlTicker, urlTimestamp]);
 
@@ -161,6 +163,7 @@ export default function ReportsPage() {
 
   // Sync state → URL (single source of truth for navigation)
   useEffect(() => {
+    if (!urlSynced.current) return;
     if (!showTimestamps || !selectedTicker) {
       navigate("/reports", { replace: true });
     } else if (selected) {
