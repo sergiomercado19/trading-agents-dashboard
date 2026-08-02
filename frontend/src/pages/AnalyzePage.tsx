@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ControlPanel from "../components/ControlPanel/ControlPanel";
 import PipelineLayer from "../components/PipelineVisualization";
 import MessageFeed from "../components/MessageFeed/MessageFeed";
@@ -38,6 +38,7 @@ function parseJsonFromCookie<T>(cookieValue: string | undefined, defaultValue: T
 // State initialization from cookies
 export default function AnalyzePage() {
   const navigate = useNavigate();
+  const { runId } = useParams<{ runId: string }>();
   const [ticker, setTicker] = useState<string>(() => {
     const cookieVal = getSettingFromCookie('analyze_ticker');
     return cookieVal || "";
@@ -90,20 +91,16 @@ export default function AnalyzePage() {
     fetchModels();
   }, [provider]);
 
-  const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [activeRunId, setActiveRunId] = useState<string | null>(runId ?? null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-const { start, stop, runs: allRuns, refresh: refreshRuns, removeFromQueue } = useRuns();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { start, stop, runs: allRuns, refresh: refreshRuns, removeFromQueue, loading: runsLoading } = useRuns();
 
-  // Initialize activeRunId from query param on mount
+  // Keep activeRunId in sync with the route param
   useEffect(() => {
-    const runParam = searchParams.get("run");
-    if (runParam) {
-      setActiveRunId(runParam);
-    }
-  }, [searchParams]);
+    setActiveRunId(runId ?? null);
+  }, [runId]);
 
   // Fetch active runs periodically
   useEffect(() => {
@@ -147,6 +144,17 @@ const { start, stop, runs: allRuns, refresh: refreshRuns, removeFromQueue } = us
 
   const isActive = snapshot?.status === "running" || snapshot?.status === "queued";
 
+  // Redirect to /analyze when the run id doesn't match an active run
+  useEffect(() => {
+    if (!runId || runsLoading || done) return;
+    const found = allRuns.some(
+      (r) => r.run_id === runId && (r.status === "queued" || r.status === "running")
+    );
+    if (!found) {
+      navigate("/analyze", { replace: true });
+    }
+  }, [runId, allRuns, runsLoading, done, navigate]);
+
   // Restore startTime from snapshot when mounting an existing run
   useEffect(() => {
     if (snapshot && snapshot.started && !startTime) {
@@ -167,6 +175,7 @@ const { start, stop, runs: allRuns, refresh: refreshRuns, removeFromQueue } = us
 
   useEffect(() => {
     if (!isActive) {
+      setShowPipeline(false);
       const t = setTimeout(() => setShowForm(true), 50);
       return () => clearTimeout(t);
     }
@@ -212,41 +221,36 @@ const { start, stop, runs: allRuns, refresh: refreshRuns, removeFromQueue } = us
       quick_model: quickModel,
       deep_model: deepModel,
     });
-    setActiveRunId(run.run_id);
-    setSearchParams({ run: run.run_id });
+    navigate(`/analyze/${run.run_id}`);
   };
 
   const handleStop = async () => {
     if (!activeRunId) return;
     if (snapshot?.status === "queued") {
       await removeFromQueue(activeRunId);
-      setActiveRunId(null);
-      setSearchParams({});
+      navigate("/analyze");
     } else {
       await stop(activeRunId);
     }
   };
 
   const handleSelectRun = useCallback((runId: string) => {
-    setActiveRunId(runId);
-    setSearchParams({ run: runId });
-  }, [setSearchParams]);
+    navigate(`/analyze/${runId}`);
+  }, [navigate]);
 
   const handleStopRun = useCallback(async (runId: string) => {
     await stop(runId);
     if (activeRunId === runId) {
-      setActiveRunId(null);
-      setSearchParams({});
+      navigate("/analyze");
     }
-  }, [activeRunId, stop, setSearchParams]);
+  }, [activeRunId, stop, navigate]);
 
   const handleRemoveFromQueue = useCallback(async (runId: string) => {
     await removeFromQueue(runId);
     if (activeRunId === runId) {
-      setActiveRunId(null);
-      setSearchParams({});
+      navigate("/analyze");
     }
-  }, [activeRunId, removeFromQueue, setSearchParams]);
+  }, [activeRunId, removeFromQueue, navigate]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
@@ -305,7 +309,7 @@ const { start, stop, runs: allRuns, refresh: refreshRuns, removeFromQueue } = us
                 opacity: showPipeline ? 1 : 0,
                 transform: showPipeline ? "translateX(0)" : "translateX(20px)",
                 transition: "opacity var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out)",
-                transitionDelay: "150ms",
+                transitionDelay: showPipeline ? "150ms" : "0ms",
                 pointerEvents: showPipeline ? "auto" : "none",
               }}
             >

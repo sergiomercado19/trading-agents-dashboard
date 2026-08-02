@@ -137,6 +137,7 @@ function AppInner() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/analyze" element={<AnalyzePage />} />
+            <Route path="/analyze/:runId" element={<AnalyzePage />} />
             <Route path="/scheduler" element={<SchedulerPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/reports/*" element={<ReportsPage />} />
