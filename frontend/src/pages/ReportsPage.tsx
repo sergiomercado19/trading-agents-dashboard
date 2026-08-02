@@ -31,14 +31,33 @@ interface UrlCheck {
   status_code: number | null;
 }
 
+function formatDateTime(dt: Date): string {
+  return dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    + " " + dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+}
+
 function formatDate(dateStr: string): string {
   const cleaned = dateStr.replace(/_/g, " ");
   const match = cleaned.match(/(\d{4})(\d{2})(\d{2})\s*(\d{2})(\d{2})(\d{2})/);
   if (!match) return cleaned;
   const [, y, m, d, h, min, s] = match;
-  const dt = new Date(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(s));
-  return dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    + " " + dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return formatDateTime(new Date(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(s)));
+}
+
+function formatRunTime(modified: number): string {
+  return formatDateTime(new Date(modified * 1000));
+}
+
+export function sortByMostRecent(reports: ReportMeta[]): ReportMeta[] {
+  return [...reports].sort((a, b) => {
+    if (b.modified !== a.modified) return b.modified - a.modified;
+    return b.id.localeCompare(a.id);
+  });
+}
+
+export function reportTimestamp(id: string): string {
+  const match = id.match(/^[^_]+_(\d{8}_\d{6})/);
+  return match ? match[1]! : id;
 }
 
 export default function ReportsPage() {
@@ -138,6 +157,8 @@ export default function ReportsPage() {
     const q = tickerFilter.toUpperCase();
     return all.filter((t) => t.includes(q) || (tickerNames[t] ?? "").toUpperCase().includes(q));
   }, [tickerGroups, tickerNames, tickerFilter]);
+
+  const recentReports = useMemo(() => sortByMostRecent(reports), [reports]);
 
   const tickerReports = selectedTicker ? tickerGroups[selectedTicker] || [] : [];
 
@@ -366,8 +387,61 @@ export default function ReportsPage() {
       {/* ── Main content ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {!selected ? (
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-faint)", fontSize: "var(--text-sm)" }}>
-            {reports.length === 0 ? "No reports found" : "Select a report to view"}
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div className="panel-header">
+              <span className="panel-title">Recent Reports</span>
+              <span className="badge" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-muted)" }}>
+                {recentReports.length}
+              </span>
+            </div>
+            {reports.length === 0 ? (
+              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", fontSize: "var(--text-sm)", padding: "var(--space-3)" }}>
+                No reports yet. Run an analysis to generate the first one.
+              </div>
+            ) : (
+              <div style={{ flex: 1, overflowY: "auto" }}>
+                {recentReports.map((r) => (
+                  <div
+                    key={r.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/reports/${r.ticker}/${reportTimestamp(r.id)}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        navigate(`/reports/${r.ticker}/${reportTimestamp(r.id)}`);
+                      }
+                    }}
+                    style={{
+                      padding: "var(--space-2) var(--space-4)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "var(--space-3)",
+                      cursor: "pointer",
+                      borderBottom: "1px solid var(--color-border-subtle)",
+                      transition: "background var(--duration-fast) var(--ease-out)",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg-hover)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-md)", color: "var(--color-text-primary)", fontFamily: "var(--font-mono)" }}>
+                        {r.ticker}
+                      </div>
+                      {tickerNames[r.ticker] && (
+                        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "var(--space-1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {tickerNames[r.ticker]}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-faint)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap" }}>
+                      {formatRunTime(r.modified)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <>
