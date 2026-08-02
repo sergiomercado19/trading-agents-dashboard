@@ -8,6 +8,7 @@ interface ThemeVars {
 
 const THEMES: Record<ThemeId, ThemeVars> = {
   terminal: {
+    "--color-scheme": "dark",
     "--color-bg-root": "oklch(0.13 0.005 260)",
     "--color-bg-surface": "oklch(0.16 0.005 260)",
     "--color-bg-elevated": "oklch(0.19 0.005 260)",
@@ -23,6 +24,7 @@ const THEMES: Record<ThemeId, ThemeVars> = {
     "--color-border": "oklch(0.24 0.005 260)",
   },
   modern: {
+    "--color-scheme": "light",
     "--color-bg-root": "oklch(0.97 0.005 260)",
     "--color-bg-surface": "oklch(1 0 0)",
     "--color-bg-elevated": "oklch(0.96 0.005 260)",
@@ -38,6 +40,7 @@ const THEMES: Record<ThemeId, ThemeVars> = {
     "--color-border": "oklch(0.90 0.005 260)",
   },
   bloomberg: {
+    "--color-scheme": "dark",
     "--color-bg-root": "oklch(0.08 0.01 40)",
     "--color-bg-surface": "oklch(0.11 0.015 40)",
     "--color-bg-elevated": "oklch(0.14 0.02 40)",

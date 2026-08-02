@@ -5,3 +5,4 @@ export { GeneralIcon } from "./GeneralIcon";
 export { ApiKeysIcon } from "./ApiKeysIcon";
 export { SystemIcon } from "./SystemIcon";
 export { DocumentIcon } from "./DocumentIcon";
+export { CalendarIcon } from "./CalendarIcon";

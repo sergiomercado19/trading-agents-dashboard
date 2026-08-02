@@ -1,4 +1,5 @@
 import { Button, Badge } from "../ui";
+import { CalendarIcon } from "../icons";
 import TickerSearch from "../TickerSearch";
 import ProviderSelector from "../ProviderSelector";
 import ModelSelect from "../ModelSelect";
@@ -77,12 +78,15 @@ export default function ControlPanel({
         {/* Date */}
         <div className={styles.section}>
           <label className={styles.label}>Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => onDateChange(e.target.value)}
-            className={`input ${styles.dateInput}`}
-          />
+          <div className={styles.dateField}>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => onDateChange(e.target.value)}
+              className={`input ${styles.dateInput}`}
+            />
+            <CalendarIcon className={styles.dateIcon} />
+          </div>
         </div>
 
         {/* Analysts */}

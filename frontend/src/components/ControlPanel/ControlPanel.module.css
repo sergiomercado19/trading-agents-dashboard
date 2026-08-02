@@ -155,3 +155,30 @@
   flex: 1;
   font-size: var(--text-xs);
 }
+
+.dateField {
+  position: relative;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dateIcon {
+  display: none;
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  color: var(--color-text-primary);
+  pointer-events: none;
+}
+
+@supports selector(input[type="date"]::-webkit-calendar-picker-indicator) {
+  .dateIcon {
+    display: block;
+  }
+}
