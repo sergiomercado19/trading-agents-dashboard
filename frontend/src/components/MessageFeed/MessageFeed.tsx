@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
 import { Badge } from "../ui";
-import type { StreamMessage } from "../../hooks/useRunStream";
+import type { RunSnapshot, StreamMessage } from "../../hooks/useRunStream";
 import styles from "./MessageFeed.module.css";
 
 interface Props {
   messages: StreamMessage[];
+  status?: RunSnapshot["status"];
 }
 
 const AGENT_COLORS: Record<string, string> = {
@@ -27,7 +28,7 @@ function formatAgentName(agent: string): string {
   return agent.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export default function MessageFeed({ messages }: Props) {
+export default function MessageFeed({ messages, status }: Props) {
   const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,7 +48,11 @@ export default function MessageFeed({ messages }: Props) {
 
       <div ref={feedRef} className={styles.body}>
         {messages.length === 0 ? (
-          <div className={styles.empty}>Waiting for messages...</div>
+          <div className={styles.empty}>
+            {status === "queued"
+              ? "Waiting in queue for the current run to finish..."
+              : "Waiting for messages..."}
+          </div>
         ) : (
           <div className={styles.messages}>
             {messages.map((msg, i) => (

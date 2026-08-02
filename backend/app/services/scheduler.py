@@ -105,7 +105,7 @@ class AnalysisScheduler:
         })
 
         try:
-            from app.routes.analyze import _run_analysis_background
+            from app.services.analysis_queue import analysis_queue
             from app.services.run_manager import run_manager
 
             run = await run_manager.create(
@@ -126,7 +126,7 @@ class AnalysisScheduler:
                 output_language=job_data.get("output_language", "English"),
             )
 
-            await _run_analysis_background(run.run_id, request)
+            analysis_queue.enqueue(run.run_id, request)
             progress_tracker.update(job_id, {
                 "status": "completed",
                 "last_run": time.time(),

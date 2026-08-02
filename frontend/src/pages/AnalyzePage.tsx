@@ -94,7 +94,7 @@ export default function AnalyzePage() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-const { start, stop, runs: allRuns, refresh: refreshRuns } = useRuns();
+const { start, stop, runs: allRuns, refresh: refreshRuns, removeFromQueue } = useRuns();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize activeRunId from query param on mount
@@ -145,7 +145,7 @@ const { start, stop, runs: allRuns, refresh: refreshRuns } = useRuns();
     deep_model: deepModel,
   });
 
-  const running = snapshot?.status === "running";
+  const isActive = snapshot?.status === "running" || snapshot?.status === "queued";
 
   // Restore startTime from snapshot when mounting an existing run
   useEffect(() => {
@@ -162,28 +162,28 @@ const { start, stop, runs: allRuns, refresh: refreshRuns } = useRuns();
   }, [snapshot]);
 
   // Morphing state for ControlPanel <-> PipelineLayer transition
-  const [showForm, setShowForm] = useState(!running);
-  const [showPipeline, setShowPipeline] = useState(running);
+  const [showForm, setShowForm] = useState(!isActive);
+  const [showPipeline, setShowPipeline] = useState(isActive);
 
   useEffect(() => {
-    if (!running) {
+    if (!isActive) {
       const t = setTimeout(() => setShowForm(true), 50);
       return () => clearTimeout(t);
     }
     setShowForm(false);
     setShowPipeline(true);
     return undefined;
-  }, [running]);
+  }, [isActive]);
 
   useEffect(() => {
-    if (!running || !startTime) {
+    if (!isActive || !startTime) {
       return;
     }
     const id = setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - startTime) / 1000));
     }, 250);
     return () => clearInterval(id);
-  }, [running, startTime]);
+  }, [isActive, startTime]);
 
   useEffect(() => {
     if (done || error) {
@@ -217,7 +217,12 @@ const { start, stop, runs: allRuns, refresh: refreshRuns } = useRuns();
   };
 
   const handleStop = async () => {
-    if (activeRunId) {
+    if (!activeRunId) return;
+    if (snapshot?.status === "queued") {
+      await removeFromQueue(activeRunId);
+      setActiveRunId(null);
+      setSearchParams({});
+    } else {
       await stop(activeRunId);
     }
   };
@@ -234,6 +239,14 @@ const { start, stop, runs: allRuns, refresh: refreshRuns } = useRuns();
       setSearchParams({});
     }
   }, [activeRunId, stop, setSearchParams]);
+
+  const handleRemoveFromQueue = useCallback(async (runId: string) => {
+    await removeFromQueue(runId);
+    if (activeRunId === runId) {
+      setActiveRunId(null);
+      setSearchParams({});
+    }
+  }, [activeRunId, removeFromQueue, setSearchParams]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
@@ -313,13 +326,14 @@ const { start, stop, runs: allRuns, refresh: refreshRuns } = useRuns();
               activeRunId={activeRunId}
               onSelectRun={handleSelectRun}
               onStopRun={handleStopRun}
+              onRemoveFromQueue={handleRemoveFromQueue}
             />
           </div>
         </div>
 
         {/* Panel 2: Message Feed */}
         <div style={{ minHeight: 0 }}>
-          <MessageFeed messages={messages} />
+          <MessageFeed messages={messages} status={snapshot?.status} />
         </div>
       </div>
 

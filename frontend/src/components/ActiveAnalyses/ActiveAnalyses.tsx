@@ -16,6 +16,7 @@ interface Props {
   activeRunId: string | null;
   onSelectRun: (runId: string) => void;
   onStopRun: (runId: string) => void;
+  onRemoveFromQueue: (runId: string) => void;
 }
 
 function formatDate(dateStr: string): string {
@@ -44,24 +45,29 @@ function getStatusVariant(status: RunSnapshot["status"]): "success" | "warning" 
   }
 }
 
-export default function ActiveAnalyses({ runs, activeRunId, onSelectRun, onStopRun }: Props) {
-  const runningRuns = runs.filter((r) => r.status === "running" || r.status === "queued");
+export default function ActiveAnalyses({ runs, activeRunId, onSelectRun, onStopRun, onRemoveFromQueue }: Props) {
+  const runningRuns = runs
+    .filter((r) => r.status === "running")
+    .sort((a, b) => a.started - b.started);
+  const queuedRuns = runs
+    .filter((r) => r.status === "queued")
+    .sort((a, b) => a.started - b.started);
+  const activeCount = runningRuns.length + queuedRuns.length;
 
   return (
     <div className={styles.activeAnalyses}>
       <div className={styles.header}>
         <span className={styles.title}>Active Analyses</span>
         <Badge variant="accent" size="sm">
-          {runningRuns.length}
+          {activeCount}
         </Badge>
       </div>
 
       <div className={styles.body}>
-        {runningRuns.length === 0 ? (
+        {activeCount === 0 ? (
           <div className={styles.empty}>No active analyses</div>
         ) : (
           <div className={styles.list}>
-            <div className={styles.sectionHeader}>Running</div>
             {runningRuns.map((run) => (
               <RunRow
                 key={run.run_id}
@@ -69,6 +75,15 @@ export default function ActiveAnalyses({ runs, activeRunId, onSelectRun, onStopR
                 isActive={activeRunId === run.run_id}
                 onSelect={onSelectRun}
                 onStop={onStopRun}
+              />
+            ))}
+            {queuedRuns.map((run) => (
+              <RunRow
+                key={run.run_id}
+                run={run}
+                isActive={activeRunId === run.run_id}
+                onSelect={onSelectRun}
+                onStop={onRemoveFromQueue}
               />
             ))}
           </div>
@@ -88,6 +103,7 @@ interface RunRowProps {
 function RunRow({ run, isActive, onSelect, onStop }: RunRowProps) {
   const elapsed = Date.now() - run.started;
   const statusVariant = getStatusVariant(run.status);
+  const isQueued = run.status === "queued";
 
   return (
     <div
@@ -106,9 +122,9 @@ function RunRow({ run, isActive, onSelect, onStop }: RunRowProps) {
           <span className={styles.elapsed}>{formatElapsedTime(Math.floor(elapsed / 1000))}</span>
         </div>
       </div>
-      {run.status === "running" || run.status === "queued" ? (
+      {run.status === "running" || isQueued ? (
         <Button
-          variant="danger"
+          variant={isQueued ? "ghost" : "danger"}
           size="sm"
           className={styles.stopButton}
           onClick={(e) => {
@@ -116,7 +132,7 @@ function RunRow({ run, isActive, onSelect, onStop }: RunRowProps) {
             onStop(run.run_id);
           }}
         >
-          Stop
+          {isQueued ? "Remove" : "Stop"}
         </Button>
       ) : (
         <span className={styles.runId}>{run.run_id.slice(0, 8)}</span>

@@ -10,6 +10,7 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException
 
 from app.models.schemas import AnalyzeRequest, RunSnapshot, RunStats
+from app.services.analysis_queue import analysis_queue
 from app.services.run_manager import run_manager
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,6 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
         return
 
     try:
-        await run_manager.update(run_id, status="running")
         run = await run_manager.get(run_id)
         if run:
             await run_manager.add_event(run_id, {
@@ -377,6 +377,7 @@ async def _run_analysis_background(run_id: str, request: AnalyzeRequest) -> None
         })
     finally:
         _active_runs.pop(run_id, None)
+        analysis_queue.on_run_finished(run_id)
 
 
 @router.post("/analyze")
@@ -385,8 +386,7 @@ async def start_analysis(request: AnalyzeRequest):
         ticker=request.ticker,
         date=request.date,
     )
-    task = asyncio.create_task(_run_analysis_background(run.run_id, request))
-    _active_runs[run.run_id] = task
+    analysis_queue.enqueue(run.run_id, request)
     return run.model_dump()
 
 
@@ -399,3 +399,12 @@ async def stop_analysis(run_id: str):
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
     return run.model_dump()
+
+
+@router.delete("/queue/{run_id}")
+async def remove_from_queue(run_id: str):
+    removed = analysis_queue.remove(run_id)
+    if not removed:
+        raise HTTPException(status_code=404, detail="Run not in queue or already running")
+    await run_manager.delete(run_id)
+    return {"success": True}

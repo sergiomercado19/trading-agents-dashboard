@@ -40,5 +40,10 @@ export function useRuns() {
     setRuns((prev) => prev.filter((r) => r.run_id !== runId));
   }, []);
 
-  return { runs, loading, start, stop, deleteRun, refresh };
+  const removeFromQueue = useCallback(async (runId: string) => {
+    await api.delete(`/queue/${runId}`);
+    setRuns((prev) => prev.filter((r) => r.run_id !== runId));
+  }, []);
+
+  return { runs, loading, start, stop, deleteRun, removeFromQueue, refresh };
 }
