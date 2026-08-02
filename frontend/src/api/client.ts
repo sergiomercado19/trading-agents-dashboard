@@ -125,7 +125,7 @@ export class ApiClient {
    * Core request method with retry logic
    */
   async request<TResponse, TBody = unknown>(
-    route: Route<any, TResponse> | string,
+    route: Route<Record<string, string>, TResponse> | string,
     options: ApiRequestOptions<TBody> = {}
   ): Promise<TResponse> {
     const isStringRoute = typeof route === 'string';
@@ -234,7 +234,7 @@ export class ApiClient {
    * Convenience methods for common HTTP verbs
    */
   get<TResponse, TParams extends Record<string, string | number | boolean | undefined | null> = Record<string, string | number | boolean | undefined | null>>(
-    route: Route<any, TResponse> | string,
+    route: Route<Record<string, string>, TResponse> | string,
     params?: TParams,
     options?: Omit<ApiRequestOptions, 'body' | 'method'>
   ): Promise<TResponse> {
@@ -242,7 +242,7 @@ export class ApiClient {
   }
 
   post<TResponse, TBody = unknown>(
-    route: Route<any, TResponse> | string,
+    route: Route<Record<string, string>, TResponse> | string,
     body?: TBody,
     options?: ApiRequestOptions<TBody>
   ): Promise<TResponse> {
@@ -250,7 +250,7 @@ export class ApiClient {
   }
 
   patch<TResponse, TBody = unknown>(
-    route: Route<any, TResponse> | string,
+    route: Route<Record<string, string>, TResponse> | string,
     body?: TBody,
     options?: ApiRequestOptions<TBody>
   ): Promise<TResponse> {
@@ -258,7 +258,7 @@ export class ApiClient {
   }
 
   put<TResponse, TBody = unknown>(
-    route: Route<any, TResponse> | string,
+    route: Route<Record<string, string>, TResponse> | string,
     body?: TBody,
     options?: ApiRequestOptions<TBody>
   ): Promise<TResponse> {
@@ -266,7 +266,7 @@ export class ApiClient {
   }
 
   delete<TResponse>(
-    route: Route<any, TResponse> | string,
+    route: Route<Record<string, string>, TResponse> | string,
     options?: ApiRequestOptions
   ): Promise<TResponse> {
     return this.request(route, { ...options, method: 'DELETE' });

@@ -30,7 +30,7 @@ function parseJsonFromCookie<T>(cookieValue: string | undefined, defaultValue: T
   if (cookieValue === undefined) return defaultValue;
   try {
     return JSON.parse(cookieValue) as T;
-  } catch (e) {
+  } catch {
     return defaultValue;
   }
 }
@@ -84,7 +84,7 @@ export default function AnalyzePage() {
             setDeepModel(deepModels[0]!);
           }
         }
-      } catch (e) {
+      } catch {
         // Ignore fetch errors
       }
     };

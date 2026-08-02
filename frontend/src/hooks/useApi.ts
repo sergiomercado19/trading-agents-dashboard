@@ -105,12 +105,12 @@ export function useApi<T = unknown>(
         } catch (error) {
           clearTimeout(timeoutId);
           const isAbortError = error instanceof DOMException && error.name === "AbortError";
-          const abortError = isAbortError ? new Error("Request cancelled", { cause: error }) : null;
-          const caughtError = isAbortError ? abortError : (error instanceof Error ? error : new Error(String(error)));
 
           if (isAbortError) {
-            throw abortError;
+            throw new Error("Request cancelled", { cause: error });
           }
+
+          const caughtError = error instanceof Error ? error : new Error(String(error));
 
           const shouldRetry =
             !noRetry &&

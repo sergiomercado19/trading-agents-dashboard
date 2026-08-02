@@ -9,7 +9,6 @@ import type {
   DetailedHealthResponse,
   Provider,
   ModelLists,
-  Preset,
   RunSnapshot,
   RunStartResponse,
   EnvData,
@@ -294,5 +293,5 @@ export const routes = {
    tickers: tickerNameRoutes,
  } as const;
 
-export type RouteResponse<T extends Route> = T extends Route<any, infer R> ? R : never;
-export type RouteParams<T extends Route> = T extends Route<infer P, any> ? P : never;
+export type RouteResponse<T extends Route> = T extends Route<unknown, infer R> ? R : never;
+export type RouteParams<T extends Route> = T extends Route<infer P, unknown> ? P : never;

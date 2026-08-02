@@ -7,7 +7,7 @@ const { Root: DialogRoot, Trigger: DialogTrigger, Content: DialogContent, Close:
 
 const meta = {
   title: 'UI/Dialog',
-  component: DialogRoot as any,
+  component: DialogRoot,
   subcomponents: { DialogTrigger, DialogContent, DialogClose, DialogTitle, DialogDescription },
   parameters: {
     layout: 'centered',
@@ -23,10 +23,10 @@ const meta = {
     closeOnEscape: { control: 'boolean', description: 'Close on Escape key' },
     closeOnOverlayClick: { control: 'boolean', description: 'Close on overlay click' },
   },
-} satisfies Meta<any>;
+} satisfies Meta<typeof DialogRoot>;
 
 export default meta;
-type Story = StoryObj<any>;
+type Story = StoryObj;
 
 export const Default: Story = {
   render: () => {

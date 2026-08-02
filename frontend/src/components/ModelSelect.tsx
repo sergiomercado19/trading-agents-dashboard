@@ -24,7 +24,10 @@ export default function ModelSelect({ provider, value, onChange, type = "quick" 
   // Reset to first available option if current value not in new provider's options
   useEffect(() => {
     if (options.length > 0 && !options.includes(value)) {
-      onChange(options[0]);
+      const first = options[0];
+      if (first !== undefined) {
+        onChange(first);
+      }
     }
   }, [provider, options, value, onChange]);
 
